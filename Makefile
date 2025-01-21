@@ -4,7 +4,7 @@ up:
 	@${DOCKER_COMPOSE} up --build -d
 
 down:
-	@${DOCKER_COMPOSE} down --rmi all --volumes
+	@${DOCKER_COMPOSE} down
 
 start:
 	@${DOCKER_COMPOSE} start
