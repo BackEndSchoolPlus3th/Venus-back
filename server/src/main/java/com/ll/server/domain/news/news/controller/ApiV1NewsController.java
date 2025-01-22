@@ -18,7 +18,7 @@ public class ApiV1NewsController {
 
     private final NewsService newsService;
     private final OpenAiChatModel openAiChatModel;
-    //private final String promptTemplate;
+
 
     @GetMapping("/getAll")
     public String getAll() {
@@ -79,10 +79,12 @@ public class ApiV1NewsController {
             if(i<newsList.size()-1) {
                 line = "기사" + (i + 1) + "은 " + newsList.get(i).getCountry() + " " + newsList.get(i).getPublisher() + " 언론사의 기사 요약문이고, ";
             }else{
-                line = "기사" + (i + 1) + "은 " + newsList.get(i).getCountry() + " " + newsList.get(i).getPublisher() + " 언론사의 기사 요약문이야. ";
+                line = "기사" + (i + 1) + "은 " + newsList.get(i).getCountry() + " " + newsList.get(i).getPublisher() + " 언론사의 기사 요약문이야.\n";
             }
             promptBuilder.append(line);
         }
+
+        promptBuilder.append("두 요약문을 읽고 그 주제가 무엇인지 알아낸 다음, 주제를 간단히 서술해. 그 다음 각 기사에 대해 아래 양식만 써서 답변을 해.\n");
 
 
 //        String prompt=promptTemplate.replace("[summary1]",article1Summary).replace("[summary2]",article2Summary)
