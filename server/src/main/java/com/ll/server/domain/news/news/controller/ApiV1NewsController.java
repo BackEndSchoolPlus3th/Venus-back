@@ -15,6 +15,10 @@ public class ApiV1NewsController {
     private final NewsService newsService;
     private final OpenAiChatModel openAiChatModel;
 
+    @GetMapping("test111")
+    public String test() {
+        return "test111 real time change";
+    }
 
     @GetMapping("/getAll")
     public String getAll() {
