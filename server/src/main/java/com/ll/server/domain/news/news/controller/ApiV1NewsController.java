@@ -1,6 +1,9 @@
 package com.ll.server.domain.news.news.controller;
 
+import com.ll.server.domain.news.news.dto.NewsDTO;
+import com.ll.server.domain.news.news.entity.News;
 import com.ll.server.domain.news.news.service.NewsService;
+import com.ll.server.global.response.response.ApiResponse;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +28,17 @@ public class ApiV1NewsController {
         return newsService.getAll().toString();
     }
 
+    //뉴스 조회 API
+    @GetMapping("/{id}")
+    public ApiResponse<NewsDTO> getById(@PathVariable Long id) {
+        News news = newsService.getById(id);
+        NewsDTO newsDTO = newsService.convertToDTO(news);
+
+        return ApiResponse.of(newsDTO);
+    }
+
+
+
     //임시로 만든 함수. 실제 구현 시에는 이 부분은 LLM과의 통신을 하는 private 메서드가 될 예정이다.
     //실제 동작 시에는 /api/news/analyze에서 request로 넘어온 id들을 newsService에서 ID로 news를 하나하나 찾아서 List에 담고
     //analyze가 매핑된 메서드에서 해당 메서드를 호출하면서 news의 List를 넘긴다.
@@ -37,13 +51,13 @@ public class ApiV1NewsController {
     @RequiredArgsConstructor
     @Builder
     @Getter
-    static class NewsDTO{
+    static class TestDTO{
         private final String country;
         private final String publisher;
         private final String summary;
     }
 
-    private List<NewsDTO> extractNews(Map<String,String> articleMap){
+    private List<TestDTO> extractNews(Map<String,String> articleMap){
         List<String> summaryList=new ArrayList<>();
         for(int i=0;i<articleMap.keySet().size();i++){
             String keyName="article"+(i+1);
@@ -53,19 +67,19 @@ public class ApiV1NewsController {
             }
         }
 
-        List<NewsDTO> newsList=new ArrayList<>();
+        List<TestDTO> newsList=new ArrayList<>();
 
         addArticle(newsList, summaryList);
 
         return newsList;
     }
 
-    private void addArticle(List<NewsDTO> newsList,List<String> summaryList) {
+    private void addArticle(List<TestDTO> newsList,List<String> summaryList) {
         if(summaryList.size()<2) throw new RuntimeException("유효하지 않은 요청입니다.");
 
         for(int i=0;i< summaryList.size();i++) {
             newsList.add(
-                    NewsDTO.builder()
+                    TestDTO.builder()
                             .country("나라"+(i+1))
                             .publisher("언론사"+(i+1))
                             .summary(summaryList.get(i))
@@ -74,7 +88,7 @@ public class ApiV1NewsController {
         }
     }
 
-    private String getAiResponse(List<NewsDTO> newsList){
+    private String getAiResponse(List<TestDTO> newsList){
         StringBuilder promptBuilder=new StringBuilder();
         for(int i=0;i<newsList.size();i++){
             promptBuilder.append("기사").append(i+1).append(": ").append(newsList.get(i).getSummary()).append("\n");
