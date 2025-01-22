@@ -29,7 +29,9 @@ repositories {
 }
 
 dependencies {
+	//openfeign
 	implementation("org.springframework.cloud:spring-cloud-starter-openfeign")
+
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	compileOnly("org.projectlombok:lombok")
@@ -39,16 +41,13 @@ dependencies {
 	annotationProcessor("org.projectlombok:lombok")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-	implementation("org.springframework.ai:spring-ai-openai-spring-boot-starter")
 }
-
 dependencyManagement {
 	imports {
-		mavenBom("org.springframework.ai:spring-ai-bom:$springAiVersion")
 		mavenBom("org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}")
+		mavenBom("org.springframework.ai:spring-ai-bom:$springAiVersion")
 	}
 }
-
 tasks.withType<Test> {
 	useJUnitPlatform()
 }
