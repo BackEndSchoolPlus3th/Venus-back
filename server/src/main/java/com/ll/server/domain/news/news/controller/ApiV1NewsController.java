@@ -44,28 +44,31 @@ public class ApiV1NewsController {
     }
 
     private List<NewsDTO> extractNews(Map<String,String> articleMap){
-        String article1=articleMap.getOrDefault("article1","");
-        String article2=articleMap.getOrDefault("article2","");
-        String article3=articleMap.getOrDefault("article3","");
-        String article4=articleMap.getOrDefault("article4","");
+        List<String> summaryList=new ArrayList<>();
+        for(int i=0;i<articleMap.keySet().size();i++){
+            String keyName="article"+(i+1);
+            if(articleMap.containsKey(keyName)){
+                String summary=articleMap.get(keyName);
+                if(summary!=null && !summary.isBlank()) summaryList.add(articleMap.get(keyName));
+            }
+        }
+
         List<NewsDTO> newsList=new ArrayList<>();
 
-        addArticle(newsList, article1,article2,article3,article4);
+        addArticle(newsList, summaryList);
 
         return newsList;
     }
 
-    private void addArticle(List<NewsDTO> newsList,String... articles) {
-        if(articles.length<2) throw new RuntimeException("유효하지 않은 요청입니다.");
+    private void addArticle(List<NewsDTO> newsList,List<String> summaryList) {
+        if(summaryList.size()<2) throw new RuntimeException("유효하지 않은 요청입니다.");
 
-        String[] mockCountry={"한국","미국","중국","일본"};
-        String[] mockPublisher={"연합뉴스","BBC","CCTV","아사히"};
-        for(int i=0;i< articles.length;i++) {
+        for(int i=0;i< summaryList.size();i++) {
             newsList.add(
                     NewsDTO.builder()
-                            .country(mockCountry[i])
-                            .publisher(mockPublisher[i])
-                            .summary(articles[i])
+                            .country("나라"+(i+1))
+                            .publisher("언론사"+(i+1))
+                            .summary(summaryList.get(i))
                             .build()
             );
         }
@@ -89,7 +92,7 @@ public class ApiV1NewsController {
 
         promptBuilder.append(newsList.size()).append("개 기사는 비슷한 주제를 다루는 기사들이야.\n");
         promptBuilder.append(newsList.size()).append("개 기사 요약문을 읽고 그 주제가 무엇인지 알아낸 다음, 주제를 간단히 서술해. 그 다음 각 기사에 대해 아래 양식만 써서 답변을 해.\n");
-        promptBuilder.append("나라 이름 - 언론사\n");
+        promptBuilder.append("(나라 이름) - (언론사)\n");
         promptBuilder.append("강조 포인트: (기사에서 강조하는 부분이 어디인지로 채워줘)\n");
         promptBuilder.append("어조: (어떤 어조로 기사를 작성했는지로 채워줘)\n");
         promptBuilder.append("바라보는 관점: (어떤 관점으로 해당 주제를 바라보는지로 채워줘)\n");
