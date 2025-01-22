@@ -25,6 +25,10 @@ public class ApiV1NewsController {
         return newsService.getAll().toString();
     }
 
+    //임시로 만든 함수. 실제 구현 시에는 이 부분은 LLM과의 통신을 하는 private 메서드가 될 예정이다.
+    //실제 동작 시에는 /api/news/analyze에서 request로 넘어온 id들을 newsService에서 ID로 news를 하나하나 찾아서 List에 담고
+    //analyze가 매핑된 메서드에서 해당 메서드를 호출하면서 news의 List를 넘긴다.
+    //해당 메서드에서 내부에서 하나하나 DTO로 바꾼 뒤 getAiResponse를 호출해 그 값을 반환하면 된다.
     @PostMapping("/ai")
     public String gptApiTest(@RequestBody Map<String, String> request){
         return getAiResponse(extractNews(request));
@@ -70,35 +74,27 @@ public class ApiV1NewsController {
     private String getAiResponse(List<NewsDTO> newsList){
         StringBuilder promptBuilder=new StringBuilder();
         for(int i=0;i<newsList.size();i++){
-            String line="기사"+(i+1)+": "+newsList.get(i).getSummary()+"\n";
-            promptBuilder.append(line);
+            promptBuilder.append("기사").append(i+1).append(": ").append(newsList.get(i).getSummary()).append("\n");
         }
 
         for(int i=0;i<newsList.size();i++){
-            String line=null;
+            promptBuilder.append("기사").append(i+1).append("은 ")
+                    .append(newsList.get(i).getCountry()).append(" ").append(newsList.get(i).getPublisher()).append("언론사의 기사 요약문");
             if(i<newsList.size()-1) {
-                line = "기사" + (i + 1) + "은 " + newsList.get(i).getCountry() + " " + newsList.get(i).getPublisher() + " 언론사의 기사 요약문이고, ";
+                promptBuilder.append("이고, ");
             }else{
-                line = "기사" + (i + 1) + "은 " + newsList.get(i).getCountry() + " " + newsList.get(i).getPublisher() + " 언론사의 기사 요약문이야.\n";
+                promptBuilder.append("이야.\n");
             }
-            promptBuilder.append(line);
         }
 
-        promptBuilder.append("두 요약문을 읽고 그 주제가 무엇인지 알아낸 다음, 주제를 간단히 서술해. 그 다음 각 기사에 대해 아래 양식만 써서 답변을 해.\n");
+        promptBuilder.append(newsList.size()).append("개 기사는 비슷한 주제를 다루는 기사들이야.\n");
+        promptBuilder.append(newsList.size()).append("개 기사 요약문을 읽고 그 주제가 무엇인지 알아낸 다음, 주제를 간단히 서술해. 그 다음 각 기사에 대해 아래 양식만 써서 답변을 해.\n");
+        promptBuilder.append("나라 이름 - 언론사\n");
+        promptBuilder.append("강조 포인트: (기사에서 강조하는 부분이 어디인지로 채워줘)\n");
+        promptBuilder.append("어조: (어떤 어조로 기사를 작성했는지로 채워줘)\n");
+        promptBuilder.append("바라보는 관점: (어떤 관점으로 해당 주제를 바라보는지로 채워줘)\n");
 
-
-//        String prompt=promptTemplate.replace("[summary1]",article1Summary).replace("[summary2]",article2Summary)
-//                .replace("[publisher1]","언론사").replace("[country2]","미국").replace("[publisher2]","언론사");
-
-//        String prompt=
-//                "기사1: [summary1]\n기사2: [summary2]\n\n기사1은 대한민국 언론사의 기사의 요약문이고, 기사2는 미국의 언론사의 기사의 요약문이야. 두 기사는 비슷한 주제를 다루는 기사야. 두 요약문을 읽고 그 주제가 무엇인지 알아낸 다음, 주제를 간단히 서술해. 그 다음 각 기사에 대해 아래 양식만 써서 답변을 해.\n"
-//                        +"나라 이름\n"
-//                        +"강조 포인트: (기사에서 강조하는 부분이 어디인지로 채워줘)\n"
-//                        +"어조: (어떤 어조로 기사를 작성했는지로 채워줘)\n"
-//                        +"바라보는 관점: (어떤 관점으로 해당 주제를 바라보는지로 채워줘)\n"
-//                ;
-        //return openAiChatModel.call(prompt);
-        return null;
+        return openAiChatModel.call(promptBuilder.toString());
     }
 
 
