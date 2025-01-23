@@ -17,4 +17,9 @@ public class ApiV1NewsController {
     public String getAll() {
         return newsService.getAll().toString();
     }
+
+    @GetMapping("/fetchNews")
+    public void fetchNews() {
+        newsService.fetchNews();
+    }
 }
