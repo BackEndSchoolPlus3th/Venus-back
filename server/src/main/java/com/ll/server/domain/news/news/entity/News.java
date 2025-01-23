@@ -7,6 +7,7 @@ import lombok.experimental.SuperBuilder;
 
 @Entity
 @Getter
+@Setter
 @Table(name = "news")
 @AllArgsConstructor
 @NoArgsConstructor
