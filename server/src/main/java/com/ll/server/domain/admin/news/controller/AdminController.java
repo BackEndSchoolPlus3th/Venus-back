@@ -1,4 +1,4 @@
-package com.ll.server.domain.news.admin.controller;
+package com.ll.server.domain.admin.news.controller;
 
 import com.ll.server.domain.news.news.dto.NewsDTO;
 import com.ll.server.domain.news.news.dto.NewsUpdateRequest;
