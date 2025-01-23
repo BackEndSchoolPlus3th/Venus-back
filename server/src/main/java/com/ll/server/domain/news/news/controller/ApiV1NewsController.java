@@ -1,6 +1,7 @@
 package com.ll.server.domain.news.news.controller;
 
 import com.ll.server.domain.news.news.dto.NewsDTO;
+import com.ll.server.domain.news.news.dto.NewsUpdateRequest;
 import com.ll.server.domain.news.news.entity.News;
 import com.ll.server.domain.news.news.service.NewsService;
 import com.ll.server.global.response.response.ApiResponse;
@@ -22,10 +23,9 @@ public class ApiV1NewsController {
     private final NewsService newsService;
     private final OpenAiChatModel openAiChatModel;
 
-
-    @GetMapping("/getAll")
-    public String getAll() {
-        return newsService.getAll().toString();
+    @GetMapping
+    public List<News> getAll() {
+        return newsService.getAll();
     }
 
     //뉴스 조회 API
@@ -37,6 +37,20 @@ public class ApiV1NewsController {
         return ApiResponse.of(newsDTO);
     }
 
+    @PatchMapping("/{id}")
+    public ApiResponse<NewsDTO> updateNews(@PathVariable Long id, @RequestBody NewsUpdateRequest request) {
+        News news = newsService.updateNews(id, request);
+        NewsDTO newsDTO = newsService.convertToDTO(news);
+
+        return ApiResponse.of(newsDTO);
+    }
+
+    @DeleteMapping("/{id}")
+    public ApiResponse<String> deleteNews(@PathVariable Long id) {
+        newsService.deleteNews(id);
+
+        return ApiResponse.of("삭제 성공");
+    }
 
 
     //임시로 만든 함수. 실제 구현 시에는 이 부분은 LLM과의 통신을 하는 private 메서드가 될 예정이다.
