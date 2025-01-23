@@ -1,17 +1,19 @@
 package com.ll.server.domain.news.news.service;
 
-import com.ll.server.domain.news.news.dto.NewsFetchParam;
-import com.ll.server.global.response.response.ApiResponse;
 import com.ll.server.domain.news.news.dto.NewsDTO;
+import com.ll.server.domain.news.news.dto.NewsFetchParam;
 import com.ll.server.domain.news.news.dto.NewsUpdateRequest;
 import com.ll.server.domain.news.news.entity.News;
 import com.ll.server.domain.news.news.repository.NewsRepository;
 import com.ll.server.global.response.enums.ReturnCode;
 import com.ll.server.global.response.exception.CustomLogicException;
+import com.ll.server.global.response.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -71,6 +73,7 @@ public class NewsService {
                         .createDate(LocalDateTime.parse(param.getPublishedAt().replace("Z", "")))
                         .build()
                 ).collect(Collectors.toList());
+    }
 
       public News getById(Long id) {
         return newsRepository.findById(id).orElseThrow(() -> new CustomLogicException(ReturnCode.NOT_FOUND_ENTITY));
