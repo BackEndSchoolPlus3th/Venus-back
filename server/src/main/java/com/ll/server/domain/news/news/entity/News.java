@@ -1,9 +1,7 @@
 package com.ll.server.domain.news.news.entity;
 
 import com.ll.server.global.jpa.BaseEntity;
-import jakarta.persistence.Entity;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
@@ -17,8 +15,10 @@ import lombok.experimental.SuperBuilder;
 @ToString(callSuper = true)
 public class News extends BaseEntity {
     private String title;
+    @Column(columnDefinition = "TEXT")
     private String content;
     @ManyToOne
+    @JoinColumn(name = "publisher_id")
     private Publisher publisher;
     private String author;
     private String imageUrl;

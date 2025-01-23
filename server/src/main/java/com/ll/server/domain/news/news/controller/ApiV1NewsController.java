@@ -71,6 +71,11 @@ public class ApiV1NewsController {
         private final String summary;
     }
 
+    @GetMapping("/fetchNews")
+    public void fetchNews() {
+        newsService.fetchNews();
+    }
+
     private List<TestDTO> extractNews(Map<String,String> articleMap){
         List<String> summaryList=new ArrayList<>();
         for(int i=0;i<articleMap.keySet().size();i++){
@@ -127,6 +132,4 @@ public class ApiV1NewsController {
 
         return openAiChatModel.call(promptBuilder.toString());
     }
-
-
 }
