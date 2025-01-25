@@ -35,5 +35,6 @@ public class BaseEntity {
 
     @LastModifiedDate
     @Getter
+    @Setter
     private LocalDateTime modifyDate;
 }

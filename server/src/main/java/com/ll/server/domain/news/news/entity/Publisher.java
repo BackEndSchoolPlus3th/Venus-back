@@ -3,6 +3,7 @@ package com.ll.server.domain.news.news.entity;
 import com.ll.server.domain.news.news.enums.Country;
 import com.ll.server.global.jpa.BaseEntity;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -20,6 +21,6 @@ import lombok.experimental.SuperBuilder;
 @ToString(callSuper = true)
 public class Publisher extends BaseEntity {
     private String publisher;
-    @Enumerated
+    @Enumerated(value = EnumType.STRING)
     private Country countryName;
 }

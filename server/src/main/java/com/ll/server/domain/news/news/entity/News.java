@@ -17,7 +17,7 @@ public class News extends BaseEntity {
     private String title;
     @Column(columnDefinition = "TEXT")
     private String content;
-    @ManyToOne
+    @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name = "publisher_id")
     private Publisher publisher;
     private String author;
