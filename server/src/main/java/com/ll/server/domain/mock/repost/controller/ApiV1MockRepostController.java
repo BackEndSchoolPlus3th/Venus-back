@@ -2,6 +2,7 @@ package com.ll.server.domain.mock.repost.controller;
 
 import com.ll.server.domain.mock.comment.dto.MockCommentDTO;
 import com.ll.server.domain.mock.comment.dto.MockCommentModifyRequest;
+import com.ll.server.domain.mock.comment.dto.MockCommentResponse;
 import com.ll.server.domain.mock.comment.dto.MockCommentWriteRequest;
 import com.ll.server.domain.mock.like.dto.MockLikeDTO;
 import com.ll.server.domain.mock.like.dto.MockLikeResponse;
@@ -42,8 +43,8 @@ public class ApiV1MockRepostController {
 
     //comment 영역
     @GetMapping("/{repostId}/comments")
-    public List<MockCommentDTO> getAllComment(@PathVariable("repostId") Long postId){
-        return repostService.getAllComment(postId);
+    public MockCommentResponse getAllComment(@PathVariable("repostId") Long postId){
+        return new MockCommentResponse(repostService.getAllComment(postId));
     }
 
     @DeleteMapping("/{repostId}/comments/{commentId}")
