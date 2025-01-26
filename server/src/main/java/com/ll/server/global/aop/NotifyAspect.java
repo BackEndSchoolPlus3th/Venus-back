@@ -12,13 +12,17 @@ import com.ll.server.domain.mock.repost.entity.MockRepost;
 import com.ll.server.domain.mock.repost.repository.MockRepostRepository;
 import com.ll.server.domain.mock.user.entity.MockUser;
 import com.ll.server.domain.mock.user.repository.MockUserRepository;
+import com.ll.server.domain.notification.dto.NotificationDTO;
+import com.ll.server.domain.notification.entity.Notification;
 import com.ll.server.domain.notification.service.NotificationService;
+import com.ll.server.global.sse.EmitterManager;
 import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Aspect
@@ -29,6 +33,7 @@ public class NotifyAspect {
     private final MockFollowRepository mockFollowRepository;
     private final MockRepostRepository repostRepository;
     private final MockUserRepository userRepository;
+    private final EmitterManager emitterManager;
 
     @Around("@annotation(com.ll.server.domain.notification.Notify)")//Notify 어노테이션이 붙은 메서드를 실행하면 이 놈이 대리로 실행 후 본인 할 일을 한다.
     public Object handleResponse(ProceedingJoinPoint joinPoint) throws Throwable {
@@ -112,6 +117,19 @@ public class NotifyAspect {
                 notificationService.saveNotification(user, checkedUserName + "님이 당신의 글에 좋아요를 눌렀습니다.", url);
             }
         }
+
+        List<Notification> notifications=notificationService.findUnsentNotifications();
+
+        List<Long> successToSend=new ArrayList<>();
+        for(Notification notification: notifications){
+           Long targetId=notification.getUser().getId();
+           NotificationDTO toSend= new NotificationDTO(notification);
+           if(emitterManager.sendNotification(targetId,toSend)){
+                successToSend.add(toSend.getId());
+           }
+        }
+
+        if(!successToSend.isEmpty()) notificationService.sendNotifications(successToSend);
 
         return obj;
     }

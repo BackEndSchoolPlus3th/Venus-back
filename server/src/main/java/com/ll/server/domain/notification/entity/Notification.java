@@ -20,9 +20,12 @@ public class Notification extends BaseEntity {
     private String message;
     @Builder.Default
     private Boolean hasRead=false;
+    @Builder.Default
+    private Boolean hasSent=false;
     private String url;
 
     public void setReadTrue(){
         hasRead=true;
     }
+    public void setSentTrue() {hasSent=true;}
 }
