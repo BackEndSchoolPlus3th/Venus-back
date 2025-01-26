@@ -1,16 +1,16 @@
 package com.ll.server.domain.notification.controller;
 
 import com.ll.server.domain.notification.dto.NotificationDTO;
+import com.ll.server.domain.notification.entity.Notification;
 import com.ll.server.domain.notification.service.NotificationService;
+import com.ll.server.global.jpa.BaseEntity;
+import com.ll.server.global.sse.EmitterManager;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 @RestController
@@ -18,95 +18,74 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/v1/notifications")
 public class ApiV1NotificationController {
     private final NotificationService notificationService;
-    private final CopyOnWriteArrayList<SseEmitter> sseEmitters=new CopyOnWriteArrayList<>();
+    private final EmitterManager emitterManager;
 
-    @GetMapping
-    public List<NotificationDTO> getNotificationByUsername(@RequestParam("nickname") String nickname){
-        return notificationService.findUnreadNotification(nickname)
+
+    //알림 상세탭에 들어간 경우. (닉네임으로 찾음)
+//    @GetMapping()
+//    public List<NotificationDTO> getNotificationsByUsername(@RequestParam("nickname") String nickname){
+//        return notificationService.findAllNotificationsByUsername(nickname)
+//                .stream()
+//                .map(NotificationDTO::new)
+//                .collect(Collectors.toList());
+//    }
+
+
+    //알림 상세탭에 들어간 경우. (유저 엔티티 ID로 찾음)
+    @GetMapping()
+    public List<NotificationDTO> getNotificationsById(@RequestParam("userId") Long userId){
+        return notificationService.findAllNotificationsById(userId)
                 .stream()
                 .map(NotificationDTO::new)
                 .collect(Collectors.toList());
     }
 
-    //SSE 연결
-    @GetMapping("/connect")
-    public SseEmitter connect(){
+    //알림 하나를 클릭했을 때
+    @GetMapping("/{notifyId}")
+    public NotificationDTO readNotification(@PathVariable("notifyId") Long notifyId){
+        return new NotificationDTO(notificationService.readNotification(notifyId));
+    }
+
+    //모두 읽음 버튼
+    @PostMapping("/{memberId}")
+    public List<NotificationDTO> pressAllReadButton(@PathVariable("memberId") Long memberId){
+        List<Notification> notifications=notificationService.findUnreadNotificationsById(memberId);
+        List<Long> notifyIds=notifications.stream()
+                .map(BaseEntity::getId)
+                .toList();
+
+        return notificationService.readNotifications(notifyIds)
+                .stream()
+                .map(NotificationDTO::new)
+                .collect(Collectors.toList());
+    }
+
+
+    //SSE 연결과 동시에 안 보낸 알림이 있으면 와바박 보냄
+    @GetMapping("/connect/{userId}")
+    public void connect(@PathVariable("userId") Long userId){
         SseEmitter emitter=new SseEmitter();
-        sseEmitters.add(emitter);
+        emitterManager.addEmitter(userId,emitter);
 
-        emitter.onCompletion(()->sseEmitters.remove(emitter));
-        emitter.onTimeout(()->{
-            sseEmitters.remove(emitter);
-            emitter.complete();
-        });
-        emitter.onError((e)->{
-            sseEmitters.remove(emitter);
-            emitter.completeWithError(e);
-        });
+        List<Notification> notifications=notificationService.findUnsentNotificationsById(userId);
 
-        /*
-        Authentication auth=SecurityContextHolder.getContext().getAuthentication();
-        if(auth==null){
-            emitter.complete();
-            return emitter;
+        if(notifications==null || notifications.isEmpty()){
+            return;
         }
 
-        String username=null;
-        if(auth.getPrincipal() instance of UserDetails){
-            username=((UserDetails)auth.getPrincipal()).getName();
+        List<Long> successToSend=new ArrayList<>();
+
+        for(Notification notification:notifications){
+            NotificationDTO toSend=new NotificationDTO(notification);
+            if(emitterManager.sendNotification(userId,toSend)){
+                successToSend.add(toSend.getId());
+            }
         }
 
+        if(successToSend.isEmpty()) return;
 
-        Optional<User> userOptional = userService.findByUserName(username);
+        notificationService.sendNotifications(successToSend);
 
-        if (!userOptional.isPresent()) {
-            emitter.complete();
-            return emitter;
-        }
-
-        String user = userOptional.get().getUserName();
-         */
-
-//        MockUser user1= MockUser.builder()
-//                .email("1234")
-//                .password("1234")
-//                .role(MockRole.USER)
-//                .profileUrl("1234")
-//                .provider("google")
-//                .providerId("123456")
-//                .refreshToken("1234")
-//                .nickname("user1")
-//                .build();
-//
-//        new Thread(() -> {
-//            try {
-//                while (true) {
-//                    if (sseEmitters.contains(emitter)) {
-//                        List<Notification> notifications = notificationService.findUnreadNotification(user1);
-//
-//                        if (!notifications.isEmpty()) {
-//                            for (Notification notification : notifications) {
-//                                if (!notification.getHasRead()) { // 알림이 전송되지 않았는지 확인
-//                                    emitter.send(SseEmitter.event()
-//                                            .name("notification")
-//                                            .data(new NotificationDTO(notification));
-//
-//                                    // 알림을 읽음 상태로 업데이트 및 전송됨 상태로 설정
-//                                    notificationService.readNotification(notification.getId());
-//                                }
-//                            }
-//                        }
-//                    } else {
-//                        break; // emitter가 이미 완료된 경우 반복문 종료
-//                    }
-//                    Thread.sleep(10000); // 10초마다 알림을 체크
-//                }
-//            } catch (Exception e) {
-//                // emitter.completeWithError(e);
-//            }
-//        }).start();
-
-        return emitter;
     }
 
 }
