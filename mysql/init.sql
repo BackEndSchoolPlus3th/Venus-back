@@ -1,4 +1,4 @@
---CREATE TABLE news (
+--CREATE TABLE mockNews (
 --    id BIGINT AUTO_INCREMENT PRIMARY KEY,
 --    title VARCHAR(255) NOT NULL,
 --    content TEXT,
@@ -9,8 +9,8 @@
 --
 ---- News 테이블 초기 데이터 삽입
 --
---INSERT INTO news (title, content, author, create_date, modify_date)
+--INSERT INTO mockNews (title, content, author, create_date, modify_date)
 --VALUES
---    ('First News Title', 'This is the content of the first news article.', 'Author 1', NOW(), NOW()),
---    ('Second News Title', 'This is the content of the second news article.', 'Author 2', NOW(), NOW()),
---    ('Third News Title', 'This is the content of the third news article.', 'Author 3', NOW(), NOW());
+--    ('First News Title', 'This is the content of the first mockNews article.', 'Author 1', NOW(), NOW()),
+--    ('Second News Title', 'This is the content of the second mockNews article.', 'Author 2', NOW(), NOW()),
+--    ('Third News Title', 'This is the content of the third mockNews article.', 'Author 3', NOW(), NOW());

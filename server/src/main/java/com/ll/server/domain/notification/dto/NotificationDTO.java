@@ -16,6 +16,7 @@ public class NotificationDTO {
     private String url;
 
     public NotificationDTO(Notification notification){
+        if(notification==null) return;
         id=notification.getId();
         message=notification.getMessage();
         url=notification.getUrl();

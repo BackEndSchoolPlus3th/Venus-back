@@ -5,14 +5,14 @@ import com.ll.server.domain.mock.comment.dto.MockCommentWriteRequest;
 import com.ll.server.domain.mock.comment.entity.MockComment;
 import com.ll.server.domain.mock.like.dto.MockLikeDTO;
 import com.ll.server.domain.mock.like.entity.MockLike;
+import com.ll.server.domain.mock.news.entity.MockNews;
+import com.ll.server.domain.mock.news.repository.MockNewsRepository;
 import com.ll.server.domain.mock.repost.dto.MockRepostDTO;
 import com.ll.server.domain.mock.repost.dto.MockRepostWriteRequest;
 import com.ll.server.domain.mock.repost.entity.MockRepost;
 import com.ll.server.domain.mock.repost.repository.MockRepostRepository;
 import com.ll.server.domain.mock.user.entity.MockUser;
 import com.ll.server.domain.mock.user.repository.MockUserRepository;
-import com.ll.server.domain.news.news.entity.News;
-import com.ll.server.domain.news.news.repository.NewsRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 public class MockRepostService {
     private final MockRepostRepository repostRepository;
     private final MockUserRepository userRepository;
-    private final NewsRepository newsRepository;
+    private final MockNewsRepository newsRepository;
 
 
     public MockRepostDTO findById(Long id){
@@ -52,7 +52,7 @@ public class MockRepostService {
     public MockRepostDTO save(MockRepostWriteRequest request){
         MockUser user=userRepository.findById(request.getWriterId()).get();
 
-        News news=newsRepository.findAll()
+        MockNews news=newsRepository.findAll()
                 .stream()
                 .filter(n -> n.getId().equals(request.getNewsId()))
                 .findFirst()

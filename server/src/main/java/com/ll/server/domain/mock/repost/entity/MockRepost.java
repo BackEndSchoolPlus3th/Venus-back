@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ll.server.domain.mention.repostmention.entity.RepostMention;
 import com.ll.server.domain.mock.comment.entity.MockComment;
 import com.ll.server.domain.mock.like.entity.MockLike;
+import com.ll.server.domain.mock.news.entity.MockNews;
 import com.ll.server.domain.mock.user.entity.MockUser;
-import com.ll.server.domain.news.news.entity.News;
 import com.ll.server.global.jpa.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -23,7 +23,7 @@ import java.util.List;
 @ToString
 public class MockRepost extends BaseEntity {
     @ManyToOne(fetch=FetchType.LAZY)
-    private News news;
+    private MockNews news;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private MockUser user;

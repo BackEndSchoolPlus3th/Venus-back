@@ -7,6 +7,8 @@ import com.ll.server.domain.mock.follow.dto.MockFollowDTO;
 import com.ll.server.domain.mock.follow.entity.MockFollow;
 import com.ll.server.domain.mock.follow.repository.MockFollowRepository;
 import com.ll.server.domain.mock.like.dto.MockLikeDTO;
+import com.ll.server.domain.mock.news.dto.MockNewsDTO;
+import com.ll.server.domain.mock.news.dto.MockNewsResponse;
 import com.ll.server.domain.mock.repost.dto.MockRepostDTO;
 import com.ll.server.domain.mock.repost.entity.MockRepost;
 import com.ll.server.domain.mock.repost.repository.MockRepostRepository;
@@ -49,7 +51,7 @@ public class NotifyAspect {
 
             List<MockFollow> followList= mockFollowRepository.findMockFollowsByFollower_Id(followerId);
 
-            String url="http://localhost:8080//api/v1/repost/"+repostId;
+            String url="http://localhost:8080/api/v1/mock/repost/"+repostId;
 
             for(MockFollow follow : followList){
                 MockUser followee=follow.getFollowee();
@@ -79,7 +81,7 @@ public class NotifyAspect {
         }
 
         if(obj instanceof MockCommentDTO commentDTO){
-            String url = "http://localhost:8080/api/v1/repost/" + commentDTO.getRepostId();
+            String url = "http://localhost:8080/api/v1/mock/repost/" + commentDTO.getRepostId();
 
             Long repostWriterId=commentDTO.getRepostWriterId();
             Long commentWriterId=commentDTO.getCommentWriterId();
@@ -87,7 +89,7 @@ public class NotifyAspect {
             MockUser repostWriter=userRepository.findById(repostWriterId).get();
 
             if(!repostWriterId.equals(commentWriterId)) {
-                notificationService.saveNotification(repostWriter, "내 리포스트에 "+commentDTO.getRepostWriterName()+"님이 댓글을 달았습니다.", url);
+                notificationService.saveNotification(repostWriter, "내 리포스트에 "+commentDTO.getCommentWriterName()+"님이 댓글을 달았습니다.", url);
             }
 
             List<CommentMentionDTO> mentionList= commentDTO.getMentions();
@@ -113,8 +115,19 @@ public class NotifyAspect {
 
             if(!repostId.equals(checkedUserId)) {
                 MockUser user = userRepository.findById(repostWriterId).get();
-                String url = "http://localhost:8080/api/v1/reposts/" + repostId + "/likes";
+                String url = "http://localhost:8080/api/v1/mock/reposts/" + repostId + "/likes";
                 notificationService.saveNotification(user, checkedUserName + "님이 당신의 글에 좋아요를 눌렀습니다.", url);
+            }
+        }
+
+        if(obj instanceof MockNewsDTO mockNewsDTO){
+            createNotificationForNews(mockNewsDTO);
+        }
+
+        if(obj instanceof MockNewsResponse mockNewsResponse){
+            List<MockNewsDTO> mockNewsDTOList=mockNewsResponse.getNewsList();
+            for(MockNewsDTO mockNewsDTO: mockNewsDTOList) {
+                createNotificationForNews(mockNewsDTO);
             }
         }
 
@@ -132,5 +145,19 @@ public class NotifyAspect {
         if(!successToSend.isEmpty()) notificationService.sendNotifications(successToSend);
 
         return obj;
+    }
+
+    private void createNotificationForNews(MockNewsDTO mockNewsDTO) {
+        Long newsId = mockNewsDTO.getId();
+        String publisher = mockNewsDTO.getPublisher();
+
+        String url = "http://localhost:8080/api/v1/mock/news/" + newsId;
+
+        List<MockFollow> followeeList = mockFollowRepository.findMockFollowsByFollower_Nickname(publisher);
+
+        for (MockFollow follow : followeeList) {
+            MockUser followee = follow.getFollowee();
+            notificationService.saveNotification(followee, publisher + " 언론사의 기사가 올라왔습니다.", url);
+        }
     }
 }

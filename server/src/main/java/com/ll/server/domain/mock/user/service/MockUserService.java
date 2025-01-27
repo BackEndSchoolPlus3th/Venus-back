@@ -23,6 +23,7 @@ public class MockUserService {
                         .email(request.getEmail())
                         .password(request.getPassword())
                         .nickname(request.getNickname())
+                        .role(request.getRole())
                         .build();
         MockUser find=userRepository.findByEmail(request.getEmail());
 
