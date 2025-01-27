@@ -92,6 +92,10 @@ public class MockNewsService {
         return convertToDTO(mockNewsRepository.findById(id).orElseThrow(() -> new CustomLogicException(ReturnCode.NOT_FOUND_ENTITY)));
     }
 
+    public List<MockNewsDTO> getByPublisher(String publisher){
+        return mockNewsRepository.findMockNewsByPublisher(publisher).stream().map(this::convertToDTO).collect(Collectors.toList());
+    }
+
     // Convert News Entity to DTO
     public MockNewsDTO convertToDTO(MockNews mockNews) {
         return new MockNewsDTO(

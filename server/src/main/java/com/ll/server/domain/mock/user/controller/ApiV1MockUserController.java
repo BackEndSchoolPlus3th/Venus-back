@@ -3,13 +3,11 @@ package com.ll.server.domain.mock.user.controller;
 
 import com.ll.server.domain.mock.user.dto.MockUserLoginRequest;
 import com.ll.server.domain.mock.user.dto.MockUserSignupRequest;
+import com.ll.server.domain.mock.user.dto.UserProfile;
 import com.ll.server.domain.mock.user.entity.MockUser;
 import com.ll.server.domain.mock.user.service.MockUserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -33,6 +31,11 @@ public class ApiV1MockUserController {
         if(user==null) return "로그인 실패";
 
         return "로그인 성공";
+    }
+
+    @GetMapping("/{userId}")
+    public UserProfile getProfile(@PathVariable("userId") Long userId){
+        return userService.getProfile(userId);
     }
 
 

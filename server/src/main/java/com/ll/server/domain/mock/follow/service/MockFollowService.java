@@ -11,7 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -55,25 +54,15 @@ public class MockFollowService {
 
     public FolloweeListResponse findFollowees(String followerName){
         List<MockFollow> follows=mockFollowRepository.findMockFollowsByFollower_Nickname(followerName);
-        List<String> followees=new ArrayList<>();
 
-        for(MockFollow follow: follows){
-            followees.add(follow.getFollowee().getNickname());
-        }
-
-        return new FolloweeListResponse(followees);
+        return new FolloweeListResponse(follows);
     }
 
 
     public FollowerListResponse findFollowers(String followeeName){
         List<MockFollow> follows=mockFollowRepository.findMockFollowsByFollowee_Nickname(followeeName);
-        List<String> followees=new ArrayList<>();
 
-        for(MockFollow follow: follows){
-            followees.add(follow.getFollower().getNickname());
-        }
-
-        return new FollowerListResponse(followees);
+        return new FollowerListResponse(follows);
     }
 
     public MockFollowDTO findByFollowerNameAndFolloweeName(String followerName,String followeeName){
