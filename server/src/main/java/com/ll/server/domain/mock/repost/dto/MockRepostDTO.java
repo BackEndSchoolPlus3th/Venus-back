@@ -5,9 +5,9 @@ import com.ll.server.domain.mock.comment.dto.MockCommentDTO;
 import com.ll.server.domain.mock.comment.dto.MockCommentResponse;
 import com.ll.server.domain.mock.like.dto.MockLikeDTO;
 import com.ll.server.domain.mock.like.dto.MockLikeResponse;
+import com.ll.server.domain.mock.news.entity.MockNews;
 import com.ll.server.domain.mock.repost.entity.MockRepost;
 import com.ll.server.domain.news.news.dto.NewsDTO;
-import com.ll.server.domain.news.news.entity.News;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -29,9 +29,9 @@ public class MockRepostDTO {
     private MockLikeResponse likeInfo;
 
     public MockRepostDTO(MockRepost repost){
-        News newsEntity=repost.getNews();
+        MockNews newsEntity=repost.getNews();
         news= NewsDTO.builder()
-                .publisherName(newsEntity.getPublisher().getPublisher())
+                .publisherName(newsEntity.getPublisher())
                 .author(newsEntity.getAuthor())
                 .id(newsEntity.getId())
                 .title(newsEntity.getTitle())
