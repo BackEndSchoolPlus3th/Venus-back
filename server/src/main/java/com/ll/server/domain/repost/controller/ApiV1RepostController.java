@@ -1,15 +1,15 @@
-package com.ll.server.domain.mock.repost.controller;
+package com.ll.server.domain.repost.controller;
 
-import com.ll.server.domain.mock.comment.dto.MockCommentDTO;
+import com.ll.server.domain.comment.dto.CommentDTO;
+import com.ll.server.domain.comment.dto.CommentResponse;
+import com.ll.server.domain.comment.dto.CommentWriteRequest;
+import com.ll.server.domain.like.dto.LikeDTO;
+import com.ll.server.domain.like.dto.LikeResponse;
 import com.ll.server.domain.mock.comment.dto.MockCommentModifyRequest;
-import com.ll.server.domain.mock.comment.dto.MockCommentResponse;
-import com.ll.server.domain.mock.comment.dto.MockCommentWriteRequest;
-import com.ll.server.domain.mock.like.dto.MockLikeDTO;
-import com.ll.server.domain.mock.like.dto.MockLikeResponse;
-import com.ll.server.domain.mock.repost.dto.MockRepostDTO;
-import com.ll.server.domain.mock.repost.dto.MockRepostWriteRequest;
-import com.ll.server.domain.mock.repost.service.MockRepostService;
 import com.ll.server.domain.notification.Notify;
+import com.ll.server.domain.repost.dto.RepostDTO;
+import com.ll.server.domain.repost.dto.RepostWriteRequest;
+import com.ll.server.domain.repost.service.RepostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,18 +17,18 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/mock/reposts")
-public class ApiV1MockRepostController {
-    private final MockRepostService repostService;
+@RequestMapping("/api/v1/reposts")
+public class ApiV1RepostController {
+    private final RepostService repostService;
 
     //repost 영역
     @GetMapping
-    public List<MockRepostDTO> getAllRepost(){
+    public List<RepostDTO> getAllRepost(){
         return repostService.findAll();
     }
 
     @GetMapping("/{id}")
-    public MockRepostDTO getRepost(@PathVariable("id") Long id){
+    public RepostDTO getRepost(@PathVariable("id") Long id){
         return repostService.findById(id);
     }
 
@@ -37,14 +37,14 @@ public class ApiV1MockRepostController {
 
     @PostMapping
     @Notify
-    public MockRepostDTO write(@RequestBody MockRepostWriteRequest request){
+    public RepostDTO write(@RequestBody RepostWriteRequest request){
         return repostService.save(request);
     }
 
     //comment 영역
     @GetMapping("/{repostId}/comments")
-    public MockCommentResponse getAllComment(@PathVariable("repostId") Long postId){
-        return new MockCommentResponse(repostService.getAllComment(postId));
+    public CommentResponse getAllComment(@PathVariable("repostId") Long postId){
+        return new CommentResponse(repostService.getAllComment(postId));
     }
 
     @DeleteMapping("/{repostId}/comments/{commentId}")
@@ -54,24 +54,24 @@ public class ApiV1MockRepostController {
     }
 
     @PatchMapping("/{repostId}/comments/{commentId}")
-    public MockCommentDTO modifyComment(@PathVariable("repostId")Long postId,
-                                        @PathVariable("commentId")Long commentId,
-                                        @RequestBody MockCommentModifyRequest request) {
+    public CommentDTO modifyComment(@PathVariable("repostId")Long postId,
+                                    @PathVariable("commentId")Long commentId,
+                                    @RequestBody MockCommentModifyRequest request) {
         return repostService.modifyComment(postId, commentId,request.getContent());
     }
 
     @PostMapping("/{repostId}/comments")
     @Notify
-    public MockCommentDTO addComment(@PathVariable("repostId") Long postId,
-                                     @RequestBody MockCommentWriteRequest request){
+    public CommentDTO addComment(@PathVariable("repostId") Long postId,
+                                     @RequestBody CommentWriteRequest request){
         return repostService.addComment(postId, request);
     }
 
     //like 영역
     @GetMapping("/{repostId}/likes")
-    public MockLikeResponse getLikes(@PathVariable("repostId") Long repostId){
-        List<MockLikeDTO> likes=repostService.getAllLike(repostId);
-        return new MockLikeResponse(likes);
+    public LikeResponse getLikes(@PathVariable("repostId") Long repostId){
+        List<LikeDTO> likes=repostService.getAllLike(repostId);
+        return new LikeResponse(likes);
     }
 
     @DeleteMapping("/{repostId}/likes/{userId}")
@@ -82,7 +82,7 @@ public class ApiV1MockRepostController {
 
     @PostMapping("/{repostId}/likes/{userId}")
     @Notify
-    public MockLikeDTO markLike(@PathVariable("repostId") Long repostId,
+    public LikeDTO markLike(@PathVariable("repostId") Long repostId,
                            @PathVariable("userId") Long userId){
         return repostService.markLike(repostId,userId);
     }
