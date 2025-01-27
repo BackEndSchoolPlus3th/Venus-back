@@ -1,6 +1,7 @@
 package com.ll.server.domain.mock.news.dto;
 
 
+import com.ll.server.domain.mock.news.entity.MockNews;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,5 +20,16 @@ public class MockNewsDTO {
     private String imageUrl;
     private String thumbnailUrl;
     private String contentUrl;
+
+    public MockNewsDTO(MockNews news){
+        id=news.getId();
+        title=news.getTitle();
+        content=news.getContent();
+        author=news.getAuthor();
+        publisher=news.getPublisher();
+        imageUrl=news.getImageUrl();
+        thumbnailUrl=news.getThumbnailUrl();
+        contentUrl=news.getContentUrl();
+    }
 
 }
