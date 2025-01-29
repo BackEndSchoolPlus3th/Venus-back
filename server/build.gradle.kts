@@ -6,7 +6,6 @@ plugins {
 
 group = "com.ll"
 version = "0.0.1-SNAPSHOT"
-val springAiVersion by extra("1.0.0-M4")
 val springCloudVersion by extra("2024.0.0")
 
 java {
@@ -31,7 +30,6 @@ repositories {
 dependencies {
 	//openfeign
 	implementation("org.springframework.cloud:spring-cloud-starter-openfeign")
-	implementation("org.springframework.ai:spring-ai-openai-spring-boot-starter")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	compileOnly("org.projectlombok:lombok")
@@ -48,7 +46,6 @@ dependencies {
 dependencyManagement {
 	imports {
 		mavenBom("org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}")
-		mavenBom("org.springframework.ai:spring-ai-bom:${springAiVersion}")
 	}
 }
 tasks.withType<Test> {

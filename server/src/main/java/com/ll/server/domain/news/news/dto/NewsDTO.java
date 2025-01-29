@@ -2,12 +2,14 @@ package com.ll.server.domain.news.news.dto;
 
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class NewsDTO {
     private Long id;
     private String title;
@@ -17,4 +19,5 @@ public class NewsDTO {
     private String imageUrl;
     private String thumbnailUrl;
     private String contentUrl;
+
 }
