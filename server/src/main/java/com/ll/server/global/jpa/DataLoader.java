@@ -13,7 +13,6 @@ import com.ll.server.domain.mock.user.MockRole;
 import com.ll.server.domain.mock.user.dto.MockUserSignupRequest;
 import com.ll.server.domain.mock.user.entity.MockUser;
 import com.ll.server.domain.mock.user.service.MockUserService;
-import com.ll.server.domain.news.news.repository.NewsPublisherRepository;
 import com.ll.server.domain.news.news.repository.NewsRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
@@ -28,7 +27,6 @@ import java.util.List;
 public class DataLoader implements CommandLineRunner {
     private final NewsRepository newsRepository;
     private final MockNewsService newsService;
-    private final NewsPublisherRepository newsPublisherRepository;
     private final MockUserService userService;
     private final ApiV1MockFollowController followController;
     private final ApiV1MockRepostController repostController;
@@ -79,7 +77,7 @@ public class DataLoader implements CommandLineRunner {
                 .build();
         followController.follow(followRequest1);
         //user2가 user1을 구독. 알림 2개째
-        
+
         followController.follow(followRequest2);
         //user3가 user1을 구독. 알림 3개째
 

@@ -3,6 +3,7 @@ package com.ll.server.domain.news.news.controller;
 import com.ll.server.domain.news.news.dto.NewsDTO;
 import com.ll.server.domain.news.news.dto.NewsUpdateRequest;
 import com.ll.server.domain.news.news.entity.News;
+import com.ll.server.domain.news.news.service.NewsFetchService;
 import com.ll.server.domain.news.news.service.NewsService;
 import com.ll.server.global.response.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +17,13 @@ import java.util.List;
 public class ApiV1NewsController {
 
     private final NewsService newsService;
+    private final NewsFetchService newsFetchService;
+
+    //테스트용 controller
+    @GetMapping("/fetchNews")
+    public void fetchNews() {
+        newsFetchService.fetchNews();
+    }
 
     @GetMapping
     public List<News> getAll() {

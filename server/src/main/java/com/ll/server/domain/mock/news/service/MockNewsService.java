@@ -5,7 +5,7 @@ import com.ll.server.domain.mock.news.dto.MockNewsResponse;
 import com.ll.server.domain.mock.news.dto.NewsUpdateRequest;
 import com.ll.server.domain.mock.news.entity.MockNews;
 import com.ll.server.domain.mock.news.repository.MockNewsRepository;
-import com.ll.server.domain.news.news.dto.NewsFetchParam;
+import com.ll.server.domain.news.news.dto.NewsArticleParam;
 import com.ll.server.domain.news.news.service.NewsApiClient;
 import com.ll.server.domain.notification.Notify;
 import com.ll.server.global.response.enums.ReturnCode;
@@ -18,7 +18,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -45,26 +44,9 @@ public class MockNewsService {
         String dateFrom = now.minusHours(6).format(DateTimeFormatter.ISO_LOCAL_DATE);
         String dateTo = now.format(DateTimeFormatter.ISO_LOCAL_DATE);
 
-        List<NewsFetchParam> politicArticles = newsApiClient.getArticles("politics", dateFrom, dateTo, DEFAULT_PAGE_SIZE).getData();
-        List<NewsFetchParam> globalPoliticArticles = newsApiClient.getGlobalArticles("politics", dateFrom, dateTo, DEFAULT_PAGE_SIZE).getData()
-                .stream()
-                .map(global -> NewsFetchParam.builder()
-                        .title(global.getTitleKo())
-                        .publisher(global.getPublisher())
-                        .author(global.getAuthor())
-                        .summary(global.getSummaryKo())
-                        .imageUrl(global.getImageUrl())
-                        .thumbnailUrl(global.getThumbnailUrl())
-                        .contentUrl(global.getContentUrl())
-                        .publishedAt(global.getPublishedAt())
-                        .build())
-                .toList();
+        List<NewsArticleParam> politicArticles = newsApiClient.getArticles("politics", dateFrom, dateTo, DEFAULT_PAGE_SIZE).getData();
 
-
-        List<MockNews> mockNewsList = Stream.concat(
-                convertToNews(politicArticles).stream(),
-                convertToNews(globalPoliticArticles).stream()
-        ).collect(Collectors.toList());
+        List<MockNews> mockNewsList = convertToNews(politicArticles);
 
         return new MockNewsResponse(
                 mockNewsRepository.saveAll(mockNewsList)
@@ -74,7 +56,7 @@ public class MockNewsService {
 
     }
 
-    private List<MockNews> convertToNews(List<NewsFetchParam> fetchParams) {
+    private List<MockNews> convertToNews(List<NewsArticleParam> fetchParams) {
         return fetchParams.stream()
                 .map(param -> MockNews.builder()
                         .title(param.getTitle())

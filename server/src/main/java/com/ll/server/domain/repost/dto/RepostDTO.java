@@ -29,7 +29,7 @@ public class RepostDTO {
     public RepostDTO(Repost repost){
         News newsEntity=repost.getNews();
         news= NewsDTO.builder()
-                .publisherName(newsEntity.getPublisher().getPublisher())
+                .publisherName(newsEntity.getPublisher())
                 .author(newsEntity.getAuthor())
                 .id(newsEntity.getId())
                 .title(newsEntity.getTitle())
