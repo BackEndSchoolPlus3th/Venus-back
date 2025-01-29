@@ -6,7 +6,7 @@ import lombok.Getter;
 import java.util.List;
 
 @Getter
-public class NewsApiParam<T> {
+public class NewsApiResponseParam<T> {
     private Detail detail;
 
     @JsonProperty("total_items")
@@ -16,7 +16,7 @@ public class NewsApiParam<T> {
     private int page;
     @JsonProperty("page_size")
     private int pageSize;
-    private List<T> data;
+    private List<NewsArticleParam> data;
 
     @Getter
     public static class Detail {

@@ -3,6 +3,7 @@ package com.ll.server.domain.news.news.controller;
 import com.ll.server.domain.news.news.dto.NewsDTO;
 import com.ll.server.domain.news.news.dto.NewsUpdateRequest;
 import com.ll.server.domain.news.news.entity.News;
+import com.ll.server.domain.news.news.service.NewsFetchService;
 import com.ll.server.domain.news.news.service.NewsService;
 import com.ll.server.global.response.response.ApiResponse;
 import lombok.Builder;
@@ -21,6 +22,7 @@ import java.util.Map;
 public class ApiV1NewsController {
 
     private final NewsService newsService;
+    private final NewsFetchService newsFetchService;
     private final OpenAiChatModel openAiChatModel;
 
     @GetMapping
@@ -73,7 +75,7 @@ public class ApiV1NewsController {
 
     @GetMapping("/fetchNews")
     public void fetchNews() {
-        newsService.fetchNews();
+        newsFetchService.fetchNews();
     }
 
     private List<TestDTO> extractNews(Map<String,String> articleMap){
