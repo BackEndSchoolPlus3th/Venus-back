@@ -1,6 +1,7 @@
 package com.ll.server.domain.news.news.dto;
 
 
+import com.ll.server.domain.news.news.entity.News;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,5 +20,18 @@ public class NewsDTO {
     private String imageUrl;
     private String thumbnailUrl;
     private String contentUrl;
+    private String category;
+
+    public NewsDTO(News news){
+        id=news.getId();
+        title=news.getTitle();
+        content=news.getContent();
+        author=news.getAuthor();
+        publisherName=news.getPublisher();
+        imageUrl=news.getImageUrl();
+        thumbnailUrl=news.getThumbnailUrl();
+        contentUrl=news.getContentUrl();
+        category=news.getCategory().getCategory();
+    }
 
 }

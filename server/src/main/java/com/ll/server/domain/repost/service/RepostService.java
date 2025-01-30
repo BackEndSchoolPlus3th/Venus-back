@@ -68,11 +68,11 @@ public class RepostService {
 
         repostRepository.save(repost);
 
-//        if(metionedUserList!=null && !metionedUserList.isEmpty()){
-//            for(MockUser mentionedUser : metionedUserList){
-//                repost.addMention(mentionedUser);
-//            }
-//        }
+        if(metionedUserList!=null && !metionedUserList.isEmpty()){
+            for(MockUser mentionedUser : metionedUserList){
+                repost.addMention(mentionedUser);
+            }
+        }
 
         return new RepostDTO(repost);
     }
@@ -149,8 +149,7 @@ public class RepostService {
 
         MockUser user=userRepository.findById(request.getWriterId()).get();
 
-//        List<MockUser> mentionedUsers=userRepository.findMockUsersByNicknameIn(request.getMentionedNames());
-        List<MockUser> mentionedUsers=null;
+        List<MockUser> mentionedUsers=userRepository.findMockUsersByNicknameIn(request.getMentionedNames());
 
         Comment comment=repost.addComment(user,mentionedUsers,request.getContent());
 

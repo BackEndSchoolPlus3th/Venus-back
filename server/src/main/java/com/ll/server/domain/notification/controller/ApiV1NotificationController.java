@@ -21,24 +21,32 @@ public class ApiV1NotificationController {
     private final EmitterManager emitterManager;
 
 
-    //알림 상세탭에 들어간 경우. (닉네임으로 찾음)
-//    @GetMapping()
-//    public List<NotificationDTO> getNotificationsByUsername(@RequestParam("nickname") String nickname){
-//        return notificationService.findAllNotificationsByUsername(nickname)
-//                .stream()
-//                .map(NotificationDTO::new)
-//                .collect(Collectors.toList());
-//    }
-
-
-    //알림 상세탭에 들어간 경우. (유저 엔티티 ID로 찾음)
-    @GetMapping()
-    public List<NotificationDTO> getNotificationsById(@RequestParam("userId") Long userId){
-        return notificationService.findAllNotificationsById(userId)
+    @GetMapping
+    public List<NotificationDTO> getAll(){
+        return notificationService.getAll()
                 .stream()
                 .map(NotificationDTO::new)
                 .collect(Collectors.toList());
     }
+
+    //알림 상세탭에 들어간 경우. (닉네임으로 찾음)
+    @GetMapping("/{nickname}")
+    public List<NotificationDTO> getNotificationsByUsername(@PathVariable("nickname") String nickname){
+        return notificationService.findAllNotificationsByUsername(nickname)
+                .stream()
+                .map(NotificationDTO::new)
+                .collect(Collectors.toList());
+    }
+
+
+    //알림 상세탭에 들어간 경우. (유저 엔티티 ID로 찾음)
+//    @GetMapping("/{id}")
+//    public List<NotificationDTO> getNotificationsById(@RequestParam("userId") Long userId){
+//        return notificationService.findAllNotificationsById(userId)
+//                .stream()
+//                .map(NotificationDTO::new)
+//                .collect(Collectors.toList());
+//    }
 
     //알림 하나를 클릭했을 때
     @GetMapping("/{notifyId}")

@@ -1,8 +1,8 @@
 package com.ll.server.domain.mention.commentmention.service;
 
 
+import com.ll.server.domain.comment.entity.Comment;
 import com.ll.server.domain.mention.commentmention.entity.CommentMention;
-import com.ll.server.domain.mock.comment.entity.MockComment;
 import com.ll.server.domain.mention.commentmention.repository.CommentMentionRepository;
 import com.ll.server.domain.mock.user.entity.MockUser;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +18,7 @@ public class CommentMentionService {
     CommentMentionRepository commentMentionRepository;
 
     @Transactional
-    public CommentMention save(MockComment comment, MockUser user){
+    public CommentMention save(Comment comment, MockUser user){
         CommentMention mention=
                 CommentMention.builder()
                         .comment(comment)

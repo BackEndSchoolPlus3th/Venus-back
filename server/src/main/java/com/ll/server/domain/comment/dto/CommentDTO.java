@@ -1,9 +1,13 @@
 package com.ll.server.domain.comment.dto;
 
 import com.ll.server.domain.comment.entity.Comment;
+import com.ll.server.domain.mention.commentmention.dto.CommentMentionDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @Builder
@@ -15,7 +19,7 @@ public class CommentDTO {
     private Long repostWriterId;
     private String repostWriterName;
 
-//    private List<CommentMentionDTO> mentions;
+    private List<CommentMentionDTO> mentions;
     private String content;
     private Long commentWriterId;
     private String commentWriterName;
@@ -27,9 +31,9 @@ public class CommentDTO {
         repostWriterId=comment.getRepost().getUser().getId();
         repostWriterName=comment.getRepost().getUser().getNickname();
 
-//        mentions=comment.getMentions().stream()
-//                .map(CommentMentionDTO::new)
-//                .collect(Collectors.toList());
+        mentions=comment.getMentions().stream()
+                .map(CommentMentionDTO::new)
+                .collect(Collectors.toList());
 
         content=comment.getContent();
 

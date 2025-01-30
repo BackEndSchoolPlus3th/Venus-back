@@ -4,6 +4,7 @@ import com.ll.server.domain.news.news.dto.NewsDTO;
 import com.ll.server.domain.news.news.dto.NewsUpdateRequest;
 import com.ll.server.domain.news.news.entity.News;
 import com.ll.server.domain.news.news.repository.NewsRepository;
+import com.ll.server.domain.notification.Notify;
 import com.ll.server.global.response.enums.ReturnCode;
 import com.ll.server.global.response.exception.CustomLogicException;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -36,7 +38,8 @@ public class NewsService {
                 news.getPublisher(), // Assuming Publisher has a getter for its name
                 news.getImageUrl(),
                 news.getThumbnailUrl(),
-                news.getContentUrl()
+                news.getContentUrl(),
+                news.getCategory().getCategory()
         );
     }
 
@@ -52,5 +55,16 @@ public class NewsService {
     @Transactional
     public void deleteNews(Long id) {
         newsRepository.deleteById(id);
+    }
+
+    @Transactional
+    @Notify
+    public NewsDTO saveForTest(News news) {
+        News saved=newsRepository.save(news);
+        return new NewsDTO(saved);
+    }
+
+    public List<NewsDTO> getByPublisher(String publisher){
+        return newsRepository.findNewsByPublisher(publisher).stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 }

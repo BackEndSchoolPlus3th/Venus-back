@@ -1,22 +1,22 @@
 package com.ll.server.domain.mock.user.service;
 
-import com.ll.server.domain.mock.comment.dto.MockCommentDTO;
-import com.ll.server.domain.mock.comment.repository.MockCommentRepository;
-import com.ll.server.domain.mock.follow.dto.FolloweeListResponse;
-import com.ll.server.domain.mock.follow.dto.FollowerListResponse;
-import com.ll.server.domain.mock.follow.entity.MockFollow;
-import com.ll.server.domain.mock.follow.repository.MockFollowRepository;
-import com.ll.server.domain.mock.like.entity.MockLike;
-import com.ll.server.domain.mock.like.repository.MockLikeRepository;
-import com.ll.server.domain.mock.news.dto.MockNewsDTO;
-import com.ll.server.domain.mock.news.repository.MockNewsRepository;
-import com.ll.server.domain.mock.repost.dto.MockRepostDTO;
+import com.ll.server.domain.comment.dto.CommentDTO;
+import com.ll.server.domain.comment.repository.CommentRepository;
+import com.ll.server.domain.follow.dto.FolloweeListResponse;
+import com.ll.server.domain.follow.dto.FollowerListResponse;
+import com.ll.server.domain.follow.entity.Follow;
+import com.ll.server.domain.follow.repository.FollowRepository;
+import com.ll.server.domain.like.entity.Like;
+import com.ll.server.domain.like.repository.LikeRepository;
 import com.ll.server.domain.mock.user.MockRole;
 import com.ll.server.domain.mock.user.dto.MockUserLoginRequest;
 import com.ll.server.domain.mock.user.dto.MockUserSignupRequest;
 import com.ll.server.domain.mock.user.dto.UserProfile;
 import com.ll.server.domain.mock.user.entity.MockUser;
 import com.ll.server.domain.mock.user.repository.MockUserRepository;
+import com.ll.server.domain.news.news.dto.NewsDTO;
+import com.ll.server.domain.news.news.repository.NewsRepository;
+import com.ll.server.domain.repost.dto.RepostDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,10 +29,10 @@ import java.util.Optional;
 @Transactional(readOnly = true)
 public class MockUserService {
     private final MockUserRepository userRepository;
-    private final MockFollowRepository mockFollowRepository;
-    private final MockNewsRepository newsRepository;
-    private final MockLikeRepository likeRepository;
-    private final MockCommentRepository mockCommentRepository;
+    private final FollowRepository followRepository;
+    private final NewsRepository newsRepository;
+    private final LikeRepository likeRepository;
+    private final CommentRepository commentRepository;
 
     @Transactional
     public MockUser signup(MockUserSignupRequest request){
@@ -67,21 +67,21 @@ public class MockUserService {
         if(targetOptional.isEmpty()) return null;
 
         MockUser target=targetOptional.get();
-        List<MockFollow> followeeList=mockFollowRepository.findMockFollowsByFollower_Id(target.getId());
-        List<MockFollow> followerList=mockFollowRepository.findMockFollowsByFollowee_Id(target.getId());
+        List<Follow> followeeList= followRepository.findMockFollowsByFollower_Id(target.getId());
+        List<Follow> followerList= followRepository.findMockFollowsByFollowee_Id(target.getId());
 
         FolloweeListResponse followees=new FolloweeListResponse(followeeList);
         FollowerListResponse followers=new FollowerListResponse(followerList);
 
-        List<MockLike> likes=likeRepository.findMockLikesByUser_Id(userId);
-        List<MockRepostDTO> likeReposts=likes.stream().map(like -> new MockRepostDTO(like.getRepost())).toList();
+        List<Like> likes=likeRepository.findMockLikesByUser_Id(userId);
+        List<RepostDTO> likeReposts=likes.stream().map(like -> new RepostDTO(like.getRepost())).toList();
 
-        List<MockCommentDTO> comments=mockCommentRepository.findMockCommentsByUser_Id(userId)
-                .stream().map(MockCommentDTO::new).toList();
+        List<CommentDTO> comments=commentRepository.findMockCommentsByUser_Id(userId)
+                .stream().map(CommentDTO::new).toList();
 
         if(target.getRole().equals(MockRole.PUBLISHER)){
-            List<MockNewsDTO> news=newsRepository.findMockNewsByPublisher(target.getNickname())
-                    .stream().map(MockNewsDTO::new).toList();
+            List<NewsDTO> news=newsRepository.findNewsByPublisher(target.getNickname())
+                    .stream().map(NewsDTO::new).toList();
             return new UserProfile(target,followees,followers,likeReposts,comments,news);
         }
 

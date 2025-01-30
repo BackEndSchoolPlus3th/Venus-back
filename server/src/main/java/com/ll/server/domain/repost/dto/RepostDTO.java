@@ -4,6 +4,7 @@ import com.ll.server.domain.comment.dto.CommentDTO;
 import com.ll.server.domain.comment.dto.CommentResponse;
 import com.ll.server.domain.like.dto.LikeDTO;
 import com.ll.server.domain.like.dto.LikeResponse;
+import com.ll.server.domain.mention.repostmention.dto.RepostMentionDTO;
 import com.ll.server.domain.news.news.dto.NewsDTO;
 import com.ll.server.domain.news.news.entity.News;
 import com.ll.server.domain.repost.entity.Repost;
@@ -11,6 +12,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 @AllArgsConstructor
@@ -22,7 +24,7 @@ public class RepostDTO {
     private String nickname;
     private NewsDTO news;
     private String content;
-//    private List<RepostMentionDTO> mentions;
+    private List<RepostMentionDTO> mentions;
     private CommentResponse commentInfo;
     private LikeResponse likeInfo;
 
@@ -42,9 +44,9 @@ public class RepostDTO {
         writerId=repost.getUser().getId();
         nickname=repost.getUser().getNickname();
         content=repost.getContent();
-//        mentions=repost.getMentions().stream()
-//                .map(RepostMentionDTO::new)
-//                .collect(Collectors.toList());
+        mentions=repost.getMentions().stream()
+                .map(RepostMentionDTO::new)
+                .collect(Collectors.toList());
 
         commentInfo=new CommentResponse(
                 repost.getComments()

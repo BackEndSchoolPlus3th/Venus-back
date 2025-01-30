@@ -1,8 +1,8 @@
 package com.ll.server.domain.notification.service;
 
 
-import com.ll.server.domain.notification.entity.Notification;
 import com.ll.server.domain.mock.user.entity.MockUser;
+import com.ll.server.domain.notification.entity.Notification;
 import com.ll.server.domain.notification.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -126,4 +126,7 @@ public class NotificationService {
         return notificationRepository.findNotificationsByHasSentIsFalse();
     }
 
+    public List<Notification> getAll() {
+        return notificationRepository.findAll();
+    }
 }
