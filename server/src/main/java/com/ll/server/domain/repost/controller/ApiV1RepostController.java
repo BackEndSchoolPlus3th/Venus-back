@@ -1,11 +1,11 @@
 package com.ll.server.domain.repost.controller;
 
 import com.ll.server.domain.comment.dto.CommentDTO;
+import com.ll.server.domain.comment.dto.CommentModifyRequest;
 import com.ll.server.domain.comment.dto.CommentResponse;
 import com.ll.server.domain.comment.dto.CommentWriteRequest;
 import com.ll.server.domain.like.dto.LikeDTO;
 import com.ll.server.domain.like.dto.LikeResponse;
-import com.ll.server.domain.mock.comment.dto.MockCommentModifyRequest;
 import com.ll.server.domain.notification.Notify;
 import com.ll.server.domain.repost.dto.RepostDTO;
 import com.ll.server.domain.repost.dto.RepostWriteRequest;
@@ -56,7 +56,7 @@ public class ApiV1RepostController {
     @PatchMapping("/{repostId}/comments/{commentId}")
     public CommentDTO modifyComment(@PathVariable("repostId")Long postId,
                                     @PathVariable("commentId")Long commentId,
-                                    @RequestBody MockCommentModifyRequest request) {
+                                    @RequestBody CommentModifyRequest request) {
         return repostService.modifyComment(postId, commentId,request.getContent());
     }
 

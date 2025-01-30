@@ -1,10 +1,10 @@
 package com.ll.server.domain.mock.user.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.ll.server.domain.mock.comment.entity.MockComment;
-import com.ll.server.domain.mock.repost.entity.MockRepost;
+import com.ll.server.domain.comment.entity.Comment;
 import com.ll.server.domain.mock.user.MockRole;
 import com.ll.server.domain.notification.entity.Notification;
+import com.ll.server.domain.repost.entity.Repost;
 import com.ll.server.global.jpa.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -34,13 +34,13 @@ public class MockUser extends BaseEntity {
     @ToString.Exclude
     @JsonIgnore
     @Builder.Default
-    private List<MockRepost> reposts=new ArrayList<>();
+    private List<Repost> reposts=new ArrayList<>();
 
     @OneToMany(mappedBy = "user",cascade = CascadeType.ALL,orphanRemoval = true)
     @ToString.Exclude
     @JsonIgnore
     @Builder.Default
-    private List<MockComment> comments=new ArrayList<>();
+    private List<Comment> comments=new ArrayList<>();
 
     @OneToMany(mappedBy = "user",cascade = CascadeType.ALL,orphanRemoval = true)
     @ToString.Exclude

@@ -1,16 +1,17 @@
 package com.ll.server.domain.comment.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.ll.server.domain.mention.commentmention.entity.CommentMention;
 import com.ll.server.domain.mock.user.entity.MockUser;
 import com.ll.server.domain.repost.entity.Repost;
 import com.ll.server.global.jpa.BaseEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -32,19 +33,19 @@ public class Comment extends BaseEntity {
     @Builder.Default
     private LocalDateTime deletedAt=null;
 
-//    @OneToMany(mappedBy = "comment",cascade = CascadeType.ALL,orphanRemoval = true)
-//    @ToString.Exclude
-//    @Builder.Default
-//    @JsonIgnore
-//    List<CommentMention> mentions=new ArrayList<>();
-//
-//    public void addMention(MockUser user){
-//        CommentMention mention=CommentMention
-//                .builder()
-//                .comment(this)
-//                .user(user)
-//                .build();
-//
-//        mentions.add(mention);
-//    }
+    @OneToMany(mappedBy = "comment",cascade = CascadeType.ALL,orphanRemoval = true)
+    @ToString.Exclude
+    @Builder.Default
+    @JsonIgnore
+    List<CommentMention> mentions=new ArrayList<>();
+
+    public void addMention(MockUser user){
+        CommentMention mention=CommentMention
+                .builder()
+                .comment(this)
+                .user(user)
+                .build();
+
+        mentions.add(mention);
+    }
 }

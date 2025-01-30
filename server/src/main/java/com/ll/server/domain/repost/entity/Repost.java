@@ -3,6 +3,7 @@ package com.ll.server.domain.repost.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ll.server.domain.comment.entity.Comment;
 import com.ll.server.domain.like.entity.Like;
+import com.ll.server.domain.mention.repostmention.entity.RepostMention;
 import com.ll.server.domain.mock.user.entity.MockUser;
 import com.ll.server.domain.news.news.entity.News;
 import com.ll.server.global.jpa.BaseEntity;
@@ -38,11 +39,11 @@ public class Repost extends BaseEntity {
     @Builder.Default
     private LocalDateTime deletedAt=null;
 
-//    @OneToMany(mappedBy = "repost", cascade = CascadeType.ALL,orphanRemoval = true)
-//    @ToString.Exclude
-//    @Builder.Default
-//    @JsonIgnore
-//    private List<RepostMention> mentions=new ArrayList<>();
+    @OneToMany(mappedBy = "repost", cascade = CascadeType.ALL,orphanRemoval = true)
+    @ToString.Exclude
+    @Builder.Default
+    @JsonIgnore
+    private List<RepostMention> mentions=new ArrayList<>();
 
     @OneToMany(mappedBy = "repost", cascade = CascadeType.ALL,orphanRemoval = true)
     @ToString.Exclude
@@ -66,9 +67,9 @@ public class Repost extends BaseEntity {
                 .user(user)
                 .build();
 
-//        for(MockUser mentionedUser:mentionedUsers){
-//            comment.addMention(mentionedUser);
-//        }
+        for(MockUser mentionedUser:mentionedUsers){
+            comment.addMention(mentionedUser);
+        }
 
         comments.add(comment);
 
@@ -86,6 +87,15 @@ public class Repost extends BaseEntity {
 
         return like;
 
+    }
+
+    public void addMention(MockUser user){
+        RepostMention mention= RepostMention.builder()
+                .repost(this)
+                .user(user)
+                .build();
+
+        this.mentions.add(mention);
     }
 
 

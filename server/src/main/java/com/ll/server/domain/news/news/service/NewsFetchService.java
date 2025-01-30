@@ -1,12 +1,14 @@
 package com.ll.server.domain.news.news.service;
 
+import com.ll.server.domain.news.news.dto.NewsDTO;
+import com.ll.server.domain.news.news.dto.NewsResponse;
 import com.ll.server.domain.news.news.entity.News;
 import com.ll.server.domain.news.news.enums.NewsCategory;
 import com.ll.server.domain.news.news.repository.NewsRepository;
-import com.ll.server.global.response.enums.ReturnCode;
-import com.ll.server.global.response.response.ApiResponse;
+import com.ll.server.domain.notification.Notify;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -21,7 +23,9 @@ public class NewsFetchService {
     private final NewsApiClient newsApiClient;
     private final int DEFAULT_PAGE_SIZE = 100;
 
-    public ApiResponse<?> fetchNews() {
+    @Notify
+    @Transactional
+    public NewsResponse fetchNews() {
         LocalDateTime now = LocalDateTime.now();
         String dateFrom = now.minusHours(6).format(DateTimeFormatter.ISO_LOCAL_DATE);
         String dateTo = now.format(DateTimeFormatter.ISO_LOCAL_DATE);
@@ -36,8 +40,8 @@ public class NewsFetchService {
                 })
                 .collect(Collectors.toList());
 
-        newsRepository.saveAll(newsList);
-
-        return ApiResponse.of(ReturnCode.SUCCESS);
+        return new NewsResponse(
+                newsRepository.saveAll(newsList).stream().map(NewsDTO::new).collect(Collectors.toList())
+        );
     }
 }

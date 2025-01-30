@@ -1,19 +1,20 @@
 package com.ll.server.global.jpa;
 
-import com.ll.server.domain.mock.comment.dto.MockCommentWriteRequest;
-import com.ll.server.domain.mock.follow.controller.ApiV1MockFollowController;
-import com.ll.server.domain.mock.follow.dto.MockFollowRequest;
-import com.ll.server.domain.mock.news.entity.MockNews;
-import com.ll.server.domain.mock.news.service.MockNewsService;
-import com.ll.server.domain.mock.repost.controller.ApiV1MockRepostController;
-import com.ll.server.domain.mock.repost.dto.MockRepostDTO;
-import com.ll.server.domain.mock.repost.dto.MockRepostWriteRequest;
-import com.ll.server.domain.mock.repost.repository.MockRepostRepository;
+import com.ll.server.domain.comment.dto.CommentWriteRequest;
+import com.ll.server.domain.follow.controller.ApiV1FollowController;
+import com.ll.server.domain.follow.dto.FollowRequest;
 import com.ll.server.domain.mock.user.MockRole;
 import com.ll.server.domain.mock.user.dto.MockUserSignupRequest;
 import com.ll.server.domain.mock.user.entity.MockUser;
 import com.ll.server.domain.mock.user.service.MockUserService;
+import com.ll.server.domain.news.news.entity.News;
+import com.ll.server.domain.news.news.enums.NewsCategory;
 import com.ll.server.domain.news.news.repository.NewsRepository;
+import com.ll.server.domain.news.news.service.NewsService;
+import com.ll.server.domain.repost.controller.ApiV1RepostController;
+import com.ll.server.domain.repost.dto.RepostDTO;
+import com.ll.server.domain.repost.dto.RepostWriteRequest;
+import com.ll.server.domain.repost.repository.RepostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -26,11 +27,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DataLoader implements CommandLineRunner {
     private final NewsRepository newsRepository;
-    private final MockNewsService newsService;
+    private final NewsService newsService;
     private final MockUserService userService;
-    private final ApiV1MockFollowController followController;
-    private final ApiV1MockRepostController repostController;
-    private final MockRepostRepository repostRepository;
+    private final ApiV1FollowController followController;
+    private final ApiV1RepostController repostController;
+    private final RepostRepository repostRepository;
 
     @Override
     @Transactional
@@ -59,19 +60,19 @@ public class DataLoader implements CommandLineRunner {
         MockUser user2=users.get(1);
         MockUser user3=users.get(2);
 
-        MockFollowRequest followPublisher=MockFollowRequest.builder()
+        FollowRequest followPublisher= FollowRequest.builder()
                 .followerId(publisherUser.getId())
                 .followeeId(user1.getId())
                 .build();
         followController.follow(followPublisher);
         //user1이 테스트 언론사를 구독. 알림 1개째
 
-        MockFollowRequest followRequest1=MockFollowRequest.builder()
+        FollowRequest followRequest1= FollowRequest.builder()
                 .followerId(user1.getId())
                 .followeeId(user2.getId())
                 .build();
 
-        MockFollowRequest followRequest2=MockFollowRequest.builder()
+        FollowRequest followRequest2= FollowRequest.builder()
                 .followerId(user1.getId())
                 .followeeId(user3.getId())
                 .build();
@@ -83,41 +84,48 @@ public class DataLoader implements CommandLineRunner {
 
 
         // News 객체 생성
-        MockNews news = new MockNews("Test News", "This is a test news content", "Test Publisher", "John Doe",
-                "http://example.com/image.jpg", "http://example.com/thumbnail.jpg",
-                "http://example.com");
+        News news=News.builder()
+                .category(NewsCategory.SOCIETY)
+                .thumbnailUrl("http://example.com/thumbnail.jpg")
+                .imageUrl("http://example.com/image.jpg")
+                .contentUrl( "http://example.com")
+                .author("John Doe")
+                .title("Test News")
+                .content("This is a test news content")
+                .publisher("Test Publisher")
+                .build();
         newsService.saveForTest(news);
         //user1에게 구독 사실을 전송. 알림 4개째.
 
 
-        MockRepostWriteRequest repostRequest1=MockRepostWriteRequest.builder()
+        RepostWriteRequest repostRequest1=RepostWriteRequest.builder()
                 .content("연습용1")
                 .mentions(user2.getNickname()+","+user3.getNickname())
                 .newsId(news.getId())
                 .writerId(user1.getId())
                 .build();
-        MockRepostDTO repostDTO1=repostController.write(repostRequest1);
+        RepostDTO repostDTO1=repostController.write(repostRequest1);
         //user1이 작성한 글이므로 user2/3에게 알림이 가고, 멘션을 2와 3에게 했으므로 알림이 감. 알림 8개째.
 
-        MockRepostWriteRequest repostRequest2=MockRepostWriteRequest.builder()
+        RepostWriteRequest repostRequest2=RepostWriteRequest.builder()
                 .content("연습용2")
                 .newsId(news.getId())
                 .writerId(user2.getId())
                 .build();
 
-        MockRepostDTO repostDTO2= repostController.write(repostRequest2);
+        RepostDTO repostDTO2= repostController.write(repostRequest2);
 
-        MockRepostWriteRequest repostRequest3=MockRepostWriteRequest.builder()
+        RepostWriteRequest repostRequest3=RepostWriteRequest.builder()
                 .content("연습용3")
                 .newsId(news.getId())
                 .writerId(user3.getId())
                 .build();
 
-        MockRepostDTO repostDTO3=repostController.write(repostRequest3);
+        RepostDTO repostDTO3=repostController.write(repostRequest3);
 
         for(int i=0;i<3;i++){
-            MockCommentWriteRequest commentWriteRequest=
-                    MockCommentWriteRequest.builder()
+            CommentWriteRequest commentWriteRequest=
+                    CommentWriteRequest.builder()
                             .content("1번 글 연습댓글"+(i+1))
                             .writerId(users.get(i).getId())
                             .mentions("user3")
@@ -127,8 +135,8 @@ public class DataLoader implements CommandLineRunner {
         //user2, user3가 user1의 리포스트에 댓글. user1, user2가 멘션. 알림 12개.
 
         for(int i=0;i<3;i++){
-            MockCommentWriteRequest commentWriteRequest=
-                    MockCommentWriteRequest.builder()
+            CommentWriteRequest commentWriteRequest=
+                    CommentWriteRequest.builder()
                             .content("2번 글 연습댓글"+(i+1))
                             .writerId(users.get(i).getId())
                             .mentions("user1")
@@ -138,8 +146,8 @@ public class DataLoader implements CommandLineRunner {
         //16개
 
         for(int i=0;i<3;i++){
-            MockCommentWriteRequest commentWriteRequest=
-                    MockCommentWriteRequest.builder()
+            CommentWriteRequest commentWriteRequest=
+                    CommentWriteRequest.builder()
                             .content("3번 글 연습댓글"+(i+1))
                             .writerId(users.get(i).getId())
                             .mentions("user2")
