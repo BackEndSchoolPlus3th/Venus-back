@@ -9,6 +9,7 @@ import com.ll.server.domain.mock.user.entity.MockUser;
 import com.ll.server.domain.mock.user.repository.MockUserRepository;
 import com.ll.server.domain.news.news.entity.News;
 import com.ll.server.domain.news.news.repository.NewsRepository;
+import com.ll.server.domain.notification.Notify;
 import com.ll.server.domain.repost.dto.RepostDTO;
 import com.ll.server.domain.repost.dto.RepostWriteRequest;
 import com.ll.server.domain.repost.entity.Repost;
@@ -49,6 +50,7 @@ public class RepostService {
     }
 
     @Transactional
+    @Notify
     public RepostDTO save(RepostWriteRequest request){
         MockUser user=userRepository.findById(request.getWriterId()).get();
 
@@ -143,6 +145,7 @@ public class RepostService {
     }
 
     @Transactional
+    @Notify
     public CommentDTO addComment(Long postId, CommentWriteRequest request) {
         Repost repost = getRepost(postId);
         if (repost == null) return null;
@@ -198,6 +201,7 @@ public class RepostService {
     }
 
     @Transactional
+    @Notify
     public LikeDTO markLike(Long repostId, Long userId) {
         Repost repost=getRepost(repostId);
         if(repost==null) return null;

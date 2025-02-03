@@ -1,11 +1,10 @@
 package com.ll.server.domain.follow.controller;
 
-import com.ll.server.domain.follow.dto.FolloweeListResponse;
 import com.ll.server.domain.follow.dto.FollowDTO;
 import com.ll.server.domain.follow.dto.FollowRequest;
-import com.ll.server.domain.follow.service.FollowService;
+import com.ll.server.domain.follow.dto.FolloweeListResponse;
 import com.ll.server.domain.follow.dto.FollowerListResponse;
-import com.ll.server.domain.notification.Notify;
+import com.ll.server.domain.follow.service.FollowService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,7 +15,6 @@ public class ApiV1FollowController {
     private final FollowService followService;
 
     @PostMapping
-    @Notify
     public FollowDTO follow(@RequestBody FollowRequest request){
         return followService.save(request.getFollowerId(),request.getFolloweeId());
     }
