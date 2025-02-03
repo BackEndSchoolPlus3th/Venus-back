@@ -6,7 +6,6 @@ import com.ll.server.domain.comment.dto.CommentResponse;
 import com.ll.server.domain.comment.dto.CommentWriteRequest;
 import com.ll.server.domain.like.dto.LikeDTO;
 import com.ll.server.domain.like.dto.LikeResponse;
-import com.ll.server.domain.notification.Notify;
 import com.ll.server.domain.repost.dto.RepostDTO;
 import com.ll.server.domain.repost.dto.RepostWriteRequest;
 import com.ll.server.domain.repost.service.RepostService;
@@ -36,7 +35,6 @@ public class ApiV1RepostController {
     public String deletePost(@PathVariable("id") Long id){return repostService.delete(id);}
 
     @PostMapping
-    @Notify
     public RepostDTO write(@RequestBody RepostWriteRequest request){
         return repostService.save(request);
     }
@@ -61,7 +59,6 @@ public class ApiV1RepostController {
     }
 
     @PostMapping("/{repostId}/comments")
-    @Notify
     public CommentDTO addComment(@PathVariable("repostId") Long postId,
                                      @RequestBody CommentWriteRequest request){
         return repostService.addComment(postId, request);
@@ -81,7 +78,6 @@ public class ApiV1RepostController {
     }
 
     @PostMapping("/{repostId}/likes/{userId}")
-    @Notify
     public LikeDTO markLike(@PathVariable("repostId") Long repostId,
                            @PathVariable("userId") Long userId){
         return repostService.markLike(repostId,userId);

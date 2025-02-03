@@ -7,6 +7,7 @@ import com.ll.server.domain.follow.entity.Follow;
 import com.ll.server.domain.follow.repository.FollowRepository;
 import com.ll.server.domain.mock.user.entity.MockUser;
 import com.ll.server.domain.mock.user.repository.MockUserRepository;
+import com.ll.server.domain.notification.Notify;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +24,7 @@ public class FollowService {
     private final MockUserRepository userRepository;
 
     @Transactional
+    @Notify
     public FollowDTO save(Long followerId, Long followeeId){
         if(followerId.equals(followeeId)) return null;
 
