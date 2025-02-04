@@ -71,4 +71,11 @@ public class ApiV1NewsController {
         return ApiResponse.of("삭제 성공");
     }
 
+    @GetMapping("/search")
+    public ApiResponse<NewsDTO> searchNews(@RequestParam("type") String type,
+                                           @RequestParam("keyword") String keyword){
+        //타입으로는 publisher, title, content, category가 올 수 있다.
+        return null;
+    }
+
 }
