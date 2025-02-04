@@ -78,6 +78,7 @@ public class ApiV1MemberController {
         return new RsData<>("200", "로그아웃에 성공하였습니다.");
     }
 
+    // 마이페이지
     @GetMapping("/me")
     public RsData<MemberDto> me(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();

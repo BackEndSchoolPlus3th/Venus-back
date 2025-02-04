@@ -1,5 +1,6 @@
 package com.ll.server.domain.member.entity;
 
+import com.ll.server.domain.member.MemberRole;
 import com.ll.server.global.jpa.BaseEntity;
 import jakarta.persistence.Entity;
 import lombok.AllArgsConstructor;
@@ -22,7 +23,7 @@ public class Member extends BaseEntity {
     String name;
     String nickname;
     String profile_url;
-    String role;
+    MemberRole role;
     String provider;
     String providerId;
 
