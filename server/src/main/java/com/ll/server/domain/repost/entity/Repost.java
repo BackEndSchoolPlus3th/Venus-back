@@ -9,6 +9,7 @@ import com.ll.server.domain.news.news.entity.News;
 import com.ll.server.global.jpa.BaseEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 
@@ -24,11 +25,11 @@ import java.util.List;
 @SuperBuilder
 public class Repost extends BaseEntity {
 
-    @NotBlank
+    @NotNull
     @ManyToOne(fetch= FetchType.LAZY)
     private News news;
 
-    @NotBlank
+    @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     private MockUser user;
 
