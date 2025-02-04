@@ -1,8 +1,6 @@
 package com.ll.server.global.jpa;
 
 import com.ll.server.domain.comment.dto.CommentWriteRequest;
-import com.ll.server.domain.elasticsearch.news.repository.NewsDocRepository;
-import com.ll.server.domain.elasticsearch.repost.repository.RepostDocRepository;
 import com.ll.server.domain.follow.controller.ApiV1FollowController;
 import com.ll.server.domain.follow.dto.FollowRequest;
 import com.ll.server.domain.mock.user.MockRole;
@@ -34,15 +32,15 @@ public class DataLoader implements CommandLineRunner {
     private final ApiV1FollowController followController;
     private final ApiV1RepostController repostController;
     private final RepostRepository repostRepository;
-    private final RepostDocRepository repostDocRepository;
-    private final NewsDocRepository newsDocRepository;
+//    private final RepostDocRepository repostDocRepository;
+//    private final NewsDocRepository newsDocRepository;
 
     @Override
     @Transactional
     public void run(String... args) throws Exception {
 
-        repostDocRepository.deleteAll();
-        newsDocRepository.deleteAll();
+//        repostDocRepository.deleteAll();
+//        newsDocRepository.deleteAll();
 
         MockUserSignupRequest publisherSignup=MockUserSignupRequest.builder()
                 .email("publisher@example.com")
