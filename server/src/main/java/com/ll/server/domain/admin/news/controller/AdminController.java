@@ -5,10 +5,14 @@ import com.ll.server.domain.news.news.dto.NewsUpdateRequest;
 import com.ll.server.domain.news.news.entity.News;
 import com.ll.server.domain.news.news.service.NewsService;
 import com.ll.server.global.response.response.ApiResponse;
+import com.ll.server.global.response.response.CustomPage;
+import com.ll.server.global.validation.PageLimitSizeValidator;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -16,9 +20,20 @@ import java.util.List;
 public class AdminController {
     private final NewsService newsService;
 
+    @Data
+    private static class NewsGetRequest {
+        //requestBody가 들어오지 않을 때 default page, limit 입니다
+        private int page = 0;
+        private int limit = 20;
+    }
+
     @GetMapping("/news")
-    public List<News> newsGetAll() {
-        return newsService.getAll();
+    public ApiResponse<?> newsGetAll(NewsGetRequest request) {
+        PageLimitSizeValidator.validateSize(request.getPage(), request.getLimit(), 50);
+        Pageable pageable = PageRequest.of(request.getPage(), request.getLimit());
+        Page<NewsDTO> news = newsService.getAll(pageable).map(newsService::convertToDTO);
+
+        return ApiResponse.of(CustomPage.of(news));
     }
 
     @GetMapping("/news/{id}")

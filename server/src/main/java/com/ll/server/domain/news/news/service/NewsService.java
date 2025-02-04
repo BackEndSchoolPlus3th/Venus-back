@@ -8,6 +8,8 @@ import com.ll.server.domain.notification.Notify;
 import com.ll.server.global.response.enums.ReturnCode;
 import com.ll.server.global.response.exception.CustomLogicException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,8 +22,8 @@ import java.util.stream.Collectors;
 public class NewsService {
     private final NewsRepository newsRepository;
 
-    public List<News> getAll() {
-        return newsRepository.findAll();
+    public Page<News> getAll(Pageable pageable) {
+        return newsRepository.findAllByOrderByPublishedAtDesc(pageable);
     }
 
     public News getById(Long id) {
@@ -39,7 +41,8 @@ public class NewsService {
                 news.getImageUrl(),
                 news.getThumbnailUrl(),
                 news.getContentUrl(),
-                news.getCategory().getCategory()
+                news.getCategory().getCategory(),
+                news.getPublishedAt()
         );
     }
 
