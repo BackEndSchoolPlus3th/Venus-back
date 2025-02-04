@@ -5,8 +5,8 @@ import com.ll.server.domain.follow.dto.FolloweeListResponse;
 import com.ll.server.domain.follow.dto.FollowerListResponse;
 import com.ll.server.domain.follow.entity.Follow;
 import com.ll.server.domain.follow.repository.FollowRepository;
-import com.ll.server.domain.mock.user.entity.MockUser;
-import com.ll.server.domain.mock.user.repository.MockUserRepository;
+import com.ll.server.domain.member.entity.Member;
+import com.ll.server.domain.member.repository.MemberRepository;
 import com.ll.server.domain.notification.Notify;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,15 +21,15 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class FollowService {
     private final FollowRepository followRepository;
-    private final MockUserRepository userRepository;
+    private final MemberRepository memberRepository;
 
     @Transactional
     @Notify
     public FollowDTO save(Long followerId, Long followeeId){
         if(followerId.equals(followeeId)) return null;
 
-        MockUser follower=userRepository.findById(followerId).get();
-        MockUser followee=userRepository.findById(followeeId).get();
+        Member follower=memberRepository.findById(followerId).get();
+        Member followee=memberRepository.findById(followeeId).get();
 
         Follow mockFollow= followRepository.findByFollower_IdAndFollowee_Id(followerId,followeeId);
         if(mockFollow!=null) return null;
@@ -43,26 +43,26 @@ public class FollowService {
     }
 
     public List<FollowDTO> findByFollower(Long followerId){
-        return followRepository.findMockFollowsByFollower_Id(followerId)
+        return followRepository.findFollowsByFollower_Id(followerId)
                 .stream().map(FollowDTO::new)
                 .collect(Collectors.toList());
     }
 
     public List<FollowDTO> findByFollowee(Long followeeId){
-        return followRepository.findMockFollowsByFollowee_Id(followeeId)
+        return followRepository.findFollowsByFollowee_Id(followeeId)
                 .stream().map(FollowDTO::new)
                 .collect(Collectors.toList());
     }
 
     public FolloweeListResponse findFollowees(String followerName){
-        List<Follow> follows= followRepository.findMockFollowsByFollower_Nickname(followerName);
+        List<Follow> follows= followRepository.findFollowsByFollower_Nickname(followerName);
 
         return new FolloweeListResponse(follows);
     }
 
 
     public FollowerListResponse findFollowers(String followeeName){
-        List<Follow> follows= followRepository.findMockFollowsByFollowee_Nickname(followeeName);
+        List<Follow> follows= followRepository.findFollowsByFollowee_Nickname(followeeName);
 
         return new FollowerListResponse(follows);
     }

@@ -13,7 +13,7 @@ public class CommentMentionDTO {
     private String mentionName;
 
     public CommentMentionDTO(CommentMention mention){
-        mentionUserId=mention.getUser().getId();
-        mentionName="@"+mention.getUser().getNickname();
+        mentionUserId=mention.getMember().getId();
+        mentionName="@"+mention.getMember().getNickname();
     }
 }

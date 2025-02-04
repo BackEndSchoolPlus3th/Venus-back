@@ -3,15 +3,14 @@ package com.ll.server.domain.member.dto;
 import com.ll.server.domain.member.MemberRole;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.Data;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @NoArgsConstructor
 @Getter
 @Setter
 @Data
+@Builder
+@AllArgsConstructor
 public class MemberRequest {
 
     @NotBlank
@@ -23,8 +22,8 @@ public class MemberRequest {
     @NotNull
     private MemberRole role;
 
-    @NotBlank
-    private String name;
+//    @NotBlank
+//    private String name;
 
     @NotBlank
     private String nickname;

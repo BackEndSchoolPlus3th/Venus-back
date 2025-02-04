@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 public class ApiV1NotificationController {
     private final NotificationService notificationService;
     private final EmitterManager emitterManager;
+    //private final JwtProvider jwtProvider;
 
 
     @GetMapping
@@ -68,10 +69,45 @@ public class ApiV1NotificationController {
                 .collect(Collectors.toList());
     }
 
+    /*
+    HttpServletRequest request) {
+        Cookie[] cookies = request.getCookies();
+        String accessToken = "";
+        for (Cookie cookie : cookies) {
+            if (cookie.getName().equals("accessToken")) {
+                accessToken = cookie.getValue();
+            }
+        }
+        Map<String, Object> claims = jwtProvider.getClaims(accessToken);
+        System.out.println(claims);
+        String email = (String) claims.get("email");
+        System.out.println(email);
+     */
+
 
     //SSE 연결과 동시에 안 보낸 알림이 있으면 와바박 보냄
     @GetMapping("/connect/{userId}")
-    public void connect(@PathVariable("userId") Long userId){
+    public void connect(@PathVariable("userId") Long userId
+                        //,HttpServletRequest request
+                        ){
+        /*
+
+        //방법1. 접속한 유저의 accessToken을 이용해 유저 정보를 알아내기
+
+        Cookie[] cookies = request.getCookies();
+        String accessToken = "";
+        for (Cookie cookie : cookies) {
+            if (cookie.getName().equals("accessToken")) {
+                accessToken = cookie.getValue();
+            }
+        }
+        Map<String, Object> claims = jwtProvider.getClaims(accessToken);
+        Long userId = claims.get("id");
+
+        */
+
+        //방법2. SecurityContext에서 Authentication(UserDetail)을 얻어오는 방법
+
         SseEmitter emitter=new SseEmitter();
         emitterManager.addEmitter(userId,emitter);
 

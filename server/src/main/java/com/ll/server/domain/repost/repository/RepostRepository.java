@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface RepostRepository extends JpaRepository<Repost, Long> {
-    List<Repost> findRepostsByUser_Nickname(String nickname);
+    List<Repost> findRepostsByMember_Nickname(String nickname);
 }

@@ -28,8 +28,8 @@ public class CommentDTO {
         commentId=comment.getId();
 
         repostId=comment.getRepost().getId();
-        repostWriterId=comment.getRepost().getUser().getId();
-        repostWriterName=comment.getRepost().getUser().getNickname();
+        repostWriterId=comment.getRepost().getMember().getId();
+        repostWriterName=comment.getRepost().getMember().getNickname();
 
         mentions=comment.getMentions().stream()
                 .map(CommentMentionDTO::new)
@@ -37,7 +37,7 @@ public class CommentDTO {
 
         content=comment.getContent();
 
-        commentWriterId=comment.getUser().getId();
-        commentWriterName=comment.getUser().getNickname();
+        commentWriterId=comment.getMember().getId();
+        commentWriterName=comment.getMember().getNickname();
     }
 }

@@ -1,6 +1,7 @@
 package com.ll.server.domain.member.service;
 
 import com.ll.server.domain.member.MemberRole;
+import com.ll.server.domain.member.dto.MemberRequest;
 import com.ll.server.domain.member.entity.Member;
 import com.ll.server.domain.member.repository.MemberRepository;
 import com.ll.server.global.jwt.JwtProvider;
@@ -11,18 +12,31 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class MemberService {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
 
-    public Member join(String email, String password, MemberRole role, String name, String nickname, String providerId) {
+    @Transactional
+    public Member join(MemberRequest request){
+        return this.join(request.getEmail(),request.getPassword(),request.getRole(), request.getNickname(),request.getProviderId());
+    }
+
+    @Transactional
+    public Member join(String email,
+                       String password,
+                       MemberRole role,
+                       //String name,
+                       String nickname,
+                       String providerId) {
 
         // 존재하는 지 체크
         memberRepository.findByEmail(email)
@@ -35,7 +49,7 @@ public class MemberService {
                 .password(passwordEncoder.encode(password))
                 .role(role)
                 .nickname(nickname)
-                .name(name)
+                //.name(name)
                 .provider("naver")
                 .providerId(providerId)
                 .build();
@@ -71,9 +85,9 @@ public class MemberService {
     public SecurityUser getUserFromAccessToken(String accessToken) {
         Map<String, Object> payloadBody = jwtProvider.getClaims(accessToken);
         long id = (int) payloadBody.get("id");
-        String username = (String) payloadBody.get("username");
+        String nickname = (String) payloadBody.get("username");
         List<GrantedAuthority> authorities = new ArrayList<>();
-        return new SecurityUser(id, username, "", authorities);
+        return new SecurityUser(id, nickname, "", authorities);
     }
 
 }

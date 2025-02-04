@@ -3,8 +3,8 @@ package com.ll.server.domain.repost.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ll.server.domain.comment.entity.Comment;
 import com.ll.server.domain.like.entity.Like;
+import com.ll.server.domain.member.entity.Member;
 import com.ll.server.domain.mention.repostmention.entity.RepostMention;
-import com.ll.server.domain.mock.user.entity.MockUser;
 import com.ll.server.domain.news.news.entity.News;
 import com.ll.server.global.jpa.BaseEntity;
 import jakarta.persistence.*;
@@ -31,7 +31,7 @@ public class Repost extends BaseEntity {
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    private MockUser user;
+    private Member member;
 
     @NotBlank
     @Column(columnDefinition = "TEXT")
@@ -64,15 +64,15 @@ public class Repost extends BaseEntity {
     private String imageUrl;
 
 
-    public Comment addComment(MockUser user, List<MockUser> mentionedUsers, String content){
+    public Comment addComment(Member member, List<Member> mentionedMembers, String content){
         Comment comment = Comment.builder()
                 .repost(this)
                 .content(content)
-                .user(user)
+                .member(member)
                 .build();
 
-        for(MockUser mentionedUser:mentionedUsers){
-            comment.addMention(mentionedUser);
+        for(Member mentionedMember:mentionedMembers){
+            comment.addMention(mentionedMember);
         }
 
         comments.add(comment);
@@ -80,11 +80,11 @@ public class Repost extends BaseEntity {
         return comment;
     }
 
-    public Like addLike(MockUser user){
+    public Like addLike(Member member){
         Like like = Like.builder()
                 .repost(this)
                 .deleted(false)
-                .user(user)
+                .member(member)
                 .build();
 
         likes.add(like);
@@ -93,10 +93,10 @@ public class Repost extends BaseEntity {
 
     }
 
-    public void addMention(MockUser user){
+    public void addMention(Member member){
         RepostMention mention= RepostMention.builder()
                 .repost(this)
-                .user(user)
+                .member(member)
                 .build();
 
         this.mentions.add(mention);

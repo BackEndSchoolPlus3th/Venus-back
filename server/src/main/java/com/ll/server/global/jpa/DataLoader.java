@@ -3,10 +3,10 @@ package com.ll.server.global.jpa;
 import com.ll.server.domain.comment.dto.CommentWriteRequest;
 import com.ll.server.domain.follow.controller.ApiV1FollowController;
 import com.ll.server.domain.follow.dto.FollowRequest;
-import com.ll.server.domain.mock.user.MockRole;
-import com.ll.server.domain.mock.user.dto.MockUserSignupRequest;
-import com.ll.server.domain.mock.user.entity.MockUser;
-import com.ll.server.domain.mock.user.service.MockUserService;
+import com.ll.server.domain.member.MemberRole;
+import com.ll.server.domain.member.dto.MemberRequest;
+import com.ll.server.domain.member.entity.Member;
+import com.ll.server.domain.member.service.MemberService;
 import com.ll.server.domain.news.news.entity.News;
 import com.ll.server.domain.news.news.enums.NewsCategory;
 import com.ll.server.domain.news.news.repository.NewsRepository;
@@ -28,7 +28,7 @@ import java.util.List;
 public class DataLoader implements CommandLineRunner {
     private final NewsRepository newsRepository;
     private final NewsService newsService;
-    private final MockUserService userService;
+    private final MemberService memberService;
     private final ApiV1FollowController followController;
     private final ApiV1RepostController repostController;
     private final RepostRepository repostRepository;
@@ -42,28 +42,30 @@ public class DataLoader implements CommandLineRunner {
 //        repostDocRepository.deleteAll();
 //        newsDocRepository.deleteAll();
 
-        MockUserSignupRequest publisherSignup=MockUserSignupRequest.builder()
+        MemberRequest publisherSignup=MemberRequest.builder()
                 .email("publisher@example.com")
                 .nickname("Test Publisher")
                 .password("1234")
-                .role(MockRole.PUBLISHER)
+                .role(MemberRole.PUBLISHER)
+                .providerId("1234")
                 .build();
-        MockUser publisherUser=userService.signup(publisherSignup);
+        Member publisherUser=memberService.join(publisherSignup);
 
-        List<MockUser> users=new ArrayList<>();
+        List<Member> users=new ArrayList<>();
         for(int i=0;i<3;i++){
-            MockUserSignupRequest signupRequest=MockUserSignupRequest.builder()
+            MemberRequest signupRequest=MemberRequest.builder()
                     .email((i+1)+"@example.com")
                     .nickname("user"+(i+1))
                     .password("1234")
-                    .role(MockRole.USER)
+                    .role(MemberRole.MEMBER)
+                    .providerId("1234")
                     .build();
-            users.add(userService.signup(signupRequest));
+            users.add(memberService.join(signupRequest));
         }
 
-        MockUser user1=users.getFirst();
-        MockUser user2=users.get(1);
-        MockUser user3=users.get(2);
+        Member user1=users.getFirst();
+        Member user2=users.get(1);
+        Member user3=users.get(2);
 
         FollowRequest followPublisher= FollowRequest.builder()
                 .followerId(publisherUser.getId())

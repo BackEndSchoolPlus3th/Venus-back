@@ -18,8 +18,8 @@ public class LikeDTO {
     public LikeDTO(Like like){
         id=like.getId();
         repostId=like.getRepost().getId();
-        repostWriterId=like.getRepost().getUser().getId();
-        checkedUserId=like.getUser().getId();
-        checkedUserName=like.getUser().getNickname();
+        repostWriterId=like.getRepost().getMember().getId();
+        checkedUserId=like.getMember().getId();
+        checkedUserName=like.getMember().getNickname();
     }
 }

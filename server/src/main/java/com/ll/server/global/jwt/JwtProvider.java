@@ -29,7 +29,7 @@ public class JwtProvider {
 
     public SecretKey getSecretKey() {
         if (cachedSecretKey == null) {
-            cachedSecretKey = cachedSecretKey = _getSecretKey();
+            cachedSecretKey = _getSecretKey();
         }
         return cachedSecretKey;
     }
@@ -49,7 +49,7 @@ public class JwtProvider {
     public String genToken(Member member, int seconds) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("id", member.getId());
-        claims.put("name", member.getName());
+        claims.put("username", member.getNickname());
         claims.put("email", member.getEmail());
         long now = new Date().getTime();
         Date accessTokenExpiresIn = new Date(now + 1000L * seconds);

@@ -10,6 +10,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.crypto.SecretKey;
 import java.io.IOException;
@@ -62,6 +63,7 @@ public class NaverService {
         return member.isPresent();
     }
 
+    @Transactional
     // jwt 토큰 만들기
     public void tokenGengerate(String userInfo) throws JsonProcessingException {
 
@@ -94,7 +96,7 @@ public class NaverService {
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 회원입니다."));
 
         member.setRefreshToken(jwtToken);
-        memberRepository.save(member);
+        //memberRepository.save(member);
 
         return ;
 

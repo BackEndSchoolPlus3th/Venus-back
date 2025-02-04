@@ -1,8 +1,8 @@
 package com.ll.server.domain.mention.repostmention.service;
 
+import com.ll.server.domain.member.entity.Member;
 import com.ll.server.domain.mention.repostmention.entity.RepostMention;
 import com.ll.server.domain.mention.repostmention.repository.RepostMentionRepository;
-import com.ll.server.domain.mock.user.entity.MockUser;
 import com.ll.server.domain.repost.entity.Repost;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,11 +16,11 @@ public class RepostMentionService {
     private final RepostMentionRepository repostMentionRepository;
 
     @Transactional
-    public RepostMention save(Repost repost, MockUser user){
+    public RepostMention save(Repost repost, Member member){
         RepostMention mention=
                 RepostMention.builder()
                         .repost(repost)
-                        .user(user)
+                        .member(member)
                         .build();
 
         return repostMentionRepository.save(mention);

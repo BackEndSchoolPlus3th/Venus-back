@@ -2,7 +2,7 @@ package com.ll.server.domain.mention.commentmention.entity;
 
 
 import com.ll.server.domain.comment.entity.Comment;
-import com.ll.server.domain.mock.user.entity.MockUser;
+import com.ll.server.domain.member.entity.Member;
 import com.ll.server.global.jpa.BaseEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -24,5 +24,5 @@ public class CommentMention extends BaseEntity {
     private Comment comment;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private MockUser user;
+    private Member member;
 }

@@ -6,26 +6,26 @@ server:
   port: 8080
 
 spring:
-#  datasource:
-#    url: jdbc:h2:mem:test;MODE=MySQL
-#    driver-class-name: org.h2.Driver
-#    username: sa
-#    password:
-#  h2:
-#    console:
-#      enabled: true
   datasource:
-    url: jdbc:mysql://host.docker.internal:3306/venus_prac
-    username: root
-    password: 1234
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:h2:mem:test;MODE=MySQL
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  h2:
+    console:
+      enabled: true
+#  datasource:
+#    url: jdbc:mysql://host.docker.internal:3306/venus_prac
+#    username: root
+#    password: 1234
+#    driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     open-in-view: false
     hibernate:
       ddl-auto: create
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.MySQL8Dialect
+#        dialect: org.hibernate.dialect.MySQL8Dialect
       '[hibernate.default_batch_fetch_size]': 100
       '[hibernate.format_sql]': true
     show-sql: true
@@ -33,27 +33,6 @@ spring:
     ansi:
       enabled: always
 
-  # 로그인 및 인증
-  oauth2:
-    kakao:
-      url:
-        auth: "${spring.security.kakao.url.auth}"
-        api: "${spring.security.kakao.url.api}"
-        redirect-uri: http://localhost:8080/kakao/callback
-      client-id: "${spring.security.kakao.client-id}"
-    naver:
-      url:
-        auth: "${spring.security.naver.url.auth}"
-        api: "${spring.security.naver.url.api}"
-        redirect-uri: "${spring.security.naver.url.redirect-uri}"
-      client-id: "${spring.security.naver.client-id}"
-      client-secret: "${spring.security.naver.client-secret}"
-
-    jwt:
-      secret-key: "${spring.security.jwt.secret-key}"
-
-    accessToken:
-      expirationSeconds: "${spring.security.accessToken.expirationSeconds}"
 
 
 

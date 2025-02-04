@@ -1,10 +1,15 @@
 package com.ll.server.domain.follow.entity;
 
 
-import com.ll.server.domain.mock.user.entity.MockUser;
+import com.ll.server.domain.member.entity.Member;
 import com.ll.server.global.jpa.BaseEntity;
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ManyToOne;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 @Entity
@@ -15,8 +20,8 @@ import lombok.experimental.SuperBuilder;
 @ToString
 public class Follow extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
-    MockUser follower;//구독을 받는 사람
+    Member follower;//구독을 받는 사람
 
     @ManyToOne(fetch = FetchType.LAZY)
-    MockUser followee;//구독한 사람
+    Member followee;//구독한 사람
 }

@@ -1,7 +1,7 @@
 package com.ll.server.domain.notification.service;
 
 
-import com.ll.server.domain.mock.user.entity.MockUser;
+import com.ll.server.domain.member.entity.Member;
 import com.ll.server.domain.notification.entity.Notification;
 import com.ll.server.domain.notification.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,9 +20,9 @@ public class NotificationService {
 
     //알림 저장
     @Transactional
-    public void saveNotification(MockUser user, String message, String url){
+    public void saveNotification(Member member, String message, String url){
         Notification notification=Notification.builder()
-                .user(user)
+                .member(member)
                 .message(message)
                 .url(url)
                 .build();
@@ -32,34 +32,34 @@ public class NotificationService {
 
     //미처 못 보낸 알림들을 유저 닉네임으로 찾음. 유저 첫 접속 시 보내지지 않은 알림을 보내는 데 사용
     public List<Notification> findUnsentNotificationsByUsername(String nickname){
-       return notificationRepository.findNotificationsByUser_NicknameAndHasSentIsFalse(nickname);
+       return notificationRepository.findNotificationsByMember_NicknameAndHasSentIsFalse(nickname);
     }
 
     //미처 못 보낸 알림들을 유저 아이디로 찾음. 유저 첫 접속 시 보내지지 않은 알림을 보내는 데 사용
     public List<Notification> findUnsentNotificationsById(Long userId){
-        return notificationRepository.findNotificationsByUser_IdAndHasSentIsFalse(userId);
+        return notificationRepository.findNotificationsByMember_IdAndHasSentIsFalse(userId);
     }
 
 
     //보내지긴 했으나 읽지 않은 알림들을 닉네임으로 찾음. 프론트엔드의 알림창 탭을 누르면 먼저 뜰 알림을 볼 수 있도록.
     public List<Notification> findUnreadNotificationsByUsername(String nickname){
-        return notificationRepository.findNotificationsByUser_NicknameAndHasSentIsTrueAndHasReadIsFalse(nickname);
+        return notificationRepository.findNotificationsByMember_NicknameAndHasSentIsTrueAndHasReadIsFalse(nickname);
     }
 
 
     //보내지긴 했으나 읽지 않은 알림들을 유저의 ID로 찾음. 프론트엔드의 알림창 탭을 누르면 먼저 뜰 알림을 볼 수 있도록.
     public List<Notification> findUnreadNotificationsById(Long userId){
-        return notificationRepository.findNotificationsByUser_IdAndHasSentIsTrueAndHasReadIsFalse(userId);
+        return notificationRepository.findNotificationsByMember_IdAndHasSentIsTrueAndHasReadIsFalse(userId);
     }
 
     //특정 유저의 모든 알림을 user의 ID로 찾음. 알림 목록이라는 것이 있다면 종류 불문 띄울 수 있도록.
     public List<Notification> findAllNotificationsById(Long userId){
-        return notificationRepository.findNotificationsByUser_Id(userId);
+        return notificationRepository.findNotificationsByMember_Id(userId);
     }
 
     //특정 유저의 모든 알림을 user의 이름로 찾음. 알림 목록이라는 것이 있다면 종류 불문 띄울 수 있도록.
     public List<Notification> findAllNotificationsByUsername(String nickname){
-        return notificationRepository.findNotificationsByUser_Nickname(nickname);
+        return notificationRepository.findNotificationsByMember_Nickname(nickname);
     }
 
     //RDB에 저장되므로, 오래된 읽은 알림은 주기적으로 삭제가 가능하도록 할 수도 있다.

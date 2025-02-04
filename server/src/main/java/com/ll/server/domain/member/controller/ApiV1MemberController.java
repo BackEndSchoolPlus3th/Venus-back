@@ -4,7 +4,6 @@ import com.ll.server.domain.member.dto.MemberDto;
 import com.ll.server.domain.member.dto.MemberLogin;
 import com.ll.server.domain.member.dto.MemberRequest;
 import com.ll.server.domain.member.entity.Member;
-import com.ll.server.domain.member.repository.MemberRepository;
 import com.ll.server.domain.member.service.MemberService;
 import com.ll.server.global.jwt.JwtProvider;
 import com.ll.server.global.rsData.RsData;
@@ -24,18 +23,17 @@ public class ApiV1MemberController {
 
     private final MemberService memberService;
     private final JwtProvider jwtProvider;
-    private final MemberRepository memberRepository;
 
     @PostMapping("/signup")
-    public String join(@Valid @ModelAttribute MemberRequest memberRequest) {
+    public String join(@Valid @RequestBody MemberRequest memberRequest) {
         Member member = memberService.join(
                 memberRequest.getEmail(),
                 memberRequest.getPassword(),
                 memberRequest.getRole(),
-                memberRequest.getName(),
+                //memberRequest.getName(),
                 memberRequest.getNickname(),
                 memberRequest.getProviderId());
-        System.out.println("회원가입 성공"+ member.getName());
+        System.out.println("회원가입 성공"+ member.getNickname());
         return "signup finished";
     }
 
