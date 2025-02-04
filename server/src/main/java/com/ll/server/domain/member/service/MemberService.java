@@ -1,5 +1,6 @@
 package com.ll.server.domain.member.service;
 
+import com.ll.server.domain.member.MemberRole;
 import com.ll.server.domain.member.entity.Member;
 import com.ll.server.domain.member.repository.MemberRepository;
 import com.ll.server.global.jwt.JwtProvider;
@@ -21,7 +22,7 @@ public class MemberService {
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
 
-    public Member join(String email, String password, String name, String nickname, String providerId) {
+    public Member join(String email, String password, MemberRole role, String name, String nickname, String providerId) {
 
         // 존재하는 지 체크
         memberRepository.findByEmail(email)
@@ -32,6 +33,7 @@ public class MemberService {
         Member member = Member.builder()
                 .email(email)
                 .password(passwordEncoder.encode(password))
+                .role(role)
                 .nickname(nickname)
                 .name(name)
                 .provider("naver")

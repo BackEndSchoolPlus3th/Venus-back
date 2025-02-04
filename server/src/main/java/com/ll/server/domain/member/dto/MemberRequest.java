@@ -1,6 +1,8 @@
 package com.ll.server.domain.member.dto;
 
+import com.ll.server.domain.member.MemberRole;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,6 +20,9 @@ public class MemberRequest {
     @NotBlank
     private String password;
 
+    @NotNull
+    private MemberRole role;
+
     @NotBlank
     private String name;
 
@@ -26,5 +31,8 @@ public class MemberRequest {
 
     @NotBlank
     private String providerId;
+
+
+
 }
 

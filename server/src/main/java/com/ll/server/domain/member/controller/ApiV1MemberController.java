@@ -31,6 +31,7 @@ public class ApiV1MemberController {
         Member member = memberService.join(
                 memberRequest.getEmail(),
                 memberRequest.getPassword(),
+                memberRequest.getRole(),
                 memberRequest.getName(),
                 memberRequest.getNickname(),
                 memberRequest.getProviderId());
