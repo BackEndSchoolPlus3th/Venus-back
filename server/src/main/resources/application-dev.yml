@@ -30,23 +30,23 @@ spring:
   oauth2:
     kakao:
       url:
-        auth: "${application.spring.security.kakao.url.auth}"
-        api: "${application.spring.security.kakao.url.api}"
+        auth: "${spring.security.kakao.url.auth}"
+        api: "${spring.security.kakao.url.api}"
         redirect-uri: http://localhost:8080/kakao/callback
-      client-id: "${application.spring.security.kakao.client-id}"
+      client-id: "${spring.security.kakao.client-id}"
     naver:
       url:
-        auth: "${application.spring.security.naver.url.auth}"
-        api: "${application.spring.security.naver.url.api}"
-        redirect-uri: "${application.spring.security.naver.url.redirect-uri}"
-      client-id: "${application.spring.security.naver.client-id}"
-      client-secret: "${application.spring.security.naver.client-secret}"
+        auth: "${spring.security.naver.url.auth}"
+        api: "${spring.security.naver.url.api}"
+        redirect-uri: "${spring.security.naver.url.redirect-uri}"
+      client-id: "${spring.security.naver.client-id}"
+      client-secret: "${spring.security.naver.client-secret}"
 
     jwt:
-      secret-key: "${application.spring.security.jwt.secret-key}"
+      secret-key: "${spring.security.jwt.secret-key}"
 
     accessToken:
-      expirationSeconds: "${application.spring.security.accessToken.expirationSeconds}"
+      expirationSeconds: "${spring.security.accessToken.expirationSeconds}"
 
 
 
