@@ -1,0 +1,5 @@
+- pipeline.id: repost_pipeline
+  path.config: "/usr/share/logstash/pipeline/repostpipeline.conf"
+
+- pipeline.id: news_pipeline
+  path.config: "/usr/share/logstash/pipeline/newspipeline.conf"
