@@ -21,17 +21,19 @@ public class NewsDTO {
     private String thumbnailUrl;
     private String contentUrl;
     private String category;
+    private String publishedAt;
 
-    public NewsDTO(News news){
-        id=news.getId();
-        title=news.getTitle();
-        content=news.getContent();
-        author=news.getAuthor();
-        publisherName=news.getPublisher();
-        imageUrl=news.getImageUrl();
-        thumbnailUrl=news.getThumbnailUrl();
-        contentUrl=news.getContentUrl();
-        category=news.getCategory().getCategory();
+    public NewsDTO(News news) {
+        id = news.getId();
+        title = news.getTitle();
+        content = news.getContent();
+        author = news.getAuthor();
+        publisherName = news.getPublisher();
+        imageUrl = news.getImageUrl();
+        thumbnailUrl = news.getThumbnailUrl();
+        contentUrl = news.getContentUrl();
+        category = news.getCategory().getCategory();
+        publishedAt = news.getPublishedAt();
     }
 
 }
