@@ -4,7 +4,6 @@ import com.ll.server.domain.comment.dto.CommentDTO;
 import com.ll.server.domain.comment.dto.CommentModifyRequest;
 import com.ll.server.domain.comment.dto.CommentResponse;
 import com.ll.server.domain.comment.dto.CommentWriteRequest;
-import com.ll.server.domain.elasticsearch.repost.service.RepostDocService;
 import com.ll.server.domain.like.dto.LikeDTO;
 import com.ll.server.domain.like.dto.LikeResponse;
 import com.ll.server.domain.repost.dto.RepostDTO;
@@ -20,7 +19,7 @@ import java.util.List;
 @RequestMapping("/api/v1/reposts")
 public class ApiV1RepostController {
     private final RepostService repostService;
-    private final RepostDocService repostDocService;
+    //private final RepostDocService repostDocService;
 
     //repost 영역
     @GetMapping
@@ -85,9 +84,9 @@ public class ApiV1RepostController {
         return repostService.markLike(repostId,userId);
     }
 
-    @GetMapping("/search")
-    public List<RepostDTO> searchByContent(@RequestParam("keyword") String keyword){
-        return repostDocService.searchContent(keyword);
-    }
+//    @GetMapping("/search")
+//    public List<RepostDTO> searchByContent(@RequestParam("keyword") String keyword){
+//        return repostDocService.searchContent(keyword);
+//    }
 
 }
