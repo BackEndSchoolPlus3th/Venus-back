@@ -27,6 +27,7 @@ public class RepostDTO {
     private List<RepostMentionDTO> mentions;
     private CommentResponse commentInfo;
     private LikeResponse likeInfo;
+    private String imageUrl;
 
     public RepostDTO(Repost repost){
         News newsEntity=repost.getNews();
@@ -61,6 +62,8 @@ public class RepostDTO {
                         .map(LikeDTO::new)
                         .collect(Collectors.toList())
         );
+
+        imageUrl = repost.getImageUrl();
 
     }
 }
