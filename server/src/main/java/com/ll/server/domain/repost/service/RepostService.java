@@ -66,6 +66,7 @@ public class RepostService {
                         .user(user)
                         .news(news)
                         .content(request.getContent())
+                        .imageUrl(request.getImageUrl())
                         .build();
 
         repostRepository.save(repost);

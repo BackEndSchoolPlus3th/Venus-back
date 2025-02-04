@@ -59,6 +59,9 @@ public class Repost extends BaseEntity {
 
     private Boolean pinned;
 
+    @Column(columnDefinition = "TEXT")
+    private String imageUrl;
+
 
     public Comment addComment(MockUser user, List<MockUser> mentionedUsers, String content){
         Comment comment = Comment.builder()
@@ -97,7 +100,6 @@ public class Repost extends BaseEntity {
 
         this.mentions.add(mention);
     }
-
 
     public void deleteComments() {
         comments.forEach(comment -> comment.setDeletedAt(LocalDateTime.now()));

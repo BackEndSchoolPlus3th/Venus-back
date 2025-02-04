@@ -17,6 +17,7 @@ public class RepostWriteRequest {
     private Long writerId;
     private String content;
     private String mentions;
+    private String imageUrl;
 
     public List<String> getMentionedNames(){
         if(mentions==null || mentions.isBlank()) return null;
