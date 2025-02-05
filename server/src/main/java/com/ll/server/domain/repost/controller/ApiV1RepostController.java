@@ -24,6 +24,7 @@ public class ApiV1RepostController {
     //repost 영역
     @GetMapping
     public List<RepostDTO> getAllRepost(){
+
         return repostService.findAll();
     }
 

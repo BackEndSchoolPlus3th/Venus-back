@@ -33,6 +33,7 @@ public class RepostService {
 
 
     public RepostDTO findById(Long id){
+
         return new RepostDTO(repostRepository.findById(id).get());
     }
 
