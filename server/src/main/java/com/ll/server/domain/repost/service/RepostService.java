@@ -5,8 +5,8 @@ import com.ll.server.domain.comment.dto.CommentWriteRequest;
 import com.ll.server.domain.comment.entity.Comment;
 import com.ll.server.domain.like.dto.LikeDTO;
 import com.ll.server.domain.like.entity.Like;
-import com.ll.server.domain.mock.user.entity.MockUser;
-import com.ll.server.domain.mock.user.repository.MockUserRepository;
+import com.ll.server.domain.member.entity.Member;
+import com.ll.server.domain.member.repository.MemberRepository;
 import com.ll.server.domain.news.news.entity.News;
 import com.ll.server.domain.news.news.repository.NewsRepository;
 import com.ll.server.domain.notification.Notify;
@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class RepostService {
     private final RepostRepository repostRepository;
-    private final MockUserRepository userRepository;
+    private final MemberRepository memberRepository;
     private final NewsRepository newsRepository;
 
 
@@ -52,7 +52,7 @@ public class RepostService {
     @Transactional
     @Notify
     public RepostDTO save(RepostWriteRequest request){
-        MockUser user=userRepository.findById(request.getWriterId()).get();
+        Member user=memberRepository.findById(request.getWriterId()).get();
 
         News news=newsRepository.findAll()
                 .stream()
@@ -60,10 +60,10 @@ public class RepostService {
                 .findFirst()
                 .get();
 
-        List<MockUser> metionedUserList=userRepository.findMockUsersByNicknameIn(request.getMentionedNames());
+        List<Member> metionedMemberList=memberRepository.findMembersByNicknameIn(request.getMentionedNames());
         Repost repost=
                 Repost.builder()
-                        .user(user)
+                        .member(user)
                         .news(news)
                         .content(request.getContent())
                         .imageUrl(request.getImageUrl())
@@ -71,9 +71,9 @@ public class RepostService {
 
         repostRepository.save(repost);
 
-        if(metionedUserList!=null && !metionedUserList.isEmpty()){
-            for(MockUser mentionedUser : metionedUserList){
-                repost.addMention(mentionedUser);
+        if(metionedMemberList!=null && !metionedMemberList.isEmpty()){
+            for(Member mentionedMember : metionedMemberList){
+                repost.addMention(mentionedMember);
             }
         }
 
@@ -81,7 +81,7 @@ public class RepostService {
     }
 
     public List<RepostDTO> findByUserNickname(String nickname){
-        return repostRepository.findRepostsByUser_Nickname(nickname)
+        return repostRepository.findRepostsByMember_Nickname(nickname)
                 .stream()
                 .filter(repost->repost.getDeletedAt()==null)
                 .map(RepostDTO::new)
@@ -151,11 +151,11 @@ public class RepostService {
         Repost repost = getRepost(postId);
         if (repost == null) return null;
 
-        MockUser user=userRepository.findById(request.getWriterId()).get();
+        Member member=memberRepository.findById(request.getWriterId()).get();
 
-        List<MockUser> mentionedUsers=userRepository.findMockUsersByNicknameIn(request.getMentionedNames());
+        List<Member> mentionedMembers=memberRepository.findMembersByNicknameIn(request.getMentionedNames());
 
-        Comment comment=repost.addComment(user,mentionedUsers,request.getContent());
+        Comment comment=repost.addComment(member,mentionedMembers,request.getContent());
 
         return new CommentDTO(comment);
     }
@@ -189,7 +189,7 @@ public class RepostService {
 
         Optional<Like> likeOptional=
         likes.stream()
-                .filter(like -> !like.getDeleted() && like.getUser().getId().equals(userId))
+                .filter(like -> !like.getDeleted() && like.getMember().getId().equals(userId))
                 .findFirst();
 
         if(likeOptional.isEmpty()) return "좋아요 취소 실패";
@@ -207,7 +207,7 @@ public class RepostService {
         Repost repost=getRepost(repostId);
         if(repost==null) return null;
 
-        MockUser user=userRepository.findById(userId).get();
+        Member user=memberRepository.findById(userId).get();
         return new LikeDTO(repost.addLike(user));
 
     }

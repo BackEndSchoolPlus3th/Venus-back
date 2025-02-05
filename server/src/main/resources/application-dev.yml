@@ -14,11 +14,18 @@ spring:
   h2:
     console:
       enabled: true
+#  datasource:
+#    url: jdbc:mysql://host.docker.internal:3306/venus_prac
+#    username: root
+#    password: 1234
+#    driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     open-in-view: false
     hibernate:
       ddl-auto: create
     properties:
+      hibernate:
+#        dialect: org.hibernate.dialect.MySQL8Dialect
       '[hibernate.default_batch_fetch_size]': 100
       '[hibernate.format_sql]': true
     show-sql: true
@@ -26,27 +33,6 @@ spring:
     ansi:
       enabled: always
 
-  # 로그인 및 인증
-  oauth2:
-    kakao:
-      url:
-        auth: "${application.spring.security.kakao.url.auth}"
-        api: "${application.spring.security.kakao.url.api}"
-        redirect-uri: http://localhost:8080/kakao/callback
-      client-id: "${application.spring.security.kakao.client-id}"
-    naver:
-      url:
-        auth: "${application.spring.security.naver.url.auth}"
-        api: "${application.spring.security.naver.url.api}"
-        redirect-uri: "${application.spring.security.naver.url.redirect-uri}"
-      client-id: "${application.spring.security.naver.client-id}"
-      client-secret: "${application.spring.security.naver.client-secret}"
-
-    jwt:
-      secret-key: "${application.spring.security.jwt.secret-key}"
-
-    accessToken:
-      expirationSeconds: "${application.spring.security.accessToken.expirationSeconds}"
 
 
 

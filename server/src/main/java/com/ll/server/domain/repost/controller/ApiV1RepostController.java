@@ -19,6 +19,7 @@ import java.util.List;
 @RequestMapping("/api/v1/reposts")
 public class ApiV1RepostController {
     private final RepostService repostService;
+    //private final RepostDocService repostDocService;
 
     //repost 영역
     @GetMapping
@@ -82,5 +83,10 @@ public class ApiV1RepostController {
                            @PathVariable("userId") Long userId){
         return repostService.markLike(repostId,userId);
     }
+
+//    @GetMapping("/search")
+//    public List<RepostDTO> searchByContent(@RequestParam("keyword") String keyword){
+//        return repostDocService.searchContent(keyword);
+//    }
 
 }

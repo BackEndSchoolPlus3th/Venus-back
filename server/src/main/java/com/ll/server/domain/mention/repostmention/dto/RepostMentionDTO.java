@@ -13,7 +13,7 @@ public class RepostMentionDTO {
     private String mentionName;
 
     public RepostMentionDTO(RepostMention mention){
-        mentionUserId=mention.getUser().getId();
-        mentionName="@"+mention.getUser().getNickname();
+        mentionUserId=mention.getMember().getId();
+        mentionName="@"+mention.getMember().getNickname();
     }
 }

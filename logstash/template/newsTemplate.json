@@ -1,0 +1,82 @@
+{
+  "index_patterns": ["news*"],
+  "template": {
+    "settings": {
+      "analysis": {
+        "tokenizer": {
+          "nori_mixed": {
+            "type": "nori_tokenizer",
+            "decompound_mode": "mixed"
+          }
+        },
+        "analyzer": {
+          "korean_mixed": {
+            "type": "custom",
+            "tokenizer": "nori_mixed",
+            "filter": [
+              "lowercase",
+              "nori_part_of_speech",
+              "nori_posfilter",
+              "nori_readingform"
+            ]
+          }
+        },
+        "filter": {
+          "nori_posfilter": {
+            "type": "nori_part_of_speech",
+            "stoptags": [
+              "E", "IC", "J", "MAG", "MAJ", "MM", "SP",
+              "SSC", "SSO", "SC", "SE", "XPN", "XSA",
+              "XSN", "XSV", "UNA", "NA", "VSV"
+            ]
+          }
+        }
+      },
+      "index": {
+        "max_ngram_diff": 5
+      }
+    },
+    "mappings": {
+      "properties": {
+        "title": {
+          "type": "text",
+          "analyzer": "korean_mixed"
+        },
+        "content": {
+          "type": "text",
+          "analyzer": "korean_mixed"
+        },
+        "create_date": {
+          "type": "date",
+          "format": "strict_date_time"
+        },
+        "modify_date": {
+          "type": "date",
+          "format": "strict_date_time"
+        },
+        "category": {
+          "type": "keyword"
+        },
+        "author": {
+          "type": "keyword"
+        },
+        "image_url": {
+          "type": "keyword"
+        },
+        "content_url": {
+          "type": "keyword"
+        },
+        "thumbnail_url": {
+          "type": "keyword"
+        },
+        "publish_at": {
+          "type": "keyword"
+        },
+        "publisher": {
+          "type": "text",
+          "analyzer": "korean_mixed"
+        }
+      }
+    }
+  }
+}

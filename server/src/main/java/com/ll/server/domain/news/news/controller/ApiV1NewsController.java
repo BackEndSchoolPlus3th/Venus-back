@@ -23,6 +23,8 @@ public class ApiV1NewsController {
     private final NewsService newsService;
     private final NewsFetchService newsFetchService;
 
+    //private final NewsDocService newsDocService;
+
     @Data
     private static class NewsGetRequest {
         //requestBody가 들어오지 않을 때 default page, limit 입니다
@@ -70,5 +72,15 @@ public class ApiV1NewsController {
 
         return ApiResponse.of("삭제 성공");
     }
+
+//    @GetMapping("/search")
+//    public ApiResponse<NewsDTO> searchNews(@RequestParam(value="keyword",defaultValue="") String keyword,
+//                                           @RequestParam(value="title",defaultValue=true)boolean hasTitle,
+//                                           @RequestParam(value="content",defaultValue=false)boolean hasContent,
+//                                           @RequestParam(value="publisher",defaultValue=false)boolean hasPublisher,
+//                                           @RequestParam(value="category",)String category){
+//        //타입으로는 publisher, title, content, category(이건 별도로 드랍다운 방식으로 선택하거나 할 듯. 나머지는 체크박스)가 올 수 있다.
+//        return newsDocService.search(String keyword, boolean hasTitle, boolean hasContent, boolean hasPublisher, String category);
+//    }
 
 }

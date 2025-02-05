@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface CommentRepository extends JpaRepository<Comment,Long> {
 
-    List<Comment> findMockCommentsByUser_Id(Long userId);
+    List<Comment> findCommentsByMember_Id(Long userId);
 }

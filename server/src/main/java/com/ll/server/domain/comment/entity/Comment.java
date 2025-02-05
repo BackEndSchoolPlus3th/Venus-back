@@ -1,8 +1,8 @@
 package com.ll.server.domain.comment.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.ll.server.domain.member.entity.Member;
 import com.ll.server.domain.mention.commentmention.entity.CommentMention;
-import com.ll.server.domain.mock.user.entity.MockUser;
 import com.ll.server.domain.repost.entity.Repost;
 import com.ll.server.global.jpa.BaseEntity;
 import jakarta.persistence.*;
@@ -25,7 +25,7 @@ public class Comment extends BaseEntity {
     private Repost repost;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private MockUser user;
+    private Member member;
 
     @Column(columnDefinition = "TEXT")
     private String content;
@@ -39,11 +39,11 @@ public class Comment extends BaseEntity {
     @JsonIgnore
     List<CommentMention> mentions=new ArrayList<>();
 
-    public void addMention(MockUser user){
+    public void addMention(Member member){
         CommentMention mention=CommentMention
                 .builder()
                 .comment(this)
-                .user(user)
+                .member(member)
                 .build();
 
         mentions.add(mention);

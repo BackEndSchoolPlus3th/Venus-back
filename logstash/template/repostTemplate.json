@@ -1,0 +1,69 @@
+{
+  "index_patterns": ["repost*"],
+  "template": {
+    "settings": {
+      "analysis": {
+        "tokenizer": {
+          "nori_mixed": {
+            "type": "nori_tokenizer",
+            "decompound_mode": "mixed"
+          }
+        },
+        "analyzer": {
+          "korean_mixed": {
+            "type": "custom",
+            "tokenizer": "nori_mixed",
+            "filter": [
+              "lowercase",
+              "nori_part_of_speech",
+              "nori_posfilter",
+              "nori_readingform"
+            ]
+          }
+        },
+        "filter": {
+          "nori_posfilter": {
+            "type": "nori_part_of_speech",
+            "stoptags": [
+              "E", "IC", "J", "MAG", "MAJ", "MM", "SP",
+              "SSC", "SSO", "SC", "SE", "XPN", "XSA",
+              "XSN", "XSV", "UNA", "NA", "VSV"
+            ]
+          }
+        }
+      },
+      "index": {
+        "max_ngram_diff": 5
+      }
+    },
+    "mappings": {
+      "properties": {
+        "content": {
+          "type": "text",
+          "analyzer": "korean_mixed"
+        },
+        "create_date": {
+          "type": "date",
+          "format": "strict_date_time"
+        },
+        "modify_date": {
+          "type": "date",
+          "format": "strict_date_time"
+        },
+        "deleted_at": {
+          "type": "date",
+          "format": "strict_date_time"
+        },
+        "news_id":{
+          "type": "long"
+        },
+        "user_id": {
+          "type": "long"
+        },
+        "id": {
+          "type": "long"
+        }
+      }
+    }
+  }
+}

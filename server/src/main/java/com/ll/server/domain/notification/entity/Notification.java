@@ -1,6 +1,6 @@
 package com.ll.server.domain.notification.entity;
 
-import com.ll.server.domain.mock.user.entity.MockUser;
+import com.ll.server.domain.member.entity.Member;
 import com.ll.server.global.jpa.BaseEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -16,7 +16,7 @@ import lombok.experimental.SuperBuilder;
 @ToString
 public class Notification extends BaseEntity {
     @ManyToOne(fetch=FetchType.LAZY)
-    private MockUser user;
+    private Member member;
     private String message;
     @Builder.Default
     private Boolean hasRead=false;

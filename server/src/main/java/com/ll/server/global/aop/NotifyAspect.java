@@ -5,10 +5,10 @@ import com.ll.server.domain.follow.dto.FollowDTO;
 import com.ll.server.domain.follow.entity.Follow;
 import com.ll.server.domain.follow.repository.FollowRepository;
 import com.ll.server.domain.like.dto.LikeDTO;
+import com.ll.server.domain.member.entity.Member;
+import com.ll.server.domain.member.repository.MemberRepository;
 import com.ll.server.domain.mention.commentmention.dto.CommentMentionDTO;
 import com.ll.server.domain.mention.repostmention.entity.RepostMention;
-import com.ll.server.domain.mock.user.entity.MockUser;
-import com.ll.server.domain.mock.user.repository.MockUserRepository;
 import com.ll.server.domain.news.news.dto.NewsDTO;
 import com.ll.server.domain.news.news.dto.NewsResponse;
 import com.ll.server.domain.notification.dto.NotificationDTO;
@@ -34,7 +34,7 @@ public class NotifyAspect {
     private final NotificationService notificationService;
     private final FollowRepository followRepository;
     private final RepostRepository repostRepository;
-    private final MockUserRepository userRepository;
+    private final MemberRepository memberRepository;
     private final EmitterManager emitterManager;
 
     @Around("@annotation(com.ll.server.domain.notification.Notify)")//Notify 어노테이션이 붙은 메서드를 실행하면 이 놈이 대리로 실행 후 본인 할 일을 한다.
@@ -49,12 +49,12 @@ public class NotifyAspect {
             Long followerId=repostDTO.getWriterId();
             String followerName=repostDTO.getNickname();
 
-            List<Follow> followList= followRepository.findMockFollowsByFollower_Id(followerId);
+            List<Follow> followList= followRepository.findFollowsByFollower_Id(followerId);
 
             String url="http://localhost:8080/api/v1/repost/"+repostId;
 
             for(Follow follow : followList){
-                MockUser followee=follow.getFollowee();
+                Member followee=follow.getFollowee();
                 notificationService.saveNotification(followee,followerName+"님이 새 리포스트를 올렸습니다.",url);
             }
 
@@ -62,8 +62,8 @@ public class NotifyAspect {
             String repostUser=repostDTO.getNickname();
 
             for(RepostMention mention: repostMentions){
-                MockUser mentionedUser=mention.getUser();
-                if(mention.getUser().getId().equals(repostDTO.getWriterId())) continue;
+                Member mentionedUser=mention.getMember();
+                if(mention.getMember().getId().equals(repostDTO.getWriterId())) continue;
                 notificationService.saveNotification(mentionedUser,repostUser+"님이 당신을 멘션했습니다.",url);
             }
 
@@ -72,7 +72,7 @@ public class NotifyAspect {
         if(obj instanceof FollowDTO followDTO){
             Follow follow= followRepository.findById(followDTO.getId()).get();
 
-            MockUser follower=follow.getFollower();
+            Member follower=follow.getFollower();
             String followerName=followDTO.getFollower();
             String followeeName=followDTO.getFollowee();
             String url="http://localhost:8080/api/v1/follows/followees?nickname="+followerName;
@@ -86,7 +86,7 @@ public class NotifyAspect {
             Long repostWriterId=commentDTO.getRepostWriterId();
             Long commentWriterId=commentDTO.getCommentWriterId();
 
-            MockUser repostWriter=userRepository.findById(repostWriterId).get();
+            Member repostWriter=memberRepository.findById(repostWriterId).get();
 
             if(!repostWriterId.equals(commentWriterId)) {
                 notificationService.saveNotification(repostWriter, "내 리포스트에 "+commentDTO.getCommentWriterName()+"님이 댓글을 달았습니다.", url);
@@ -101,7 +101,7 @@ public class NotifyAspect {
                 if(mentionedUserId.equals(commentWriterId)) {
                     continue;
                 }
-                MockUser mentionedUser=userRepository.findById(mentionedUserId).get();
+                Member mentionedUser=memberRepository.findById(mentionedUserId).get();
                 notificationService.saveNotification(mentionedUser,commentDTO.getCommentWriterName()+"님이 당신을 멘션했습니다.",url);
             }
         }
@@ -114,7 +114,7 @@ public class NotifyAspect {
             Long checkedUserId=mockLikeDTO.getCheckedUserId();
 
             if(!repostId.equals(checkedUserId)) {
-                MockUser user = userRepository.findById(repostWriterId).get();
+                Member user = memberRepository.findById(repostWriterId).get();
                 String url = "http://localhost:8080/api/v1/reposts/" + repostId + "/likes";
                 notificationService.saveNotification(user, checkedUserName + "님이 당신의 글에 좋아요를 눌렀습니다.", url);
             }
@@ -135,7 +135,7 @@ public class NotifyAspect {
 
         List<Long> successToSend=new ArrayList<>();
         for(Notification notification: notifications){
-           Long targetId=notification.getUser().getId();
+           Long targetId=notification.getMember().getId();
            NotificationDTO toSend= new NotificationDTO(notification);
            if(emitterManager.sendNotification(targetId,toSend)){
                 successToSend.add(toSend.getId());
@@ -153,10 +153,10 @@ public class NotifyAspect {
 
         String url = "http://localhost:8080/api/v1/news/" + newsId;
 
-        List<Follow> followeeList = followRepository.findMockFollowsByFollower_Nickname(publisher);
+        List<Follow> followeeList = followRepository.findFollowsByFollower_Nickname(publisher);
 
         for (Follow follow : followeeList) {
-            MockUser followee = follow.getFollowee();
+            Member followee = follow.getFollowee();
             notificationService.saveNotification(followee, publisher + " 언론사의 기사가 올라왔습니다.", url);
         }
     }

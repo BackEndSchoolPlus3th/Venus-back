@@ -42,8 +42,8 @@ public class RepostDTO {
                 .thumbnailUrl(newsEntity.getThumbnailUrl())
                 .build();
         repostId=repost.getId();
-        writerId=repost.getUser().getId();
-        nickname=repost.getUser().getNickname();
+        writerId=repost.getMember().getId();
+        nickname=repost.getMember().getNickname();
         content=repost.getContent();
         mentions=repost.getMentions().stream()
                 .map(RepostMentionDTO::new)
