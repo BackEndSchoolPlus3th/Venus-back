@@ -25,7 +25,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Collections;
 
 @Configuration
 @EnableWebSecurity
@@ -36,9 +37,6 @@ public class SecurityConfig {
     private final CustomOAuth2UserService customOAuth2UserService;
     private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
     private final OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
-
-    @Value("${front.base_url}")
-    private String frontBaseUrl;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -68,6 +66,7 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable) // CSRF 보호 비활성화 (API 서버이므로)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // CORS 설정
+                .formLogin(AbstractHttpConfigurer::disable)
                 .sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS) // 세션 사용안함
                 );
 
@@ -98,14 +97,31 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList(frontBaseUrl)); // Front URL
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS")); // 허용할 HTTP Method
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type")); // 허용할 Header
-        configuration.setAllowCredentials(true); // 자격 증명 허용 (쿠키)
+
+        //리소스를 허용할 URL 지정
+        ArrayList<String> allowedOriginPatterns = new ArrayList<>();
+        allowedOriginPatterns.add("http://localhost:8080");
+        allowedOriginPatterns.add("http://127.0.0.1:8080");
+        configuration.setAllowedOrigins(allowedOriginPatterns);
+
+        //허용하는 HTTP METHOD 지정
+        ArrayList<String> allowedHttpMethods = new ArrayList<>();
+        allowedHttpMethods.add("GET");
+        allowedHttpMethods.add("POST");
+        allowedHttpMethods.add("PUT");
+        allowedHttpMethods.add("DELETE");
+        configuration.setAllowedMethods(allowedHttpMethods);
+
+        configuration.setAllowedHeaders(Collections.singletonList("*"));
+        // configuration.setAllowedHeaders(List.of(HttpHeaders.AUTHORIZATION, HttpHeaders.CONTENT_TYPE));
+
+        //인증, 인가를 위한 credentials 를 TRUE로 설정
+        configuration.setAllowCredentials(true);
+
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
-        return source;
 
+        return source;
     }
 
 }

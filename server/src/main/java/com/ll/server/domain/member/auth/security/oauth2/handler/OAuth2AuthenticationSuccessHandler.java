@@ -20,7 +20,7 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
     private final RefreshTokenRepository refreshTokenRepository;
 
     @Value("${jwt.refresh-token-validity-in-seconds}")
-    private Long refreshTokenValidityInMilliseconds;
+    private Long refreshTokenValidityInSeconds;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
@@ -32,7 +32,7 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
         RefreshToken refreshTokenEntity = RefreshToken.builder()
                 .token(refreshToken)
                 .email(authentication.getName())
-                .expiration(refreshTokenValidityInMilliseconds)
+                .expiration(refreshTokenValidityInSeconds / 1000)
                 .build();
         refreshTokenRepository.save(refreshTokenEntity);
 
@@ -41,6 +41,6 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
 
         // Redirect (프론트 URL로, 토큰을 쿼리 파리미터나 헤더에 담아 전달 가능)
         // TODO: Redirect URL Endpoint 설정 확인하기
-        response.sendRedirect("http://localhost:8080/");
+        // response.sendRedirect("http://localhost:8080/");
     }
 }
