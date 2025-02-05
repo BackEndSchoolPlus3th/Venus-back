@@ -27,7 +27,7 @@ public class CustomZonedDateTimeConverter implements PropertyValueConverter {
             try {
                 return formatterWithZone.parse(s, ZonedDateTime::from);
             } catch (Exception e) {
-                return formatterWithoutZone.parse(s, LocalDateTime::from).atZone(ZoneId.of("UTC"));
+                return formatterWithoutZone.parse(s, LocalDateTime::from).atZone(ZoneId.of("Asia/Seoul"));
             }
         } else {
             return value;
