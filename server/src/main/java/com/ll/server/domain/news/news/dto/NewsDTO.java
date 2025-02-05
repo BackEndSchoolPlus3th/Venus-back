@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+//상세 조회할 때 사용
 public class NewsDTO {
     private Long id;
     private String title;

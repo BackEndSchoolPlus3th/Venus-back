@@ -2,10 +2,12 @@ package com.ll.server.domain.member.controller;
 
 import com.ll.server.domain.member.dto.MemberDto;
 import com.ll.server.domain.member.dto.MemberLogin;
+import com.ll.server.domain.member.dto.MemberProfile;
 import com.ll.server.domain.member.dto.MemberRequest;
 import com.ll.server.domain.member.entity.Member;
 import com.ll.server.domain.member.service.MemberService;
 import com.ll.server.global.jwt.JwtProvider;
+import com.ll.server.global.response.response.ApiResponse;
 import com.ll.server.global.rsData.RsData;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -98,5 +100,11 @@ public class ApiV1MemberController {
 
         return new RsData("200", "회원정보 조회 성공",
                 new MemberDto(member));
+    }
+
+    @GetMapping("/profile/{memberId}")
+    public ApiResponse<MemberProfile> profile(HttpServletRequest request, @PathVariable("memberId") Long memberId){
+        MemberProfile profile=memberService.getMemberProfile(memberId);
+        return ApiResponse.of(profile);
     }
 }
