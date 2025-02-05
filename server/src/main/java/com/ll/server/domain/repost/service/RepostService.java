@@ -38,20 +38,22 @@ public class RepostService {
 
 
     public RepostDTO findById(Long id){
-        return new RepostDTO(repostRepository.findById(id).get());
+
+        Repost repost=getRepost(id);
+        if(repost==null) return null;
+
+        return new RepostDTO(repost);
     }
 
     @Transactional
     public String delete(Long id){
-        Optional<Repost> target=repostRepository.findById(id);
-        if(target.isPresent() && target.get().getDeletedAt()==null) {
-            Repost repost=target.get();
-            repost.setDeletedAt(LocalDateTime.now());
-            repost.deleteComments();
-            repost.deleteLikes();
-            return "삭제 성공";
-        }
-        return "삭제 실패";
+        Repost repost=getRepost(id);
+        if(repost==null)  return "삭제 실패";
+
+        repost.setDeletedAt(LocalDateTime.now());
+        repost.deleteComments();
+        repost.deleteLikes();
+        return "삭제 성공";
     }
 
     @Transactional
@@ -95,7 +97,10 @@ public class RepostService {
         Page<Repost> result= repostRepository.findAll(pageable);
 
         return new PageImpl<>(
-            result.getContent().stream().map(RepostDTO::new).collect(Collectors.toList()),
+            result.getContent().stream()
+                    .filter(repost -> repost.getDeletedAt()==null)
+                    .map(RepostDTO::new)
+                    .collect(Collectors.toList()),
             result.getPageable(),
             result.getTotalElements()
         );
@@ -108,7 +113,9 @@ public class RepostService {
         Page<Comment> comments = commentRepository.findCommentsByRepostId(postId,pageable);
 
         return new PageImpl<>(
-                comments.getContent().stream().map(CommentDTO::new).collect(Collectors.toList()),
+                comments.getContent().stream()
+                        .filter(comment -> comment.getDeletedAt()==null)
+                        .map(CommentDTO::new).collect(Collectors.toList()),
                 comments.getPageable(),
                 comments.getTotalElements()
         );
@@ -116,12 +123,8 @@ public class RepostService {
 
     @Transactional
     public String deleteComment(Long postId, Long commentId) {
-        Optional<Repost> repostOptional=repostRepository.findById(postId);
-        if(repostOptional.isEmpty()) return "댓글 삭제 실패";
-
-        Repost repost=repostOptional.get();
-
-        if(repost.getDeletedAt()!=null) return "댓글 삭제 실패";
+        Repost repost=getRepost(postId);
+        if(repost==null) return "댓글 삭제 실패";
 
         Comment target = getComment(commentId, repost);
         if (target == null) return "댓글 삭제 실패";

@@ -70,7 +70,6 @@ public class ApiV1NewsController {
 
     @DeleteMapping("/{id}")
     public ApiResponse<String> deleteNews(@PathVariable Long id) {
-
         return ApiResponse.of( newsService.deleteNews(id));
     }
 
