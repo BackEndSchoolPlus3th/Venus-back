@@ -4,3 +4,6 @@ spring:
       - dev
     include:
       - secret
+
+front:
+  base_url: http://localhost:3000
