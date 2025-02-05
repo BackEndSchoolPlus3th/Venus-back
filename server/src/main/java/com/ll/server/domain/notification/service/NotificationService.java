@@ -25,14 +25,14 @@ public class NotificationService {
 
     //알림 저장
     @Transactional
-    public void saveNotification(Member member, String message, String url){
+    public Notification saveNotification(Member member, String message, String url){
         Notification notification=Notification.builder()
                 .member(member)
                 .message(message)
                 .url(url)
                 .build();
 
-        notificationRepository.save(notification);
+        return notificationRepository.save(notification);
     }
 
     //미처 못 보낸 알림들을 유저 닉네임으로 찾음. 유저 첫 접속 시 보내지지 않은 알림을 보내는 데 사용
@@ -136,6 +136,7 @@ public class NotificationService {
     }
 
     //이 ID들은 알림 엔티티의 ID로, 효율적인 쿼리를 위해 사용
+    @Transactional
     public void sendNotifications(List<Long> notifyIds) {
         List<Notification> notifications = notificationRepository.findNotificationsByIdInAndHasSentIsFalse(notifyIds);
         if(notifications.isEmpty()){
