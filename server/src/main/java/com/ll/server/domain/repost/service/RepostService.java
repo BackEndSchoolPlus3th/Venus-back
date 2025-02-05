@@ -81,6 +81,7 @@ public class RepostService {
         }
 
         news.addRepost(repost);
+        user.addRepost(repost);
 
         return new RepostDTO(repost);
     }
@@ -166,6 +167,7 @@ public class RepostService {
         List<Member> mentionedMembers=memberRepository.findMembersByNicknameIn(request.getMentionedNames());
 
         Comment comment=repost.addComment(member,mentionedMembers,request.getContent());
+        member.addComment(comment);
 
         return new CommentDTO(comment);
     }
@@ -218,7 +220,10 @@ public class RepostService {
         if(repost==null) return null;
 
         Member user=memberRepository.findById(userId).get();
-        return new LikeDTO(repost.addLike(user));
+        Like like=repost.addLike(user);
+        user.addLike(like);
+
+        return new LikeDTO(like);
 
     }
 }
