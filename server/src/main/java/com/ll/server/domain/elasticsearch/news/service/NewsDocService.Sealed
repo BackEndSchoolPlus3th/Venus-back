@@ -13,6 +13,10 @@ public class NewsDocService {
         ElasticsearchClient client = new ElasticSearchClientConfig().createElasticsearchClient();
         BoolQuery.Builder bqBuilder=new BoolQuery.Builder();
 
+        bqBuilder.mustNot(mn->mn.exists(ex->ex.field("deleted_at")));
+
+        boolean hasShould = hasTitle || hasContent || hasPublisher;
+
         if(hasTitle){
             bqBuilder.should(s->s.match(m->m.field("title").query(keyword)));
         }
@@ -27,6 +31,10 @@ public class NewsDocService {
 
         if(!category.isBlank()){
             bqBuilder.must(s->s.match(m->m.field("category").query(category)));
+        }
+
+        if(hasShould){
+            bqBuilder.minimumShouldMatch("1");
         }
 
         SearchResponse<NewsDoc> result= client.search(

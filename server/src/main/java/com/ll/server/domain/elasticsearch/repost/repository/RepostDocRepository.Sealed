@@ -11,9 +11,11 @@ public interface RepostDocRepository extends ElasticsearchRepository<RepostDoc,L
     @Query("""
             {
                 "bool":{
+                    "must_not":{"exists":{"deleted_at"}},
                     "should":[
                         {"match":{"content":"?0"}}
-                    ]
+                    ],
+                    "minimum_should_match": 1
                 }
             }
             """)

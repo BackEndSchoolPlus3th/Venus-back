@@ -32,6 +32,9 @@ public class News extends BaseEntity {
     private NewsCategory category;
     private String publishedAt;
 
+    @Builder.Default
+    private LocalDateTime deletedAt=null;
+
     @OneToMany(mappedBy = "news")
     @Builder.Default
     private List<Repost> reposts=new ArrayList<>();
