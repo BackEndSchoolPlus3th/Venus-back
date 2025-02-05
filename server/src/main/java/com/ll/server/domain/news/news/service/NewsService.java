@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -77,10 +78,12 @@ public class NewsService {
     @Transactional
     public String deleteNews(Long id) {
         News news=getNews(id);
-
         if(news==null){
             return "삭제 실패";
         }
+
+        news.removeReposts();
+        news.setDeletedAt(LocalDateTime.now());
 
         return "삭제 성공";
 
