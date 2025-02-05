@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 public class NewsDocService {
     private final NewsDocRepository repository;
 
-    public List<NewsDTO> search(String keyword, boolean hasTitle, boolean hasContent, boolean hasPublisher, String category){
+    public List<NewsDTO> search(String keyword, boolean hasTitle, boolean hasContent, boolean hasPublisher, String category,Pageable page){
         ElasticsearchClient client = new ElasticSearchClientConfig().createElasticsearchClient();
         BoolQuery.Builder bqBuilder=new BoolQuery.Builder();
 
@@ -32,6 +32,8 @@ public class NewsDocService {
         SearchResponse<NewsDoc> result= client.search(
                 SearchRequest.of(
                         s->s.index("news")
+                                .from(page.getOffset())
+                                .size(page.getSize())
                                 .query(
                                         q->q.bool(bqBuilder.build())
                                 )

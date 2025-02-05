@@ -3,6 +3,7 @@ package com.ll.server.domain.repost.service;
 import com.ll.server.domain.comment.dto.CommentDTO;
 import com.ll.server.domain.comment.dto.CommentWriteRequest;
 import com.ll.server.domain.comment.entity.Comment;
+import com.ll.server.domain.comment.repository.CommentRepository;
 import com.ll.server.domain.like.dto.LikeDTO;
 import com.ll.server.domain.like.entity.Like;
 import com.ll.server.domain.member.entity.Member;
@@ -15,6 +16,9 @@ import com.ll.server.domain.repost.dto.RepostWriteRequest;
 import com.ll.server.domain.repost.entity.Repost;
 import com.ll.server.domain.repost.repository.RepostRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +34,7 @@ public class RepostService {
     private final RepostRepository repostRepository;
     private final MemberRepository memberRepository;
     private final NewsRepository newsRepository;
+    private final CommentRepository commentRepository;
 
 
     public RepostDTO findById(Long id){
@@ -54,11 +59,7 @@ public class RepostService {
     public RepostDTO save(RepostWriteRequest request){
         Member user=memberRepository.findById(request.getWriterId()).get();
 
-        News news=newsRepository.findAll()
-                .stream()
-                .filter(n -> n.getId().equals(request.getNewsId()))
-                .findFirst()
-                .get();
+        News news=newsRepository.findById(request.getNewsId()).get();
 
         List<Member> metionedMemberList=memberRepository.findMembersByNicknameIn(request.getMentionedNames());
         Repost repost=
@@ -77,6 +78,8 @@ public class RepostService {
             }
         }
 
+        news.addRepost(repost);
+
         return new RepostDTO(repost);
     }
 
@@ -88,23 +91,27 @@ public class RepostService {
                 .collect(Collectors.toList());
     }
 
-    public List<RepostDTO> findAll(){
-        return repostRepository.findAll()
-                .stream()
-                .filter(repost->repost.getDeletedAt()==null)
-                .map(RepostDTO::new)
-                .collect(Collectors.toList());
+    public Page<RepostDTO> findAll(Pageable pageable){
+        Page<Repost> result= repostRepository.findAll(pageable);
+
+        return new PageImpl<>(
+            result.getContent().stream().map(RepostDTO::new).collect(Collectors.toList()),
+            result.getPageable(),
+            result.getTotalElements()
+        );
     }
 
-    public List<CommentDTO> getAllComment(Long postId) {
+    public Page<CommentDTO> getAllComment(Long postId,Pageable pageable) {
         Repost repost = getRepost(postId);
         if (repost == null) return null;
 
-        return repost.getComments().stream()
-                .filter(comment -> comment.getDeletedAt()==null)
-                .map(CommentDTO::new)
-                .collect(Collectors.toList());
+        Page<Comment> comments = commentRepository.findCommentsByRepostId(postId,pageable);
 
+        return new PageImpl<>(
+                comments.getContent().stream().map(CommentDTO::new).collect(Collectors.toList()),
+                comments.getPageable(),
+                comments.getTotalElements()
+        );
     }
 
     @Transactional

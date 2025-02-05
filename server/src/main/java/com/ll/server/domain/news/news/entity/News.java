@@ -1,10 +1,15 @@
 package com.ll.server.domain.news.news.entity;
 
 import com.ll.server.domain.news.news.enums.NewsCategory;
+import com.ll.server.domain.repost.entity.Repost;
 import com.ll.server.global.jpa.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -26,4 +31,19 @@ public class News extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private NewsCategory category;
     private String publishedAt;
+
+    @OneToMany(mappedBy = "news")
+    @Builder.Default
+    private List<Repost> reposts=new ArrayList<>();
+
+    public void addRepost(Repost repost){
+        reposts.add(repost);
+    }
+
+    public void removeReposts(){
+        reposts.forEach(
+                repost -> repost.setDeletedAt(LocalDateTime.now())
+        );
+    }
+
 }

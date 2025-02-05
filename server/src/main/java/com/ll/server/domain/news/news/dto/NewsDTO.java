@@ -2,10 +2,14 @@ package com.ll.server.domain.news.news.dto;
 
 
 import com.ll.server.domain.news.news.entity.News;
+import com.ll.server.domain.repost.dto.RepostUnderNews;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 @AllArgsConstructor
@@ -22,6 +26,7 @@ public class NewsDTO {
     private String contentUrl;
     private String category;
     private String publishedAt;
+    private List<RepostUnderNews> reposts;
 
     public NewsDTO(News news) {
         id = news.getId();
@@ -34,6 +39,7 @@ public class NewsDTO {
         contentUrl = news.getContentUrl();
         category = news.getCategory().getCategory();
         publishedAt = news.getPublishedAt();
+        reposts=news.getReposts().stream().map(RepostUnderNews::new).collect(Collectors.toList());
     }
 
 }
