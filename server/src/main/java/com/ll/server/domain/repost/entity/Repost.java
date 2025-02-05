@@ -103,10 +103,20 @@ public class Repost extends BaseEntity {
     }
 
     public void deleteComments() {
-        comments.forEach(comment -> comment.setDeletedAt(LocalDateTime.now()));
+        comments.forEach(comment ->
+                {
+                    if (comment.getDeletedAt() == null)
+                        comment.setDeletedAt(LocalDateTime.now());
+                }
+        );
     }
 
     public void deleteLikes(){
-        likes.forEach(like -> like.setDeleted(true));
+        likes.forEach(like ->
+                {
+                        like.setDeleted(true);
+                }
+
+        );
     }
 }
