@@ -20,7 +20,10 @@ spring:
 
     accessToken:
       expirationSeconds: "${spring.security.accessToken.expirationSeconds}"
-
+  security:
+    user:
+      name: admin
+      password: 1234
   profiles:
     active:
       - dev

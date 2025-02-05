@@ -2,15 +2,20 @@ package com.ll.server.domain.notification.service;
 
 
 import com.ll.server.domain.member.entity.Member;
+import com.ll.server.domain.notification.dto.NotificationDTO;
 import com.ll.server.domain.notification.entity.Notification;
 import com.ll.server.domain.notification.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -48,18 +53,39 @@ public class NotificationService {
 
 
     //보내지긴 했으나 읽지 않은 알림들을 유저의 ID로 찾음. 프론트엔드의 알림창 탭을 누르면 먼저 뜰 알림을 볼 수 있도록.
+    public Page<NotificationDTO> getSummary(Long userId,Pageable pageable){
+        Page<Notification> result = notificationRepository.findNotificationsByMember_IdAndHasSentIsTrueAndHasReadIsFalse(userId,pageable);
+        return new PageImpl<>(
+                result.getContent().stream().map(NotificationDTO::new)
+                        .collect(Collectors.toList())
+                ,result.getPageable()
+                ,result.getTotalElements()
+        );
+    }
+
+
     public List<Notification> findUnreadNotificationsById(Long userId){
-        return notificationRepository.findNotificationsByMember_IdAndHasSentIsTrueAndHasReadIsFalse(userId);
+        return notificationRepository.findNotificationsByMember_IdAndHasSentIsTrueAndHasReadIsFalseOrderById(userId);
     }
 
     //특정 유저의 모든 알림을 user의 ID로 찾음. 알림 목록이라는 것이 있다면 종류 불문 띄울 수 있도록.
-    public List<Notification> findAllNotificationsById(Long userId){
-        return notificationRepository.findNotificationsByMember_Id(userId);
+    public Page<NotificationDTO> findAllNotificationsById(Long userId,Pageable pageable){
+        Page<Notification> result= notificationRepository.findNotificationsByMember_Id(userId,pageable);
+        return new PageImpl<>(
+                result.getContent().stream().map(NotificationDTO::new).collect(Collectors.toList()),
+                result.getPageable(),
+                result.getTotalElements()
+        );
     }
 
     //특정 유저의 모든 알림을 user의 이름로 찾음. 알림 목록이라는 것이 있다면 종류 불문 띄울 수 있도록.
-    public List<Notification> findAllNotificationsByUsername(String nickname){
-        return notificationRepository.findNotificationsByMember_Nickname(nickname);
+    public Page<NotificationDTO> findAllNotificationsByUsername(String nickname, Pageable pageable){
+        Page<Notification> result=notificationRepository.findNotificationsByMember_Nickname(nickname,pageable);
+        return new PageImpl<>(
+                result.getContent().stream().map(NotificationDTO::new).collect(Collectors.toList()),
+                result.getPageable(),
+                result.getTotalElements()
+        );
     }
 
     //RDB에 저장되므로, 오래된 읽은 알림은 주기적으로 삭제가 가능하도록 할 수도 있다.

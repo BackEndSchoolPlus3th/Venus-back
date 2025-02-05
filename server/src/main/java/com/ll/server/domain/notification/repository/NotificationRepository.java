@@ -1,6 +1,8 @@
 package com.ll.server.domain.notification.repository;
 
 import com.ll.server.domain.notification.entity.Notification;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDateTime;
@@ -17,15 +19,17 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 
     List<Notification> findNotificationsByHasReadIsFalse();
 
-    List<Notification> findNotificationsByMember_IdAndHasSentIsTrueAndHasReadIsFalse(Long id);
+    Page<Notification> findNotificationsByMember_IdAndHasSentIsTrueAndHasReadIsFalse(Long memberId, Pageable pageable);
+
+    List<Notification> findNotificationsByMember_IdAndHasSentIsTrueAndHasReadIsFalseOrderById(Long memberId);
 
     List<Notification> findNotificationsByMember_IdAndHasSentIsFalse(Long user_id);
 
     List<Notification> findNotificationsByHasSentIsFalse();
 
-    List<Notification> findNotificationsByMember_Id(Long userId);
+    Page<Notification> findNotificationsByMember_Id(Long userId,Pageable pageable);
 
-    List<Notification> findNotificationsByMember_Nickname(String nickname);
+    Page<Notification> findNotificationsByMember_Nickname(String nickname, Pageable pageable);
 
     List<Notification> findNotificationsByIdInAndHasReadIsFalse(List<Long> notifyIds);
 

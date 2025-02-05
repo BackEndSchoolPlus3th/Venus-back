@@ -5,15 +5,18 @@ import com.ll.server.domain.news.news.dto.NewsUpdateRequest;
 import com.ll.server.domain.news.news.entity.News;
 import com.ll.server.domain.news.news.repository.NewsRepository;
 import com.ll.server.domain.notification.Notify;
+import com.ll.server.domain.repost.dto.RepostUnderNews;
 import com.ll.server.global.response.enums.ReturnCode;
 import com.ll.server.global.response.exception.CustomLogicException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -22,12 +25,21 @@ import java.util.stream.Collectors;
 public class NewsService {
     private final NewsRepository newsRepository;
 
-    public Page<News> getAll(Pageable pageable) {
-        return newsRepository.findAllByOrderByPublishedAtDesc(pageable);
+    public Page<NewsDTO> getAll(Pageable pageable) {
+
+        Page<News> result = newsRepository.findAllByOrderByPublishedAtDesc(pageable);
+        return new PageImpl<>(
+                result.getContent().stream().map(NewsDTO::new).collect(Collectors.toList())
+                ,result.getPageable()
+                ,result.getTotalElements()
+        );
     }
 
-    public News getById(Long id) {
-        return newsRepository.findById(id).orElseThrow(() -> new CustomLogicException(ReturnCode.NOT_FOUND_ENTITY));
+    public NewsDTO getById(Long id) {
+        return
+                new NewsDTO(
+                    newsRepository.findById(id).orElseThrow(() -> new CustomLogicException(ReturnCode.NOT_FOUND_ENTITY))
+                );
     }
 
     // Convert News Entity to DTO
@@ -42,22 +54,29 @@ public class NewsService {
                 news.getThumbnailUrl(),
                 news.getContentUrl(),
                 news.getCategory().getCategory(),
-                news.getPublishedAt()
+                news.getPublishedAt(),
+                news.getReposts().stream().map(RepostUnderNews::new).collect(Collectors.toList())
         );
     }
 
     @Transactional
-    public News updateNews(Long id, NewsUpdateRequest request) {
+    public NewsDTO updateNews(Long id, NewsUpdateRequest request) {
         News news = newsRepository.findById(id).orElseThrow(() -> new CustomLogicException(ReturnCode.NOT_FOUND_ENTITY));
         news.setTitle(request.getTitle());
         news.setContent(request.getContent());
 
-        return news;
+        return new NewsDTO(news);
     }
 
     @Transactional
-    public void deleteNews(Long id) {
+    public String deleteNews(Long id) {
+        Optional<News> news = newsRepository.findById(id);
+        if(news.isEmpty()) return "삭제 실패";
+
+        news.get().removeReposts();
+
         newsRepository.deleteById(id);
+        return "삭제 완료";
     }
 
     @Transactional

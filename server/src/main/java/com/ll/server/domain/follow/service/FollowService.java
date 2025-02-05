@@ -1,18 +1,18 @@
 package com.ll.server.domain.follow.service;
 
 import com.ll.server.domain.follow.dto.FollowDTO;
-import com.ll.server.domain.follow.dto.FolloweeListResponse;
-import com.ll.server.domain.follow.dto.FollowerListResponse;
 import com.ll.server.domain.follow.entity.Follow;
 import com.ll.server.domain.follow.repository.FollowRepository;
 import com.ll.server.domain.member.entity.Member;
 import com.ll.server.domain.member.repository.MemberRepository;
 import com.ll.server.domain.notification.Notify;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -42,29 +42,41 @@ public class FollowService {
         return new FollowDTO(followRepository.save(follow));
     }
 
-    public List<FollowDTO> findByFollower(Long followerId){
-        return followRepository.findFollowsByFollower_Id(followerId)
-                .stream().map(FollowDTO::new)
-                .collect(Collectors.toList());
+    public Page<FollowDTO> findByFollower(Long followerId, Pageable pageable){
+        Page<Follow> result= followRepository.findFollowsByFollower_Id(followerId,pageable);
+        return new PageImpl<>(
+                result.getContent().stream().map(FollowDTO::new).collect(Collectors.toList()),
+                result.getPageable(),
+                result.getTotalElements()
+        );
     }
 
-    public List<FollowDTO> findByFollowee(Long followeeId){
-        return followRepository.findFollowsByFollowee_Id(followeeId)
-                .stream().map(FollowDTO::new)
-                .collect(Collectors.toList());
+    public Page<FollowDTO> findByFollowee(Long followeeId,Pageable pageable){
+        Page<Follow> result= followRepository.findFollowsByFollowee_Id(followeeId,pageable);
+        return new PageImpl<>(
+                result.getContent().stream().map(FollowDTO::new).collect(Collectors.toList()),
+                result.getPageable(),
+                result.getTotalElements()
+        );
     }
 
-    public FolloweeListResponse findFollowees(String followerName){
-        List<Follow> follows= followRepository.findFollowsByFollower_Nickname(followerName);
-
-        return new FolloweeListResponse(follows);
+    public Page<FollowDTO>  findFollowees(String followerName,Pageable pageable){
+        Page<Follow> result= followRepository.findFollowsByFollower_Nickname(followerName,pageable);
+        return new PageImpl<>(
+          result.getContent().stream().map(FollowDTO::new).collect(Collectors.toList()),
+                result.getPageable(),
+                result.getTotalElements()
+        );
     }
 
 
-    public FollowerListResponse findFollowers(String followeeName){
-        List<Follow> follows= followRepository.findFollowsByFollowee_Nickname(followeeName);
-
-        return new FollowerListResponse(follows);
+    public Page<FollowDTO>  findFollowers(String followeeName, Pageable pageable){
+        Page<Follow> result= followRepository.findFollowsByFollowee_Nickname(followeeName,pageable);
+        return new PageImpl<>(
+                result.getContent().stream().map(FollowDTO::new).collect(Collectors.toList()),
+                result.getPageable(),
+                result.getTotalElements()
+        );
     }
 
     public FollowDTO findByFollowerNameAndFolloweeName(String followerName, String followeeName){

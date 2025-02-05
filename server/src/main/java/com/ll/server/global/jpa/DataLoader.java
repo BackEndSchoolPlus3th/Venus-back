@@ -111,7 +111,7 @@ public class DataLoader implements CommandLineRunner {
                 .newsId(news.getId())
                 .writerId(user1.getId())
                 .build();
-        RepostDTO repostDTO1=repostController.write(repostRequest1);
+        RepostDTO repostDTO1=repostController.write(repostRequest1).getData();
         //user1이 작성한 글이므로 user2/3에게 알림이 가고, 멘션을 2와 3에게 했으므로 알림이 감. 알림 8개째.
 
         RepostWriteRequest repostRequest2=RepostWriteRequest.builder()
@@ -120,7 +120,7 @@ public class DataLoader implements CommandLineRunner {
                 .writerId(user2.getId())
                 .build();
 
-        RepostDTO repostDTO2= repostController.write(repostRequest2);
+        RepostDTO repostDTO2= repostController.write(repostRequest2).getData();
 
         RepostWriteRequest repostRequest3=RepostWriteRequest.builder()
                 .content("대부분의 경우 Elasticsearch + DB 하이브리드 접근 방식이 효율적입니다.")
@@ -128,7 +128,7 @@ public class DataLoader implements CommandLineRunner {
                 .writerId(user3.getId())
                 .build();
 
-        RepostDTO repostDTO3=repostController.write(repostRequest3);
+        RepostDTO repostDTO3=repostController.write(repostRequest3).getData();
 
         for(int i=0;i<3;i++){
             CommentWriteRequest commentWriteRequest=

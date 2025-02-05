@@ -2,7 +2,6 @@ package com.ll.server.domain.admin.news.controller;
 
 import com.ll.server.domain.news.news.dto.NewsDTO;
 import com.ll.server.domain.news.news.dto.NewsUpdateRequest;
-import com.ll.server.domain.news.news.entity.News;
 import com.ll.server.domain.news.news.service.NewsService;
 import com.ll.server.global.response.response.ApiResponse;
 import com.ll.server.global.response.response.CustomPage;
@@ -31,31 +30,30 @@ public class AdminController {
     public ApiResponse<?> newsGetAll(NewsGetRequest request) {
         PageLimitSizeValidator.validateSize(request.getPage(), request.getLimit(), 50);
         Pageable pageable = PageRequest.of(request.getPage(), request.getLimit());
-        Page<NewsDTO> news = newsService.getAll(pageable).map(newsService::convertToDTO);
-
+        //Page<NewsDTO> news = newsService.getAll(pageable).map(newsService::convertToDTO);
+        Page<NewsDTO> news=newsService.getAll(pageable);
         return ApiResponse.of(CustomPage.of(news));
     }
 
     @GetMapping("/news/{id}")
     public ApiResponse<NewsDTO> newsGetById(@PathVariable Long id) {
-        News news = newsService.getById(id);
-        NewsDTO newsDTO = newsService.convertToDTO(news);
+        NewsDTO newsDTO = newsService.getById(id);
+        //NewsDTO newsDTO = newsService.convertToDTO(news);
 
         return ApiResponse.of(newsDTO);
     }
 
     @PatchMapping("/news/{id}")
     public ApiResponse<NewsDTO> newsUpdate(@PathVariable Long id, @RequestBody NewsUpdateRequest request) {
-        News news = newsService.updateNews(id, request);
-        NewsDTO newsDTO = newsService.convertToDTO(news);
+        NewsDTO newsDTO = newsService.updateNews(id, request);
+        //NewsDTO newsDTO = newsService.convertToDTO(news);
 
         return ApiResponse.of(newsDTO);
     }
 
     @DeleteMapping("/news/{id}")
     public ApiResponse<String> newsDelete(@PathVariable Long id) {
-        newsService.deleteNews(id);
 
-        return ApiResponse.of("삭제 성공 - 관리자");
+        return ApiResponse.of(newsService.deleteNews(id)+" - 관리자");
     }
 }
