@@ -53,7 +53,7 @@ public class ApiV1NewsController {
 
     //뉴스 조회 API
     @GetMapping("/{id}")
-    public ApiResponse<NewsDTO> getById(@PathVariable Long id) {
+    public ApiResponse<NewsDTO> getById(@PathVariable("id") Long id) {
         NewsDTO newsDTO = newsService.getById(id);
         //NewsDTO newsDTO = newsService.convertToDTO(news);
 
@@ -61,7 +61,7 @@ public class ApiV1NewsController {
     }
 
     @PatchMapping("/{id}")
-    public ApiResponse<NewsDTO> updateNews(@PathVariable Long id, @RequestBody NewsUpdateRequest request) {
+    public ApiResponse<NewsDTO> updateNews(@PathVariable("id") Long id, @RequestBody NewsUpdateRequest request) {
         NewsDTO newsDTO = newsService.updateNews(id, request);
         //NewsDTO newsDTO = newsService.convertToDTO(news);
 

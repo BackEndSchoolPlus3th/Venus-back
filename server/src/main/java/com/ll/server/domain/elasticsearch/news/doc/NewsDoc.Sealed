@@ -46,4 +46,8 @@ public class NewsDoc {
     @ValueConverter(CustomZonedDateTimeConverter.class)
     private ZonedDateTime modifyDate;
 
+    @Field(type = FieldType.Date)
+    @ValueConverter(CustomZonedDateTimeConverter.class)
+    private ZonedDateTime deletedAt;
+
 }

@@ -20,7 +20,7 @@ public class RepostDocService {
     @Transactional(readOnly = true)
     public List<RepostDTO> searchContent(String keyword){
         List<RepostDoc> results=repostDocRepository.searchByContent(keyword);
-        List<Long> ids=results.stream().map(RepostDoc::getId).toList();
+        List<Long> ids=results.stream().filter(repostdoc -> repostdoc.getDeletedAt()==null).map(RepostDoc::getId).toList();
 
         return repostRepository.findAllById(ids).stream()
                 .map(RepostDTO::new)

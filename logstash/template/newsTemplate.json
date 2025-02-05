@@ -46,6 +46,10 @@
           "type": "text",
           "analyzer": "korean_mixed"
         },
+        "deleted_at": {
+          "type": "date",
+          "format": "strict_date_time"
+        },
         "create_date": {
           "type": "date",
           "format": "strict_date_time"
