@@ -1,17 +1,17 @@
 package com.ll.server.domain.elasticsearch.repost.repository;
 
 import com.ll.server.domain.elasticsearch.repost.doc.RepostDoc;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.elasticsearch.annotations.Query;
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
-
-import java.util.List;
 
 public interface RepostDocRepository extends ElasticsearchRepository<RepostDoc,Long> {
 
     @Query("""
             {
                 "bool":{
-                    "must_not":{"exists":{"deleted_at"}},
+                    "must_not":{"exists":{"field":"deleted_at"}},
                     "should":[
                         {"match":{"content":"?0"}}
                     ],
@@ -19,5 +19,5 @@ public interface RepostDocRepository extends ElasticsearchRepository<RepostDoc,L
                 }
             }
             """)
-    List<RepostDoc> searchByContent(String keyword);
+    Page<RepostDoc> searchByContent(String keyword, Pageable pageable);
 }

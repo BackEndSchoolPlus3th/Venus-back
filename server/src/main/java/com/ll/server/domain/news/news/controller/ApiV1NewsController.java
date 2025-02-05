@@ -1,5 +1,6 @@
 package com.ll.server.domain.news.news.controller;
 
+import com.ll.server.domain.elasticsearch.news.service.NewsDocService;
 import com.ll.server.domain.news.news.dto.NewsDTO;
 import com.ll.server.domain.news.news.dto.NewsUpdateRequest;
 import com.ll.server.domain.news.news.service.NewsFetchService;
@@ -24,7 +25,7 @@ public class ApiV1NewsController {
     private final NewsService newsService;
     private final NewsFetchService newsFetchService;
 
-    //private final NewsDocService newsDocService;
+    private final NewsDocService newsDocService;
 
     @Data
     private static class NewsGetRequest {
@@ -69,22 +70,23 @@ public class ApiV1NewsController {
     }
 
     @DeleteMapping("/{id}")
-    public ApiResponse<String> deleteNews(@PathVariable Long id) {
+    public ApiResponse<String> deleteNews(@PathVariable("id") Long id) {
         return ApiResponse.of( newsService.deleteNews(id));
     }
 
-//    @GetMapping("/search")
-//    public ApiResponse<?> searchNews(@RequestParam(value="keyword",defaultValue="") String keyword,
-//                                           @RequestParam(value="title",defaultValue=true) boolean hasTitle,
-//                                           @RequestParam(value="content",defaultValue=false) boolean hasContent,
-//                                           @RequestParam(value="publisher",defaultValue=false) boolean hasPublisher,
-//                                           @RequestParam(value="category",defaultValue="") String category,
-//                                           @RequestBody NewsGetRequest request
-//                                           ){
-//        //타입으로는 publisher, title, content, category(이건 별도로 드랍다운 방식으로 선택하거나 할 듯. 나머지는 체크박스)가 올 수 있다.
-//        PageLimitSizeValidator.validateSize(request.getPage(), request.getLimit(), 50);
-//        Pageable pageable = PageRequest.of(request.getPage(), request.getLimit());
-//        Page<News> result = newsDocService.search(keyword, hasTitle, hasContent, hasPublisher, category, request);
-//    }
+    @GetMapping("/search")
+    public ApiResponse<?> searchNews(@RequestParam(value="keyword",defaultValue="") String keyword,
+                                           @RequestParam(value="title",defaultValue="true") boolean hasTitle,
+                                           @RequestParam(value="content",defaultValue="false") boolean hasContent,
+                                           @RequestParam(value="publisher",defaultValue="false") boolean hasPublisher,
+                                           @RequestParam(value="category",defaultValue="") String category,
+                                           @RequestBody NewsGetRequest request
+                                           ){
+        //타입으로는 publisher, title, content, category(이건 별도로 드랍다운 방식으로 선택하거나 할 듯. 나머지는 체크박스)가 올 수 있다.
+        PageLimitSizeValidator.validateSize(request.getPage(), request.getLimit(), 50);
+        Pageable pageable = PageRequest.of(request.getPage(), request.getLimit());
+        Page<NewsDTO> result = newsDocService.search(keyword, hasTitle, hasContent, hasPublisher, category, pageable);
+        return ApiResponse.of(CustomPage.of(result));
+    }
 
 }

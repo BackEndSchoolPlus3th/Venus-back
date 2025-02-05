@@ -73,7 +73,7 @@
         "thumbnail_url": {
           "type": "keyword"
         },
-        "publish_at": {
+        "published_at": {
           "type": "keyword"
         },
         "publisher": {

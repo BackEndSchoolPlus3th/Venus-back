@@ -3,6 +3,7 @@ package com.ll.server.domain.repost.controller;
 import com.ll.server.domain.comment.dto.CommentDTO;
 import com.ll.server.domain.comment.dto.CommentModifyRequest;
 import com.ll.server.domain.comment.dto.CommentWriteRequest;
+import com.ll.server.domain.elasticsearch.repost.service.RepostDocService;
 import com.ll.server.domain.like.dto.LikeDTO;
 import com.ll.server.domain.like.dto.LikeResponse;
 import com.ll.server.domain.repost.dto.RepostDTO;
@@ -27,7 +28,7 @@ import java.util.List;
 @RequestMapping("/api/v1/reposts")
 public class ApiV1RepostController {
     private final RepostService repostService;
-    //private final RepostDocService repostDocService;
+    private final RepostDocService repostDocService;
 
 
     @Data
@@ -110,9 +111,13 @@ public class ApiV1RepostController {
         return ApiResponse.of(repostService.markLike(repostId,userId));
     }
 
-//    @GetMapping("/search")
-//    public List<RepostDTO> searchByContent(@RequestParam("keyword") String keyword){
-//        return repostDocService.searchContent(keyword);
-//    }
+    @GetMapping("/search")
+    public ApiResponse<?> searchByContent(@RequestParam("keyword") String keyword,
+                                           @RequestBody ClientPageRequest request){
+        PageLimitSizeValidator.validateSize(request.getPage(),request.getLimit(), MyConstant.PAGELIMITATION);
+        Pageable pageable=PageRequest.of(request.getPage(),request.getLimit());
+        Page<RepostDTO> result= repostDocService.searchContent(keyword,pageable);
+        return ApiResponse.of(CustomPage.of(result));
+    }
 
 }
