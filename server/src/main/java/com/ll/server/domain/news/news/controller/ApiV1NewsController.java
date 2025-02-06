@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -81,7 +82,8 @@ public class ApiV1NewsController {
                                          @RequestParam(value="content",defaultValue="false") boolean hasContent,
                                          @RequestParam(value="publisher",defaultValue="false") boolean hasPublisher,
                                          @RequestParam(value="category",defaultValue = "") String category,
-                                         @RequestParam(value="lastId",required = false) Long lastId,
+                                         @RequestParam(value="lastTime",required = false) LocalDateTime lastTime,
+                                         @RequestParam(value ="lastId",required = false) Long lastId,
                                          @RequestParam(value="size",defaultValue = "20") int size){
 
         List<NewsOnly> newsList=null;
@@ -89,12 +91,12 @@ public class ApiV1NewsController {
         //검색이 아니라 그냥 무지성으로 쭉쭉 내릴 때
         if(keyword.isBlank()){
             //최초 검색
-            if(lastId==null){
+            if(lastTime==null){
                 newsList=newsService.firstInfinityGetAll(size);
                 return ApiResponse.of(new NewsInfinityScrollResponse(newsList));
             }
 
-            newsList=newsService.afterInfinityGetAll(size,lastId);
+            newsList=newsService.afterInfinityGetAll(size,lastTime);
             return ApiResponse.of(new NewsInfinityScrollResponse(newsList));
         }
 
@@ -104,14 +106,14 @@ public class ApiV1NewsController {
         if(!hasContent || !hasTitle || !hasPublisher || category.isBlank()) hasTitle = true;
 
         //최초 검색
-        if(lastId==null) {
+        if(lastTime==null) {
             //그냥 검색만 하면 제목 기준으로 검색하도록
             newsList=newsDocService.firstInfinitySearch(keyword, hasTitle, hasContent, hasPublisher, category,size);
             return ApiResponse.of(new NewsInfinityScrollResponse(newsList));
         }
 
         //이후 검색
-        newsList=newsDocService.afterInfinitySearch(keyword, hasTitle, hasContent, hasPublisher, category,size, lastId);
+        newsList=newsDocService.afterInfinitySearch(keyword, hasTitle, hasContent, hasPublisher, category,size, lastTime,lastId);
         return ApiResponse.of(new NewsInfinityScrollResponse(newsList));
 
     }

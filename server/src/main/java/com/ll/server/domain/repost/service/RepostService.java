@@ -21,6 +21,7 @@ import com.ll.server.domain.repost.repository.RepostRepository;
 import com.ll.server.global.response.enums.ReturnCode;
 import com.ll.server.global.response.exception.CustomRequestException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Limit;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -90,6 +91,18 @@ public class RepostService {
             result.getPageable(),
             result.getTotalElements()
         );
+    }
+
+    public List<RepostOnly> firstGetAll(int size){
+        return repostRepository.findAllByOrderByCreateDateDescIdDesc(Limit.of(size))
+                .stream().filter(repost -> repost.getDeletedAt()==null)
+                .map(RepostOnly::new).collect(Collectors.toList());
+    }
+
+    public List<RepostOnly> afterGetAll(int size,LocalDateTime lastTime, Long lastId){
+        return repostRepository.findAllByCreateDateBeforeAndIdLessThanOrderByCreateDateDescIdDesc(lastTime,lastId,Limit.of(size))
+                .stream().filter(repost -> repost.getDeletedAt()==null)
+                .map(RepostOnly::new).collect(Collectors.toList());
     }
 
     public Page<CommentDTO> getAllComment(Long postId, Pageable pageable) {

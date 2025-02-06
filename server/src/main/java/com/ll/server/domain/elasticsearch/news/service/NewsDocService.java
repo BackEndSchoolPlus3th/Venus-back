@@ -1,6 +1,8 @@
 package com.ll.server.domain.elasticsearch.news.service;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.FieldValue;
+import co.elastic.clients.elasticsearch._types.SortOptions;
 import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
@@ -12,12 +14,17 @@ import com.ll.server.domain.news.news.repository.NewsRepository;
 import com.ll.server.global.config.ElasticSearchClientConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -25,6 +32,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly=true)
+@Slf4j
 public class NewsDocService {
     private final NewsDocRepository newsDocRepository;
     private final NewsRepository newsRepository;
@@ -33,13 +41,14 @@ public class NewsDocService {
     public Page<NewsOnly> search(String keyword, boolean hasTitle, boolean hasContent, boolean hasPublisher, String category, Pageable page){
         ElasticsearchClient client = new ElasticSearchClientConfig().createElasticsearchClient();
         BoolQuery.Builder bqBuilder = createBoolQuery(keyword, hasTitle, hasContent, hasPublisher, category);
-
         SearchResponse<NewsDoc> result= client.search(
                 SearchRequest.of(
                         s->s.index("news")
                                 .from((int)page.getOffset())
                                 .size(page.getPageSize())
-                                .sort(sort->sort.field(f->f.field("id").order(SortOrder.Desc)))
+                                .sort(SortOptions.of(so1->so1.field(f->f.field("published_at").order(SortOrder.Desc))),
+                                        SortOptions.of(so2->so2.field(f-> f.field("id").order(SortOrder.Desc)))
+                                )
                                 .query(
                                         q->q.bool(bqBuilder.build())
                                 )
@@ -70,7 +79,9 @@ public class NewsDocService {
                 SearchRequest.of(
                         s->s.index("news")
                                 .size(size)
-                                .sort(sort->sort.field(f->f.field("id").order(SortOrder.Desc)))
+                                .sort(SortOptions.of(so1->so1.field(f->f.field("published_at").order(SortOrder.Desc)))
+                                        , SortOptions.of(so2->so2.field(f-> f.field("id").order(SortOrder.Desc)))
+                                )
                                 .query(
                                         q->q.bool(bqBuilder.build())
                                 )
@@ -113,21 +124,32 @@ public class NewsDocService {
     }
 
     @SneakyThrows
-    public List<NewsOnly> afterInfinitySearch(String keyword, boolean hasTitle, boolean hasContent, boolean hasPublisher, String category, int size, long lastId){
+    public List<NewsOnly> afterInfinitySearch(String keyword, boolean hasTitle, boolean hasContent, boolean hasPublisher, String category, int size, LocalDateTime lastTime, long lastId){
         ElasticsearchClient client = new ElasticSearchClientConfig().createElasticsearchClient();
         BoolQuery.Builder bqBuilder = createBoolQuery(keyword, hasTitle, hasContent, hasPublisher, category);
 
-        SearchResponse<NewsDoc> result= client.search(
-                SearchRequest.of(
-                        s->s.index("news")
-                                .size(size)
-                                .sort(sort->sort.field(f->f.field("id").order(SortOrder.Desc)))
-                                .query(
-                                        q->q.bool(bqBuilder.build())
-                                )
-                                .searchAfter(lastId)
-                ),NewsDoc.class
+        ZonedDateTime zonedDateTime = lastTime.atZone(ZoneId.of("UTC"));
+
+        // 원하는 형식으로 변환
+        String formattedDate = zonedDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"));
+
+        SearchRequest sq=
+        SearchRequest.of(
+                s->s.index("news")
+                        .size(size)
+                        .sort(SortOptions.of(so1->so1.field(f->f.field("published_at").order(SortOrder.Desc)))
+                                , SortOptions.of(so2->so2.field(f-> f.field("id").order(SortOrder.Desc)))
+                        )
+                        .query(
+                                q->q.bool(bqBuilder.build())
+                        )
+                        .searchAfter(FieldValue.of(formattedDate),FieldValue.of(lastId))
         );
+
+        SearchResponse<NewsDoc> result= client.search(
+            sq,NewsDoc.class
+        );
+
 
         return result.hits().hits().stream()
                 .map(hit->new NewsOnly(Objects.requireNonNull(hit.source())))

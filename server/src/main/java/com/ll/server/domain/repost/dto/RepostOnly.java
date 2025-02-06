@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
+
 @AllArgsConstructor
 @Builder
 @Getter
@@ -16,6 +18,7 @@ public class RepostOnly {
     private int commentCount;
     private int likeCount;
     private String imageUrl;
+    private LocalDateTime createDate;
 
     public RepostOnly(Repost repost){
         repostId=repost.getId();
@@ -28,6 +31,7 @@ public class RepostOnly {
         likeCount= repost.getLikes().size();
 
         imageUrl = repost.getImageUrl();
+        createDate=repost.getCreateDate();
 
     }
 }

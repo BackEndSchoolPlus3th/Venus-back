@@ -6,11 +6,14 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 public class CustomZonedDateTimeConverter implements PropertyValueConverter {
 
     private final DateTimeFormatter formatterWithZone = DateTimeFormatter.ofPattern("uuuu-MM-dd'T'HH:mm:ss.SSSSSSX");
     private final DateTimeFormatter formatterWithoutZone = DateTimeFormatter.ofPattern("uuuu-MM-dd'T'HH:mm:ss.SSSSSS");
+
+    private final DateTimeFormatter formatterWithoutFraction=DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 
     @Override
     public Object write(Object value) {
@@ -26,8 +29,13 @@ public class CustomZonedDateTimeConverter implements PropertyValueConverter {
         if (value instanceof String s) {
             try {
                 return formatterWithZone.parse(s, ZonedDateTime::from);
-            } catch (Exception e) {
-                return formatterWithoutZone.parse(s, LocalDateTime::from).atZone(ZoneId.of("Asia/Seoul"));
+            } catch (DateTimeParseException e1) {
+
+                try {
+                    return formatterWithoutZone.parse(s, LocalDateTime::from).atZone(ZoneId.of("Asia/Seoul"));
+                }catch (DateTimeParseException e2){
+                    return LocalDateTime.parse(s,formatterWithoutFraction);
+                }
             }
         } else {
             return value;

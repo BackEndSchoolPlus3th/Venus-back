@@ -10,7 +10,13 @@ public class RepostOnlyResponse {
     private long count;
 
     public RepostOnlyResponse(List<RepostOnly> reposts){
-        this.reposts=reposts;
-        count=reposts.size();
+        if(reposts==null){
+            this.reposts=null;
+            count=0;
+        }else{
+            this.reposts=reposts;
+            count=reposts.size();
+        }
+
     }
 }

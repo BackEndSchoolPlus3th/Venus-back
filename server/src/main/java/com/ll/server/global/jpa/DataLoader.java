@@ -7,7 +7,10 @@ import com.ll.server.domain.member.enums.MemberRole;
 import com.ll.server.domain.member.enums.Provider;
 import com.ll.server.domain.member.repository.MemberRepository;
 import com.ll.server.domain.member.service.MemberService;
+import com.ll.server.domain.news.news.dto.NewsDTO;
+import com.ll.server.domain.news.news.dto.NewsResponse;
 import com.ll.server.domain.news.news.repository.NewsRepository;
+import com.ll.server.domain.news.news.service.NewsFetchService;
 import com.ll.server.domain.news.news.service.NewsService;
 import com.ll.server.domain.repost.controller.ApiV1RepostController;
 import com.ll.server.domain.repost.dto.RepostWriteRequest;
@@ -18,7 +21,9 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 @Component
 @RequiredArgsConstructor
@@ -34,11 +39,20 @@ public class DataLoader implements CommandLineRunner {
 
     private final MemberRepository memberRepository;
 
+    private final NewsFetchService newsFetchService;
+
     @Override
     @Transactional
     public void run(String... args) throws Exception {
+        NewsResponse newsResponse=null;
+        List<NewsDTO> newsDTO=null;
+        if(newsRepository.findAll().isEmpty()){
+            newsResponse=newsFetchService.fetchNews();
+            newsDTO= Objects.requireNonNull(newsResponse).getNewsList();
+        };
 
-        if(memberService.getMemberByEmail("1@example.com") ==null) {
+
+       if(memberRepository.findByEmail("1@example.com").isEmpty()){
             MemberRequest signupRequest=MemberRequest.builder()
                     .email("1@example.com")
                     .nickname("user1")
@@ -50,14 +64,15 @@ public class DataLoader implements CommandLineRunner {
             memberService.join(signupRequest);
         }
 
+
         if(repostRepository.findAll().isEmpty()){
             Member member=memberService.getMemberByEmail("1@example.com");
             Faker faker=new Faker(Locale.KOREA);
-            for(int i=0;i<300;i++) {
+            for(int i=0;i<newsResponse.getCount()/2;i++) {
                 RepostWriteRequest repostRequest1 = RepostWriteRequest.builder()
                         .content(String.join("\n", faker.lorem().sentences(3)))
                         .mentions(member.getNickname() + "," + member.getNickname())
-                        .newsId((long)(i+1))
+                        .newsId(newsDTO.get(i).getId())
                         .writerId(member.getId())
                         .build();
                 repostController.write(repostRequest1);

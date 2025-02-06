@@ -42,6 +42,9 @@
           "type": "text",
           "analyzer": "korean_mixed"
         },
+        "image_url": {
+          "type": "keyword"
+        },
         "create_date": {
           "type": "date",
           "format": "strict_date_time"

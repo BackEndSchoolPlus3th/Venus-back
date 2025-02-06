@@ -20,4 +20,6 @@ public interface RepostDocRepository extends ElasticsearchRepository<RepostDoc,L
             }
             """)
     Page<RepostDoc> searchByContent(String keyword, Pageable pageable);
+
+
 }

@@ -1,0 +1,40 @@
+{
+  "analysis": {
+    "tokenizer": {
+      "nori_mixed": {
+        "type": "nori_tokenizer",
+        "decompound_mode": "mixed"
+      }
+    },
+    "analyzer": {
+      "korean_mixed": {
+        "type": "custom",
+        "tokenizer": "nori_mixed",
+        "filter": [
+          "lowercase",
+          "nori_part_of_speech",
+          "nori_posfilter",
+          "nori_readingform"
+        ]
+      }
+    },
+    "filter": {
+      "nori_posfilter": {
+        "type": "nori_part_of_speech",
+        "stoptags": [
+          "E", "IC", "J", "MAG", "MAJ", "MM", "SP",
+          "SSC", "SSO", "SC", "SE", "XPN", "XSA",
+          "XSN", "XSV", "UNA", "NA", "VSV"
+        ]
+      },
+      "ngram_filter":{
+        "type": "ngram",
+        "min_gram": 2,
+        "max_gram": 3
+      }
+    }
+  },
+  "index": {
+    "max_ngram_diff": 5
+  }
+}

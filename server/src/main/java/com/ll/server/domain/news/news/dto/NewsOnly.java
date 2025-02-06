@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
@@ -22,7 +24,7 @@ public class NewsOnly {
     private String thumbnailUrl;
     private String contentUrl;
     private String category;
-    private String publishedAt;
+    private LocalDateTime publishedAt;
 
     public NewsOnly(News news){
         id=news.getId();

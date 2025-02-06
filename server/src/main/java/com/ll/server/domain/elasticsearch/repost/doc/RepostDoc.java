@@ -5,10 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.ll.server.global.utils.CustomZonedDateTimeConverter;
 import jakarta.persistence.Id;
 import lombok.*;
-import org.springframework.data.elasticsearch.annotations.Document;
-import org.springframework.data.elasticsearch.annotations.Field;
-import org.springframework.data.elasticsearch.annotations.FieldType;
-import org.springframework.data.elasticsearch.annotations.ValueConverter;
+import org.springframework.data.elasticsearch.annotations.*;
 
 import java.time.ZonedDateTime;
 
@@ -19,7 +16,9 @@ import java.time.ZonedDateTime;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonIgnoreProperties({"@timestamp"})
+@JsonIgnoreProperties(ignoreUnknown = true)
+@Mapping(mappingPath = "repostDoc/repostMapping.json")
+@Setting(settingPath = "repostDoc/repostSetting.json")
 public class RepostDoc {
 
     @Id
@@ -32,6 +31,10 @@ public class RepostDoc {
     private Long userId;
 
     private String content;
+
+    @JsonProperty("image_url")
+    private String imageUrl;
+
 
     @Field(type = FieldType.Date)
     @ValueConverter(CustomZonedDateTimeConverter.class)

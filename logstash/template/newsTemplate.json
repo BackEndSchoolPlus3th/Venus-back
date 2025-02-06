@@ -55,6 +55,9 @@
     },
     "mappings": {
       "properties": {
+        "id": {
+          "type": "long"
+        },
         "title": {
           "type": "text",
           "analyzer": "korean_mixed"
@@ -91,7 +94,8 @@
           "type": "keyword"
         },
         "published_at": {
-          "type": "keyword"
+          "type": "date",
+          "format": "strict_date_time"
         },
         "publisher": {
           "type": "text",

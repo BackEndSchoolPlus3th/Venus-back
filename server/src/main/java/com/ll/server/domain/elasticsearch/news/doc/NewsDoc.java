@@ -6,11 +6,9 @@ import com.ll.server.domain.news.news.enums.NewsCategory;
 import com.ll.server.global.utils.CustomZonedDateTimeConverter;
 import jakarta.persistence.Id;
 import lombok.*;
-import org.springframework.data.elasticsearch.annotations.Document;
-import org.springframework.data.elasticsearch.annotations.Field;
-import org.springframework.data.elasticsearch.annotations.FieldType;
-import org.springframework.data.elasticsearch.annotations.ValueConverter;
+import org.springframework.data.elasticsearch.annotations.*;
 
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 
 @Document(indexName = "news")
@@ -21,6 +19,8 @@ import java.time.ZonedDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties({"@timestamp"})
+@Mapping(mappingPath = "newsDoc/newsMapping.json")
+@Setting(settingPath = "newsDoc/newsSetting.json")
 public class NewsDoc {
 
     @Id
@@ -41,14 +41,16 @@ public class NewsDoc {
     private NewsCategory category;
 
     @JsonProperty("published_at")
-    private String publishedAt;
+    @Field(type = FieldType.Date,format = DateFormat.strict_date_time)
+    @ValueConverter(CustomZonedDateTimeConverter.class)
+    private LocalDateTime publishedAt;
 
-    @Field(type = FieldType.Date)
+    @Field(type = FieldType.Date,format = DateFormat.strict_date_time)
     @ValueConverter(CustomZonedDateTimeConverter.class)
     @JsonProperty("create_date")
     private ZonedDateTime createDate;
 
-    @Field(type = FieldType.Date)
+    @Field(type = FieldType.Date,format = DateFormat.strict_date_time)
     @ValueConverter(CustomZonedDateTimeConverter.class)
     @JsonProperty("modify_date")
     private ZonedDateTime modifyDate;

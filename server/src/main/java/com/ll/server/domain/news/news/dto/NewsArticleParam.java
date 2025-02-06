@@ -9,6 +9,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 @Getter
 @Builder
 @NoArgsConstructor
@@ -29,6 +32,8 @@ public class NewsArticleParam {
     private String publishedAt;
 
     public News toEntity(NewsCategory category) {
+        DateTimeFormatter formatter=DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+
         return News.builder()
                 .title(title)
                 .content(summary)
@@ -37,7 +42,7 @@ public class NewsArticleParam {
                 .imageUrl(imageUrl)
                 .thumbnailUrl(thumbnailUrl)
                 .contentUrl(contentUrl)
-                .publishedAt(publishedAt)
+                .publishedAt(LocalDateTime.parse(publishedAt, formatter))
                 .category(category)
                 .build();
     }

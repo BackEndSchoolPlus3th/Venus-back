@@ -6,9 +6,7 @@ import com.ll.server.domain.comment.dto.CommentWriteRequest;
 import com.ll.server.domain.elasticsearch.repost.service.RepostDocService;
 import com.ll.server.domain.like.dto.LikeDTO;
 import com.ll.server.domain.like.dto.LikeResponse;
-import com.ll.server.domain.repost.dto.RepostDTO;
-import com.ll.server.domain.repost.dto.RepostOnly;
-import com.ll.server.domain.repost.dto.RepostWriteRequest;
+import com.ll.server.domain.repost.dto.*;
 import com.ll.server.domain.repost.entity.Repost;
 import com.ll.server.domain.repost.service.RepostService;
 import com.ll.server.global.response.enums.ReturnCode;
@@ -18,12 +16,14 @@ import com.ll.server.global.utils.MyConstant;
 import com.ll.server.global.validation.PageLimitSizeValidator;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -47,7 +47,7 @@ public class ApiV1RepostController {
                                        @RequestParam(value = "page",defaultValue = "0")int page,
                                        @RequestParam(value = "size",defaultValue = "20")int size){
         PageLimitSizeValidator.validateSize(page,size, MyConstant.PAGELIMITATION);
-        Pageable pageable=PageRequest.of(page,size, Sort.by("id").descending());
+        Pageable pageable=PageRequest.of(page,size, Sort.by("createDate","id").descending());
 
         if(keyword.isBlank()){
             Page<RepostOnly> result=repostService.findAll(pageable);
@@ -57,6 +57,35 @@ public class ApiV1RepostController {
         Page<RepostOnly> result=repostDocService.searchContent(keyword, pageable);
         return ApiResponse.of(CustomPage.of(result));
 
+    }
+
+    @SneakyThrows
+    @GetMapping("/infinityTest")
+    public ApiResponse<?> searchInfinity(@RequestParam(value = "keyword",defaultValue = "") String keyword,
+                                         @RequestParam(value = "lastTime",required = false) LocalDateTime lastTime,
+                                         @RequestParam(value = "lastId",required = false)Long lastId,
+                                         @RequestParam(value="size",defaultValue = "20") int size){
+
+        RepostInfinityScrollResponse result=null;
+        //검색 안함
+        if(keyword.isBlank()){
+            if(lastTime==null || lastId==null){
+                result=new RepostInfinityScrollResponse(repostService.firstGetAll(size));
+                return ApiResponse.of(result);
+            }
+
+            result=new RepostInfinityScrollResponse(repostService.afterGetAll(size,lastTime,lastId));
+            return ApiResponse.of(result);
+        }
+        
+        //검색함
+        if(lastTime==null || lastId==null){
+            result=new RepostInfinityScrollResponse(repostDocService.firstInfinitySearch(size,keyword));
+            return ApiResponse.of(result);
+        }
+
+        result=new RepostInfinityScrollResponse(repostDocService.afterInfinitySearch(size, keyword, lastTime, lastId));
+        return ApiResponse.of(result);
     }
 
     @GetMapping("/{repostId}")

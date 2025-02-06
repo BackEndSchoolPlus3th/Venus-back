@@ -30,7 +30,7 @@ public class News extends BaseEntity {
     private String contentUrl;
     @Enumerated(EnumType.STRING)
     private NewsCategory category;
-    private String publishedAt;
+    private LocalDateTime publishedAt;
 
     @Builder.Default
     private LocalDateTime deletedAt = null;

@@ -8,17 +8,18 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
 public interface NewsRepository extends JpaRepository<News, Long> {
     List<News> findNewsByPublisher(String publisher);
 
-    Page<News> findAllByOrderByPublishedAtDesc(Pageable pageable);
+    Page<News> findAllByOrderByPublishedAtDescIdDesc(Pageable pageable);
 
     List<News> findAllByIdIn(List<Long> ids, Sort sort);
 
-    List<News> findAllByOrderByIdDesc(Limit limit);
+    List<News> findAllByOrderByPublishedAtDescIdDesc(Limit limit);
 
-    List<News> findAllByIdLessThan(Long lastId,Limit limit);
+    List<News> findAllByPublishedAtBeforeOrderByPublishedAtDescIdDesc(LocalDateTime lastTime, Limit limit);
 }

@@ -29,7 +29,7 @@ public class NewsService {
 
     public Page<NewsDTO> getAll(Pageable pageable) {
 
-        Page<News> result = newsRepository.findAllByOrderByPublishedAtDesc(pageable);
+        Page<News> result = newsRepository.findAllByOrderByPublishedAtDescIdDesc(pageable);
         return new PageImpl<>(
                 result.getContent().stream()
                         .filter(news -> news.getDeletedAt() == null)
@@ -41,14 +41,14 @@ public class NewsService {
     }
 
     public List<NewsOnly> firstInfinityGetAll(int size){
-        List<News> result=newsRepository.findAllByOrderByIdDesc(Limit.of(size));
+        List<News> result=newsRepository.findAllByOrderByPublishedAtDescIdDesc(Limit.of(size));
         return result.stream().filter(news->news.getDeletedAt()==null)
                 .map(NewsOnly::new)
                 .collect(Collectors.toList());
     }
 
-    public List<NewsOnly> afterInfinityGetAll(int size, long lastId){
-        List<News> result=newsRepository.findAllByIdLessThan(lastId,Limit.of(size));
+    public List<NewsOnly> afterInfinityGetAll(int size, LocalDateTime lastTime){
+        List<News> result=newsRepository.findAllByPublishedAtBeforeOrderByPublishedAtDescIdDesc(lastTime,Limit.of(size));
         return result.stream().filter(news->news.getDeletedAt()==null)
                 .map(NewsOnly::new)
                 .collect(Collectors.toList());
