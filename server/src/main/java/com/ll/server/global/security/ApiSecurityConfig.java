@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -14,13 +16,22 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class ApiSecurityConfig {
+
     private final JwtAuthorizationFilter jwtAuthorizationFilter;
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration)
+            throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
+    }
+
+
     @Bean
     SecurityFilterChain apiFilterChain(HttpSecurity http) throws Exception {
         http
                 .securityMatcher("/api/**")
                 .authorizeHttpRequests(authorizeRequests -> authorizeRequests
-                        .requestMatchers(HttpMethod.GET, "/api/*/news").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/*/news/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/*/members/login").permitAll() // 로그인은 누구나 가능, post 요청만 허용
                         .requestMatchers(HttpMethod.POST, "/api/*/members/signup").permitAll() // 회원가입은 누구나 가능
                         .requestMatchers(HttpMethod.GET, "/api/*/members/logout").permitAll() // 로그아웃
@@ -29,10 +40,10 @@ public class ApiSecurityConfig {
                 .csrf(csrf -> csrf.disable()) // csrf 토큰 끄기
                 .httpBasic(httpBasic -> httpBasic.disable()) // httpBasic 로그인 방식 끄기
                 .formLogin(formLogin -> formLogin.disable()) // 폼 로그인 방식 끄기
-                .sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // JWT 사용 시 세션 사용 안 함
                 .addFilterBefore(jwtAuthorizationFilter, //엑세스 토큰을 이용한 로그인 처리
-                        UsernamePasswordAuthenticationFilter.class
-                );
+                UsernamePasswordAuthenticationFilter.class
+        );
         return http.build();
     }
 }

@@ -84,10 +84,12 @@ public class MemberService {
     // 토큰으로 User 정보 가져오기
     public SecurityUser getUserFromAccessToken(String accessToken) {
         Map<String, Object> payloadBody = jwtProvider.getClaims(accessToken);
-        long id = (int) payloadBody.get("id");
-        String nickname = (String) payloadBody.get("username");
+//        long id = (int) payloadBody.get("id");
+        String email = (String) payloadBody.get("email");
+        Optional<Member> member = memberRepository.findByEmail(email);
         List<GrantedAuthority> authorities = new ArrayList<>();
-        return new SecurityUser(id, nickname, "", authorities);
+
+        return new SecurityUser(member.orElse(null),  authorities);
     }
 
 }

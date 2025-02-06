@@ -37,18 +37,30 @@ public class RepostService {
         return new RepostDTO(repostRepository.findById(id).get());
     }
 
+
     @Transactional
-    public String delete(Long id){
-        Optional<Repost> target=repostRepository.findById(id);
-        if(target.isPresent() && target.get().getDeletedAt()==null) {
-            Repost repost=target.get();
-            repost.setDeletedAt(LocalDateTime.now());
-            repost.deleteComments();
-            repost.deleteLikes();
-            return "삭제 성공";
+    public String checkDelete(Long repostId, Long userId) {
+        Optional<Repost> target = repostRepository.findById(repostId);
+        Repost repost = target.orElseThrow(() -> new RuntimeException("Repost not found"));
+        System.out.println("repost = " + repost);
+        Member repostMember = repost.getMember();
+        Long writerId = repostMember.getId();
+        System.out.println("writerId = " + writerId);
+
+        if (writerId.equals(userId)) {
+            if (target.isPresent() && target.get().getDeletedAt() == null) {
+                Repost repost2 = target.get();
+                repost2.setDeletedAt(LocalDateTime.now());
+                repost2.deleteComments();
+                repost2.deleteLikes();
+            }
+        } else {
+            throw new RuntimeException("삭제 권한이 없습니다.");
         }
-        return "삭제 실패";
+        return "삭제 성공";
     }
+
+
 
     @Transactional
     @Notify
@@ -212,4 +224,6 @@ public class RepostService {
         return new LikeDTO(repost.addLike(user));
 
     }
+
+
 }

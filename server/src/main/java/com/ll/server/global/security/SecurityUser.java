@@ -1,5 +1,6 @@
 package com.ll.server.global.security;
 
+import com.ll.server.domain.member.entity.Member;
 import lombok.Getter;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -8,12 +9,19 @@ import org.springframework.security.core.userdetails.User;
 
 import java.util.Collection;
 
+@Getter
 public class SecurityUser extends User {
-    @Getter
     private long id;
-    public SecurityUser(long id, String username, String password, Collection<? extends GrantedAuthority> authorities) {
-        super(username, password, authorities);
-        this.id = id;
+    private String email;
+
+
+    public SecurityUser(Member member,
+                        Collection<? extends GrantedAuthority> authorities) {
+        super(member.getEmail(), member.getPassword(), authorities);
+        this.id = member.getId();
+        this.email = member.getEmail();
+//        this.role = member.getRole();
+
     }
     public Authentication genAuthentication() {
         Authentication auth = new UsernamePasswordAuthenticationToken(
