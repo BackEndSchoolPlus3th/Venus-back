@@ -33,20 +33,20 @@ public class News extends BaseEntity {
     private String publishedAt;
 
     @Builder.Default
-    private LocalDateTime deletedAt=null;
+    private LocalDateTime deletedAt = null;
 
     @OneToMany(mappedBy = "news")
     @Builder.Default
-    private List<Repost> reposts=new ArrayList<>();
+    private List<Repost> reposts = new ArrayList<>();
 
-    public void addRepost(Repost repost){
+    public void addRepost(Repost repost) {
         reposts.add(repost);
     }
 
-    public void removeReposts(){
+    public void removeReposts() {
         reposts.forEach(
                 repost -> {
-                    if(repost.getDeletedAt()==null) {
+                    if (repost.getDeletedAt() == null) {
                         repost.setDeletedAt(LocalDateTime.now());
                         repost.deleteComments();
                         repost.deleteLikes();
@@ -55,4 +55,7 @@ public class News extends BaseEntity {
         );
     }
 
+    public void delete() {
+        this.deletedAt = LocalDateTime.now();
+    }
 }

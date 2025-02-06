@@ -2,8 +2,10 @@ package com.ll.server.domain.news.news.controller;
 
 import com.ll.server.domain.news.news.dto.NewsDTO;
 import com.ll.server.domain.news.news.dto.NewsUpdateRequest;
+import com.ll.server.domain.news.news.entity.News;
 import com.ll.server.domain.news.news.service.NewsFetchService;
 import com.ll.server.domain.news.news.service.NewsService;
+import com.ll.server.global.response.enums.ReturnCode;
 import com.ll.server.global.response.response.ApiResponse;
 import com.ll.server.global.response.response.CustomPage;
 import com.ll.server.global.utils.MyConstant;
@@ -45,8 +47,7 @@ public class ApiV1NewsController {
         PageLimitSizeValidator.validateSize(request.getPage(), request.getLimit(), MyConstant.PAGELIMITATION);
         Pageable pageable = PageRequest.of(request.getPage(), request.getLimit(), Sort.by("id").descending());
 
-        //Page<NewsDTO> news = newsService.getAll(pageable).map(newsService::convertToDTO);
-        Page<NewsDTO> news=newsService.getAll(pageable);
+        Page<NewsDTO> news = newsService.getAll(pageable);
 
         return ApiResponse.of(CustomPage.of(news));
     }
@@ -54,8 +55,9 @@ public class ApiV1NewsController {
     //뉴스 조회 API
     @GetMapping("/{id}")
     public ApiResponse<NewsDTO> getById(@PathVariable("id") Long id) {
-        NewsDTO newsDTO = newsService.getById(id);
-        //NewsDTO newsDTO = newsService.convertToDTO(news);
+//        NewsDTO newsDTO = newsService.getById(id);
+        News news = newsService.getNews(id);
+        NewsDTO newsDTO = new NewsDTO(news);
 
         return ApiResponse.of(newsDTO);
     }
@@ -70,7 +72,11 @@ public class ApiV1NewsController {
 
     @DeleteMapping("/{id}")
     public ApiResponse<String> deleteNews(@PathVariable Long id) {
-        return ApiResponse.of( newsService.deleteNews(id));
+        News news = newsService.getNews(id);
+        news.removeReposts();
+        news.delete();
+
+        return ApiResponse.of(ReturnCode.SUCCESS);
     }
 
 //    @GetMapping("/search")

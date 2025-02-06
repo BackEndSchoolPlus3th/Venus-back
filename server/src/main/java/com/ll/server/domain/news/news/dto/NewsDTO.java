@@ -39,7 +39,6 @@ public class NewsDTO {
         contentUrl = news.getContentUrl();
         category = news.getCategory().getCategory();
         publishedAt = news.getPublishedAt();
-        reposts=news.getReposts().stream().map(RepostUnderNews::new).collect(Collectors.toList());
+        reposts = news.getReposts().stream().map(RepostUnderNews::new).collect(Collectors.toList());
     }
-
 }
