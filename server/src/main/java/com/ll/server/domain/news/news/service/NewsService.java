@@ -1,12 +1,14 @@
 package com.ll.server.domain.news.news.service;
 
 import com.ll.server.domain.news.news.dto.NewsDTO;
+import com.ll.server.domain.news.news.dto.NewsOnly;
 import com.ll.server.domain.news.news.dto.NewsUpdateRequest;
 import com.ll.server.domain.news.news.entity.News;
 import com.ll.server.domain.news.news.repository.NewsRepository;
 import com.ll.server.domain.notification.Notify;
 import com.ll.server.domain.repost.dto.RepostUnderNews;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Limit;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -36,6 +38,21 @@ public class NewsService {
                 ,result.getTotalElements()
         );
     }
+
+    public List<NewsOnly> firstInfinityGetAll(int size){
+        List<News> result=newsRepository.findAllByOrderByIdDesc(Limit.of(size));
+        return result.stream().filter(news->news.getDeletedAt()==null)
+                .map(NewsOnly::new)
+                .collect(Collectors.toList());
+    }
+
+    public List<NewsOnly> afterInfinityGetAll(int size, long lastId){
+        List<News> result=newsRepository.findAllByIdLessThan(lastId,Limit.of(size));
+        return result.stream().filter(news->news.getDeletedAt()==null)
+                .map(NewsOnly::new)
+                .collect(Collectors.toList());
+    }
+
 
     public NewsDTO getById(Long id) {
         News news=getNews(id);

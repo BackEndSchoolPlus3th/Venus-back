@@ -1,28 +1,24 @@
 package com.ll.server.global.jpa;
 
-import com.ll.server.domain.comment.dto.CommentWriteRequest;
 import com.ll.server.domain.follow.controller.ApiV1FollowController;
-import com.ll.server.domain.follow.dto.FollowRequest;
 import com.ll.server.domain.member.dto.MemberRequest;
 import com.ll.server.domain.member.entity.Member;
 import com.ll.server.domain.member.enums.MemberRole;
 import com.ll.server.domain.member.enums.Provider;
+import com.ll.server.domain.member.repository.MemberRepository;
 import com.ll.server.domain.member.service.MemberService;
-import com.ll.server.domain.news.news.entity.News;
-import com.ll.server.domain.news.news.enums.NewsCategory;
 import com.ll.server.domain.news.news.repository.NewsRepository;
 import com.ll.server.domain.news.news.service.NewsService;
 import com.ll.server.domain.repost.controller.ApiV1RepostController;
-import com.ll.server.domain.repost.dto.RepostDTO;
 import com.ll.server.domain.repost.dto.RepostWriteRequest;
 import com.ll.server.domain.repost.repository.RepostRepository;
 import lombok.RequiredArgsConstructor;
+import net.datafaker.Faker;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Locale;
 
 @Component
 @RequiredArgsConstructor
@@ -36,12 +32,39 @@ public class DataLoader implements CommandLineRunner {
 //    private final RepostDocRepository repostDocRepository;
 //    private final NewsDocRepository newsDocRepository;
 
+    private final MemberRepository memberRepository;
+
     @Override
     @Transactional
     public void run(String... args) throws Exception {
 
-//        repostDocRepository.deleteAll();
-//        newsDocRepository.deleteAll();
+        if(memberService.getMember("1@example.com") ==null) {
+            MemberRequest signupRequest=MemberRequest.builder()
+                    .email("1@example.com")
+                    .nickname("user1")
+                    .password("1234")
+                    .role(MemberRole.USER)
+                    .provider(Provider.LOCAL)
+                    .providerId("1234")
+                    .build();
+            memberService.join(signupRequest);
+        }
+
+        if(repostRepository.findAll().isEmpty()){
+            Member member=memberService.getMember("1@example.com");
+            Faker faker=new Faker(Locale.KOREA);
+            for(int i=0;i<300;i++) {
+                RepostWriteRequest repostRequest1 = RepostWriteRequest.builder()
+                        .content(String.join("\n", faker.lorem().sentences(3)))
+                        .mentions(member.getNickname() + "," + member.getNickname())
+                        .newsId((long)(i+1))
+                        .writerId(member.getId())
+                        .build();
+                repostController.write(repostRequest1);
+            }
+        }
+
+        /*
 
         MemberRequest publisherSignup=MemberRequest.builder()
                 .email("publisher@example.com")
@@ -170,6 +193,9 @@ public class DataLoader implements CommandLineRunner {
         repostController.markLike(repostDTO2.getRepostId(),user3.getId());
         repostController.markLike(repostDTO3.getRepostId(),user1.getId());
         //23개
+
+
+         */
 
     }
 }

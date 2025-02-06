@@ -1,8 +1,7 @@
 package com.ll.server.domain.repost.repository;
 
 import com.ll.server.domain.repost.entity.Repost;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -13,5 +12,5 @@ public interface RepostRepository extends JpaRepository<Repost, Long> {
     List<Repost> findRepostsByMember_Nickname(String nickname);
     List<Repost> findRepostsByMember_Id(Long memberId);
 
-    Page<Repost> findAllByIdIn(List<Long> ids, Pageable pageable);
+    List<Repost> findAllByIdIn(List<Long> ids, Sort sort);
 }

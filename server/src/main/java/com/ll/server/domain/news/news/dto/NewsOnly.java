@@ -1,5 +1,6 @@
 package com.ll.server.domain.news.news.dto;
 
+import com.ll.server.domain.elasticsearch.news.doc.NewsDoc;
 import com.ll.server.domain.news.news.entity.News;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -34,5 +35,31 @@ public class NewsOnly {
         thumbnailUrl=news.getThumbnailUrl();
         contentUrl=news.getContentUrl();
         content=news.getContent();
+    }
+
+    public NewsOnly(NewsDoc newsDoc){
+        id= newsDoc.getId();
+        title=newsDoc.getTitle();
+        category=newsDoc.getCategory().getCategory();
+        author=newsDoc.getAuthor();
+        publishedAt=newsDoc.getPublishedAt();
+        publisherName=newsDoc.getPublisher();
+        imageUrl=newsDoc.getImageUrl();
+        thumbnailUrl= newsDoc.getThumbnailUrl();
+        contentUrl= newsDoc.getContentUrl();
+        content=newsDoc.getContent();
+    }
+
+    public NewsOnly(NewsDTO newsDTO){
+        id= newsDTO.getId();
+        title=newsDTO.getTitle();
+        category=newsDTO.getCategory();
+        author=newsDTO.getAuthor();
+        publishedAt=newsDTO.getPublishedAt();
+        publisherName=newsDTO.getPublisherName();
+        imageUrl=newsDTO.getImageUrl();
+        thumbnailUrl= newsDTO.getThumbnailUrl();
+        contentUrl= newsDTO.getContentUrl();
+        content=newsDTO.getContent();
     }
 }

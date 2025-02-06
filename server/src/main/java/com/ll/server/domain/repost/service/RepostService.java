@@ -12,6 +12,7 @@ import com.ll.server.domain.news.news.entity.News;
 import com.ll.server.domain.news.news.repository.NewsRepository;
 import com.ll.server.domain.notification.Notify;
 import com.ll.server.domain.repost.dto.RepostDTO;
+import com.ll.server.domain.repost.dto.RepostOnly;
 import com.ll.server.domain.repost.dto.RepostWriteRequest;
 import com.ll.server.domain.repost.entity.Repost;
 import com.ll.server.domain.repost.repository.RepostRepository;
@@ -93,13 +94,13 @@ public class RepostService {
                 .collect(Collectors.toList());
     }
 
-    public Page<RepostDTO> findAll(Pageable pageable){
+    public Page<RepostOnly> findAll(Pageable pageable){
         Page<Repost> result= repostRepository.findAll(pageable);
 
         return new PageImpl<>(
             result.getContent().stream()
                     .filter(repost -> repost.getDeletedAt()==null)
-                    .map(RepostDTO::new)
+                    .map(RepostOnly::new)
                     .collect(Collectors.toList()),
             result.getPageable(),
             result.getTotalElements()

@@ -1,18 +1,20 @@
 package com.ll.server.domain.elasticsearch.news.service;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import com.ll.server.domain.elasticsearch.news.doc.NewsDoc;
 import com.ll.server.domain.elasticsearch.news.repository.NewsDocRepository;
-import com.ll.server.domain.news.news.dto.NewsDTO;
-import com.ll.server.domain.news.news.entity.News;
+import com.ll.server.domain.news.news.dto.NewsOnly;
 import com.ll.server.domain.news.news.repository.NewsRepository;
 import com.ll.server.global.config.ElasticSearchClientConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,14 +24,66 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly=true)
 public class NewsDocService {
     private final NewsDocRepository newsDocRepository;
     private final NewsRepository newsRepository;
 
     @SneakyThrows
-    @Transactional(readOnly=true)
-    public Page<NewsDTO> search(String keyword, boolean hasTitle, boolean hasContent, boolean hasPublisher, String category, Pageable page){
+    public Page<NewsOnly> search(String keyword, boolean hasTitle, boolean hasContent, boolean hasPublisher, String category, Pageable page){
         ElasticsearchClient client = new ElasticSearchClientConfig().createElasticsearchClient();
+        BoolQuery.Builder bqBuilder = createBoolQuery(keyword, hasTitle, hasContent, hasPublisher, category);
+
+        SearchResponse<NewsDoc> result= client.search(
+                SearchRequest.of(
+                        s->s.index("news")
+                                .from((int)page.getOffset())
+                                .size(page.getPageSize())
+                                .sort(sort->sort.field(f->f.field("id").order(SortOrder.Desc)))
+                                .query(
+                                        q->q.bool(bqBuilder.build())
+                                )
+                ),NewsDoc.class
+        );
+
+        long totalHits= Objects.requireNonNull(result.hits().total()).value();
+
+        List<NewsOnly> newsOnlyList= result.hits().hits().stream()
+                .map(hit->new NewsOnly(Objects.requireNonNull(hit.source())))
+                .toList();
+
+        //NewsDTO 빌더로 하나하나 다 넣음
+         return new PageImpl<>(
+                 newsOnlyList,
+                 page,
+                 totalHits
+         );
+
+    }
+
+    @SneakyThrows
+    public List<NewsOnly> firstInfinitySearch(String keyword, boolean hasTitle, boolean hasContent, boolean hasPublisher, String category, int size){
+        ElasticsearchClient client = new ElasticSearchClientConfig().createElasticsearchClient();
+        BoolQuery.Builder bqBuilder = createBoolQuery(keyword, hasTitle, hasContent, hasPublisher, category);
+
+        SearchResponse<NewsDoc> result= client.search(
+                SearchRequest.of(
+                        s->s.index("news")
+                                .size(size)
+                                .sort(sort->sort.field(f->f.field("id").order(SortOrder.Desc)))
+                                .query(
+                                        q->q.bool(bqBuilder.build())
+                                )
+                ),NewsDoc.class
+        );
+
+
+        return result.hits().hits().stream()
+                .map(hit->new NewsOnly(Objects.requireNonNull(hit.source())))
+                .collect(Collectors.toList());
+    }
+
+    private BoolQuery.Builder createBoolQuery(String keyword, boolean hasTitle, boolean hasContent, boolean hasPublisher, String category) {
         BoolQuery.Builder bqBuilder=new BoolQuery.Builder();
 
         bqBuilder.mustNot(mn->mn.exists(ex->ex.field("deleted_at")));
@@ -55,32 +109,29 @@ public class NewsDocService {
         if(hasShould){
             bqBuilder.minimumShouldMatch("1");
         }
+        return bqBuilder;
+    }
+
+    @SneakyThrows
+    public List<NewsOnly> afterInfinitySearch(String keyword, boolean hasTitle, boolean hasContent, boolean hasPublisher, String category, int size, long lastId){
+        ElasticsearchClient client = new ElasticSearchClientConfig().createElasticsearchClient();
+        BoolQuery.Builder bqBuilder = createBoolQuery(keyword, hasTitle, hasContent, hasPublisher, category);
 
         SearchResponse<NewsDoc> result= client.search(
                 SearchRequest.of(
                         s->s.index("news")
-                                .from(page.getPageNumber())
-                                .size(page.getPageSize())
+                                .size(size)
+                                .sort(sort->sort.field(f->f.field("id").order(SortOrder.Desc)))
                                 .query(
                                         q->q.bool(bqBuilder.build())
                                 )
+                                .searchAfter(lastId)
                 ),NewsDoc.class
         );
-        List<Long> ids=result.hits().hits().stream().map(hit-> Objects.requireNonNull(hit.source()).getId()).toList();
 
-        Pageable forJPA= PageRequest.of(page.getPageNumber(), page.getPageSize(), Sort.by("id").descending());
-
-        Page<News> realResult=newsRepository.findAllByIdIn(ids,forJPA);
-
-        //NewsDTO 빌더로 하나하나 다 넣음
-         return new PageImpl<>(
-                        realResult.getContent().stream()
-                        .map(NewsDTO::new)
-                                .collect(Collectors.toList()),
-                 realResult.getPageable(),
-                 realResult.getTotalElements()
-         );
-
+        return result.hits().hits().stream()
+                .map(hit->new NewsOnly(Objects.requireNonNull(hit.source())))
+                .collect(Collectors.toList());
     }
 
 }

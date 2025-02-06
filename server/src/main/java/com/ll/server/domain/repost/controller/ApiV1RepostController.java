@@ -7,6 +7,7 @@ import com.ll.server.domain.elasticsearch.repost.service.RepostDocService;
 import com.ll.server.domain.like.dto.LikeDTO;
 import com.ll.server.domain.like.dto.LikeResponse;
 import com.ll.server.domain.repost.dto.RepostDTO;
+import com.ll.server.domain.repost.dto.RepostOnly;
 import com.ll.server.domain.repost.dto.RepostWriteRequest;
 import com.ll.server.domain.repost.service.RepostService;
 import com.ll.server.global.response.response.ApiResponse;
@@ -40,13 +41,20 @@ public class ApiV1RepostController {
     //repost 영역
     //탭으로 repost 선택 시 호출됨.
     @GetMapping
-    public ApiResponse<?> getAllRepost(ClientPageRequest request){
-        PageLimitSizeValidator.validateSize(request.getPage(),request.getLimit(), MyConstant.PAGELIMITATION);
-        Pageable pageable=PageRequest.of(request.getPage(),request.getLimit(), Sort.by("id").descending());
+    public ApiResponse<?> getAllRepost(@RequestParam(value = "keyword",defaultValue = "") String keyword,
+                                       @RequestParam(value = "page",defaultValue = "0")int page,
+                                       @RequestParam(value = "size",defaultValue = "20")int size){
+        PageLimitSizeValidator.validateSize(page,size, MyConstant.PAGELIMITATION);
+        Pageable pageable=PageRequest.of(page,size, Sort.by("id").descending());
 
-        Page<RepostDTO> result=repostService.findAll(pageable);
+        if(keyword.isBlank()){
+            Page<RepostOnly> result=repostService.findAll(pageable);
+            return ApiResponse.of(CustomPage.of(result));
+        }
 
+        Page<RepostOnly> result=repostDocService.searchContent(keyword, pageable);
         return ApiResponse.of(CustomPage.of(result));
+
     }
 
     @GetMapping("/{repostId}")
@@ -115,8 +123,8 @@ public class ApiV1RepostController {
     public ApiResponse<?> searchByContent(@RequestParam("keyword") String keyword,
                                            @RequestBody ClientPageRequest request){
         PageLimitSizeValidator.validateSize(request.getPage(),request.getLimit(), MyConstant.PAGELIMITATION);
-        Pageable pageable=PageRequest.of(request.getPage(),request.getLimit());
-        Page<RepostDTO> result= repostDocService.searchContent(keyword,pageable);
+        Pageable pageable=PageRequest.of(request.getPage(),request.getLimit(),Sort.by("id").descending());
+        Page<RepostOnly> result= repostDocService.searchContent(keyword,pageable);
         return ApiResponse.of(CustomPage.of(result));
     }
 

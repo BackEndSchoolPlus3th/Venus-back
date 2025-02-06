@@ -103,9 +103,7 @@ public class MemberService {
 
     public Member getMember(String email) {
         Optional<Member> member = memberRepository.findByEmail(email);
-        if (member.isEmpty()) {
-            throw new NoSuchElementException("No member found with email: " + email);
-        }
+        //throw new NoSuchElementException("No member found with email: " + email);
         return member.orElse(null);
     }
 

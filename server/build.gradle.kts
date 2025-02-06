@@ -57,6 +57,10 @@ dependencies {
 
 	// 로그백
 	implementation("net.logstash.logback:logstash-logback-encoder:7.4")
+
+	// https://mvnrepository.com/artifact/net.datafaker/datafaker repost 가데이터 밀어넣기
+	implementation("net.datafaker:datafaker:2.4.2")
+
 }
 dependencyManagement {
 	imports {
