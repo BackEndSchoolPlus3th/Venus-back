@@ -218,7 +218,9 @@ public class RepostService {
         if(repost==null) return null;
 
         Member user=memberRepository.findById(userId).get();
-        return new LikeDTO(repost.addLike(user));
+        Like like=repost.addLike(user);
+
+        return new LikeDTO(like);
 
     }
 }

@@ -31,22 +31,4 @@ public class Member extends BaseEntity {
     //String accessToken;
     private String refreshToken;
 
-//    @OneToMany(mappedBy = "member",cascade = CascadeType.ALL,orphanRemoval = true)
-//    @ToString.Exclude
-//    @JsonIgnore
-//    @Builder.Default
-//    private List<Repost> reposts=new ArrayList<>();
-//
-//    @OneToMany(mappedBy = "member",cascade = CascadeType.ALL,orphanRemoval = true)
-//    @ToString.Exclude
-//    @JsonIgnore
-//    @Builder.Default
-//    private List<Comment> comments=new ArrayList<>();
-//
-//    @OneToMany(mappedBy = "member",cascade = CascadeType.ALL,orphanRemoval = true)
-//    @ToString.Exclude
-//    @JsonIgnore
-//    @Builder.Default
-//    private List<Notification> notifications=new ArrayList<>();
-
 }

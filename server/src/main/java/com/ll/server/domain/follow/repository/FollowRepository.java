@@ -12,11 +12,13 @@ public interface FollowRepository extends JpaRepository<Follow, Long> {
     List<Follow> findFollowsByFollower_Id(Long followerId);
 
     Page<Follow> findFollowsByFollowee_Id(Long followeeId, Pageable pageable);
+    List<Follow> findFollowsByFollowee_Id(Long followeeId);
 
     Page<Follow> findFollowsByFollower_Nickname(String nickname, Pageable pageable);
     List<Follow> findFollowsByFollower_Nickname(String nickname);
 
     Page<Follow> findFollowsByFollowee_Nickname(String nickname, Pageable pageable);
+
 
     Follow findByFollower_IdAndFollowee_Id(Long followerId, Long followeeId);
 
