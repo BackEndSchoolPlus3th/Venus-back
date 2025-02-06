@@ -28,7 +28,8 @@
               "nori_part_of_speech",
               "nori_posfilter",
               "nori_readingform",
-              "ngram_filter"
+              "ngram_filter",
+              "unique"
             ]
           }
         },
