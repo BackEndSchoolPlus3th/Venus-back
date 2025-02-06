@@ -2,7 +2,9 @@ package com.ll.server.domain.admin.news.controller;
 
 import com.ll.server.domain.news.news.dto.NewsDTO;
 import com.ll.server.domain.news.news.dto.NewsUpdateRequest;
+import com.ll.server.domain.news.news.entity.News;
 import com.ll.server.domain.news.news.service.NewsService;
+import com.ll.server.global.response.enums.ReturnCode;
 import com.ll.server.global.response.response.ApiResponse;
 import com.ll.server.global.response.response.CustomPage;
 import com.ll.server.global.validation.PageLimitSizeValidator;
@@ -37,8 +39,10 @@ public class AdminController {
 
     @GetMapping("/news/{id}")
     public ApiResponse<NewsDTO> newsGetById(@PathVariable Long id) {
-        NewsDTO newsDTO = newsService.getById(id);
-        //NewsDTO newsDTO = newsService.convertToDTO(news);
+//        NewsDTO newsDTO = newsService.getById(id);
+        News news = newsService.getNews(id);
+
+        NewsDTO newsDTO = new NewsDTO(news);
 
         return ApiResponse.of(newsDTO);
     }
@@ -54,6 +58,6 @@ public class AdminController {
     @DeleteMapping("/news/{id}")
     public ApiResponse<String> newsDelete(@PathVariable Long id) {
 
-        return ApiResponse.of(newsService.deleteNews(id)+" - 관리자");
+        return ApiResponse.of(ReturnCode.SUCCESS_ADMIN);
     }
 }

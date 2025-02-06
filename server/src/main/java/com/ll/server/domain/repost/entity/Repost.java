@@ -26,7 +26,7 @@ import java.util.List;
 public class Repost extends BaseEntity {
 
     @NotNull
-    @ManyToOne(fetch= FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     private News news;
 
     @NotNull
@@ -38,25 +38,25 @@ public class Repost extends BaseEntity {
     private String content;
 
     @Builder.Default
-    private LocalDateTime deletedAt=null;
+    private LocalDateTime deletedAt = null;
 
-    @OneToMany(mappedBy = "repost", cascade = CascadeType.ALL,orphanRemoval = true)
+    @OneToMany(mappedBy = "repost", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
     @Builder.Default
     @JsonIgnore
-    private List<RepostMention> mentions=new ArrayList<>();
+    private List<RepostMention> mentions = new ArrayList<>();
 
-    @OneToMany(mappedBy = "repost", cascade = CascadeType.ALL,orphanRemoval = true)
+    @OneToMany(mappedBy = "repost", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
     @Builder.Default
     @JsonIgnore
-    private List<Like> likes=new ArrayList<>();
+    private List<Like> likes = new ArrayList<>();
 
-    @OneToMany(mappedBy = "repost", cascade = CascadeType.ALL,orphanRemoval = true)
+    @OneToMany(mappedBy = "repost", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
     @Builder.Default
     @JsonIgnore
-    private List<Comment> comments=new ArrayList<>();
+    private List<Comment> comments = new ArrayList<>();
 
     private Boolean pinned;
 
@@ -64,14 +64,14 @@ public class Repost extends BaseEntity {
     private String imageUrl;
 
 
-    public Comment addComment(Member member, List<Member> mentionedMembers, String content){
+    public Comment addComment(Member member, List<Member> mentionedMembers, String content) {
         Comment comment = Comment.builder()
                 .repost(this)
                 .content(content)
                 .member(member)
                 .build();
 
-        for(Member mentionedMember:mentionedMembers){
+        for (Member mentionedMember : mentionedMembers) {
             comment.addMention(mentionedMember);
         }
 
@@ -80,7 +80,7 @@ public class Repost extends BaseEntity {
         return comment;
     }
 
-    public Like addLike(Member member){
+    public Like addLike(Member member) {
         Like like = Like.builder()
                 .repost(this)
                 .deleted(false)
@@ -93,8 +93,8 @@ public class Repost extends BaseEntity {
 
     }
 
-    public void addMention(Member member){
-        RepostMention mention= RepostMention.builder()
+    public void addMention(Member member) {
+        RepostMention mention = RepostMention.builder()
                 .repost(this)
                 .member(member)
                 .build();
@@ -111,12 +111,15 @@ public class Repost extends BaseEntity {
         );
     }
 
-    public void deleteLikes(){
+    public void deleteLikes() {
         likes.forEach(like ->
                 {
-                        like.setDeleted(true);
+                    like.setDeleted(true);
                 }
-
         );
+    }
+
+    public void delete() {
+        this.deletedAt = LocalDateTime.now();
     }
 }

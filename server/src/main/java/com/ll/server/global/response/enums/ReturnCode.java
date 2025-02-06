@@ -7,7 +7,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum ReturnCode {
     SUCCESS("0000", "Success"),
-
+    SUCCESS_ADMIN("0001", "Success By Admin"),
     WRONG_PARAMETER("4000", "Wrong parameter"),
     NOT_FOUND_ENTITY("4001", "Not found entity"),
     ALREADY_EXIST("4002", "Already exist"),
