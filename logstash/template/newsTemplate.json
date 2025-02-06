@@ -19,6 +19,17 @@
               "nori_posfilter",
               "nori_readingform"
             ]
+          },
+          "korean_word": {
+            "type": "custom",
+            "tokenizer": "nori_mixed",
+            "filter": [
+              "lowercase",
+              "nori_part_of_speech",
+              "nori_posfilter",
+              "nori_readingform",
+              "ngram_filter"
+            ]
           }
         },
         "filter": {
@@ -29,6 +40,11 @@
               "SSC", "SSO", "SC", "SE", "XPN", "XSA",
               "XSN", "XSV", "UNA", "NA", "VSV"
             ]
+          },
+          "ngram_filter":{
+            "type": "ngram",
+            "min_gram": 1,
+            "max_gram": 3
           }
         }
       },
@@ -78,7 +94,7 @@
         },
         "publisher": {
           "type": "text",
-          "analyzer": "korean_mixed"
+          "analyzer": "korean_word"
         }
       }
     }
