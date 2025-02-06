@@ -3,7 +3,6 @@ package com.ll.server.global.jpa;
 import com.ll.server.domain.comment.dto.CommentWriteRequest;
 import com.ll.server.domain.follow.controller.ApiV1FollowController;
 import com.ll.server.domain.follow.dto.FollowRequest;
-import com.ll.server.domain.member.MemberRole;
 import com.ll.server.domain.member.dto.MemberRequest;
 import com.ll.server.domain.member.entity.Member;
 import com.ll.server.domain.member.service.MemberService;
