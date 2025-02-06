@@ -60,11 +60,11 @@ public class JwtTokenProvider {
         Date validity = new Date(now + this.accessTokenValidityInMilliseconds);
 
         return Jwts.builder()
-                .setSubject(authentication.getName())
+                .subject(authentication.getName())
                 .claim(AUTHORITIES_KEY, authorities)
-                .setIssuedAt(new Date())
+                .issuedAt(new Date())
                 .signWith(key)
-                .setExpiration(validity)
+                .expiration(validity)
                 .compact();
     }
 
@@ -73,10 +73,10 @@ public class JwtTokenProvider {
         Date validity = new Date(now + this.refreshTokenValidityInMilliseconds);
 
         return Jwts.builder()
-                .setSubject(authentication.getName())
-                .setIssuedAt(new Date())
+                .subject(authentication.getName())
+                .issuedAt(new Date())
                 .signWith(key)
-                .setExpiration(validity)
+                .expiration(validity)
                 .compact();
     }
 
@@ -92,10 +92,10 @@ public class JwtTokenProvider {
     // 토큰의 유효성 + 만료일자 확인
     public boolean validateToken(String token, Authentication authentication) {
         try {
-            Jwts.parserBuilder()
-                    .setSigningKey(key)
+            Jwts.parser()
+                    .verifyWith(key)
                     .build()
-                    .parseClaimsJws(token);
+                    .parseSignedClaims(token);
 
             // 토큰 탈취 및 재사용 방지, 사용자 권한 변경 감지, 계정 상태 확인
             // 계정 상태가 유효하지 않으면 토큰도 유효하지 않음.
@@ -122,11 +122,11 @@ public class JwtTokenProvider {
 
     // JWT 토큰에서 인증 정보 추출
     public Authentication getAuthentication(String token) {
-        Claims claims = Jwts.parserBuilder()
-                            .setSigningKey(key)
+        Claims claims = Jwts.parser()
+                            .verifyWith(key)
                             .build()
-                            .parseClaimsJws(token)
-                            .getBody();
+                            .parseSignedClaims(token)
+                            .getPayload();
 
         Collection<? extends GrantedAuthority> authorities =
                 Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))

@@ -5,7 +5,6 @@ import com.ll.server.domain.member.auth.dto.LoginRequest;
 import com.ll.server.domain.member.auth.dto.SignupRequest;
 import com.ll.server.domain.member.auth.dto.SocialLoginRequest;
 import com.ll.server.domain.member.auth.entity.RefreshToken;
-
 import com.ll.server.domain.member.auth.repository.RefreshTokenRepository;
 import com.ll.server.domain.member.auth.security.jwt.JwtTokenProvider;
 import com.ll.server.domain.member.auth.security.oauth2.CustomOAuth2UserService;
@@ -13,7 +12,7 @@ import com.ll.server.domain.member.entity.Member;
 import com.ll.server.domain.member.enums.MemberRole;
 import com.ll.server.domain.member.enums.Provider;
 import com.ll.server.domain.member.repository.MemberRepository;
-import com.ll.server.global.exception.CustomException;
+import com.ll.server.global.exception.CustomAuthorizationException;
 import com.ll.server.global.exception.ErrorCode;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -41,7 +40,7 @@ public class AuthService {
     @Transactional
     public void signup(SignupRequest signupRequest) {
         if (memberRepository.existsByEmail(signupRequest.getEmail())) {
-            throw new CustomException(ErrorCode.DUPLICATED_EMAIL);
+            throw new CustomAuthorizationException(ErrorCode.DUPLICATED_EMAIL);
         }
 
         Member member = Member.builder()
@@ -88,12 +87,12 @@ public class AuthService {
         Authentication authentication = jwtTokenProvider.getAuthentication(refreshToken);
 
         if (!jwtTokenProvider.validateToken(refreshToken, authentication)) {
-            throw new CustomException(ErrorCode.INVALID_REFRESH_TOKEN);
+            throw new CustomAuthorizationException(ErrorCode.INVALID_REFRESH_TOKEN);
         }
 
         // 2.RefreshToken DB에서 RefreshToken 조회
         RefreshToken refreshTokenEntity = refreshTokenRepository.findByToken(refreshToken)
-                .orElseThrow(() -> new CustomException(ErrorCode.INVALID_REFRESH_TOKEN));
+                .orElseThrow(() -> new CustomAuthorizationException(ErrorCode.INVALID_REFRESH_TOKEN));
 
         // 3. Refresh Token Redis에서 삭제
         refreshTokenRepository.delete(refreshTokenEntity);

@@ -10,8 +10,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     /*
      * Developer Custom Exception: 직접 정의한 RestApiException 에러 클래스에 대한 예외 처리
      */
-    @ExceptionHandler(CustomException.class)
-    protected ResponseEntity<ErrorResponse> handleCustomException(CustomException ex) {
+    @ExceptionHandler(CustomAuthorizationException.class)
+    protected ResponseEntity<ErrorResponse> handleCustomException(CustomAuthorizationException ex) {
         ErrorCode errorCode = ex.getErrorCode();
         return handleExceptionInternal(errorCode);
     };

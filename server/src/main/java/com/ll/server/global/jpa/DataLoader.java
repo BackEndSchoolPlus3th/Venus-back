@@ -5,6 +5,8 @@ import com.ll.server.domain.follow.controller.ApiV1FollowController;
 import com.ll.server.domain.follow.dto.FollowRequest;
 import com.ll.server.domain.member.dto.MemberRequest;
 import com.ll.server.domain.member.entity.Member;
+import com.ll.server.domain.member.enums.MemberRole;
+import com.ll.server.domain.member.enums.Provider;
 import com.ll.server.domain.member.service.MemberService;
 import com.ll.server.domain.news.news.entity.News;
 import com.ll.server.domain.news.news.enums.NewsCategory;
@@ -46,6 +48,7 @@ public class DataLoader implements CommandLineRunner {
                 .nickname("Test Publisher")
                 .password("1234")
                 .role(MemberRole.PUBLISHER)
+                .provider(Provider.LOCAL)
                 .providerId("1234")
                 .build();
         Member publisherUser=memberService.join(publisherSignup);
@@ -56,7 +59,8 @@ public class DataLoader implements CommandLineRunner {
                     .email((i+1)+"@example.com")
                     .nickname("user"+(i+1))
                     .password("1234")
-                    .role(MemberRole.MEMBER)
+                    .role(MemberRole.USER)
+                    .provider(Provider.LOCAL)
                     .providerId("1234")
                     .build();
             users.add(memberService.join(signupRequest));
