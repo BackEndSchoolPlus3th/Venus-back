@@ -34,6 +34,7 @@ public class ApiV1MemberController {
                 memberRequest.getRole(),
                 //memberRequest.getName(),
                 memberRequest.getNickname(),
+                memberRequest.getProvider(),
                 memberRequest.getProviderId());
         System.out.println("회원가입 성공"+ member.getNickname());
         return "signup finished";

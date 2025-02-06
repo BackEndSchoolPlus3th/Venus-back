@@ -3,7 +3,6 @@ package com.ll.server.global.jwt;
 import com.ll.server.domain.member.entity.Member;
 import com.ll.server.global.jpa.util.Ut;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -55,18 +54,18 @@ public class JwtProvider {
         Date accessTokenExpiresIn = new Date(now + 1000L * seconds);
         return Jwts.builder()
                 .claim("body", Ut.json.toStr(claims))
-                .setExpiration(accessTokenExpiresIn)
-                .signWith(getSecretKey(), SignatureAlgorithm.HS512)
+                .expiration(accessTokenExpiresIn)
+                .signWith(getSecretKey())
                 .compact();
     }
 
     public Map<String, Object> getClaims(String accessToken) {
 
-        String body = Jwts.parserBuilder()
-                .setSigningKey(getSecretKey())
+        String body = Jwts.parser()
+                .verifyWith(getSecretKey())
                 .build()
-                .parseClaimsJws(accessToken)
-                .getBody()
+                .parseSignedClaims(accessToken)
+                .getPayload()
                 .get("body", String.class);
         return Ut.toMap(body);
     }
@@ -74,10 +73,10 @@ public class JwtProvider {
     // 유효성 검증
     public boolean verify (String token) {
         try {
-            Jwts.parserBuilder()
-                    .setSigningKey(getSecretKey())
+            Jwts.parser()
+                    .verifyWith(getSecretKey())
                     .build()
-                    .parseClaimsJws(token);
+                    .parseSignedClaims(token);
             return true;
         } catch (Exception e) {
             return false;

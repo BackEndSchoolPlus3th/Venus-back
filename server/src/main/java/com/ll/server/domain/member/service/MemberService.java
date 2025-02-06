@@ -10,6 +10,7 @@ import com.ll.server.domain.like.repository.LikeRepository;
 import com.ll.server.domain.member.dto.MemberDto;
 import com.ll.server.domain.member.dto.MemberProfile;
 import com.ll.server.domain.member.dto.MemberRequest;
+import com.ll.server.domain.member.dto.MemberResponse;
 import com.ll.server.domain.member.entity.Member;
 import com.ll.server.domain.member.enums.MemberRole;
 import com.ll.server.domain.member.enums.Provider;
@@ -20,6 +21,8 @@ import com.ll.server.domain.news.news.repository.NewsRepository;
 import com.ll.server.domain.repost.dto.RepostOnly;
 import com.ll.server.domain.repost.dto.RepostOnlyResponse;
 import com.ll.server.domain.repost.repository.RepostRepository;
+import com.ll.server.global.exception.CustomAuthorizationException;
+import com.ll.server.global.exception.ErrorCode;
 import com.ll.server.global.jwt.JwtProvider;
 import com.ll.server.global.rsData.RsData;
 import com.ll.server.global.security.SecurityUser;
@@ -47,6 +50,21 @@ public class MemberService {
     private final FollowRepository followRepository;
     private final LikeRepository likeRepository;
     private final NewsRepository newsRepository;
+
+    public MemberResponse getMemberInfo(String email) {
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomAuthorizationException(ErrorCode.USER_NOT_FOUND));
+
+        return MemberResponse.builder()
+                .id(member.getId())
+                .email(member.getEmail())
+                .nickname(member.getNickname())
+                .profileUrl(member.getProfileUrl())
+                .role(member.getRole().name())
+                .build();
+
+    }
+
 
     @Transactional
     public Member join(MemberRequest request){

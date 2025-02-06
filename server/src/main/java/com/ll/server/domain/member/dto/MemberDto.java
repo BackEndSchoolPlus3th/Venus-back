@@ -14,7 +14,7 @@ public class MemberDto {
         this.nickname = member.getNickname();
         this.email = member.getEmail();
         this.providerId = member.getProviderId();
-        this.profileUrl=member.getProfile_url();
+        this.profileUrl=member.getProfileUrl();
 
     }
 }
