@@ -1,9 +1,25 @@
 package com.ll.server.domain.member.service;
 
-import com.ll.server.domain.member.MemberRole;
+import com.ll.server.domain.comment.dto.CommentDTO;
+import com.ll.server.domain.comment.dto.CommentResponse;
+import com.ll.server.domain.comment.repository.CommentRepository;
+import com.ll.server.domain.follow.dto.FolloweeListResponse;
+import com.ll.server.domain.follow.dto.FollowerListResponse;
+import com.ll.server.domain.follow.repository.FollowRepository;
+import com.ll.server.domain.like.repository.LikeRepository;
+import com.ll.server.domain.member.dto.MemberDto;
+import com.ll.server.domain.member.dto.MemberProfile;
 import com.ll.server.domain.member.dto.MemberRequest;
 import com.ll.server.domain.member.entity.Member;
+import com.ll.server.domain.member.enums.MemberRole;
+import com.ll.server.domain.member.enums.Provider;
 import com.ll.server.domain.member.repository.MemberRepository;
+import com.ll.server.domain.news.news.dto.NewsOnly;
+import com.ll.server.domain.news.news.dto.NewsOnlyResponse;
+import com.ll.server.domain.news.news.repository.NewsRepository;
+import com.ll.server.domain.repost.dto.RepostOnly;
+import com.ll.server.domain.repost.dto.RepostOnlyResponse;
+import com.ll.server.domain.repost.repository.RepostRepository;
 import com.ll.server.global.jwt.JwtProvider;
 import com.ll.server.global.rsData.RsData;
 import com.ll.server.global.security.SecurityUser;
@@ -15,6 +31,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -25,17 +42,23 @@ public class MemberService {
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
 
+    private final RepostRepository repostRepository;
+    private final CommentRepository commentRepository;
+    private final FollowRepository followRepository;
+    private final LikeRepository likeRepository;
+    private final NewsRepository newsRepository;
+
     @Transactional
     public Member join(MemberRequest request){
-        return this.join(request.getEmail(),request.getPassword(),request.getRole(), request.getNickname(),request.getProviderId());
+        return this.join(request.getEmail(),request.getPassword(),request.getRole(), request.getNickname(),request.getProvider(),request.getProviderId());
     }
 
     @Transactional
     public Member join(String email,
                        String password,
                        MemberRole role,
-                       //String name,
                        String nickname,
+                       Provider provider,
                        String providerId) {
 
         // 존재하는 지 체크
@@ -49,8 +72,7 @@ public class MemberService {
                 .password(passwordEncoder.encode(password))
                 .role(role)
                 .nickname(nickname)
-                //.name(name)
-                .provider("naver")
+                .provider(provider)
                 .providerId(providerId)
                 .build();
 
@@ -90,4 +112,54 @@ public class MemberService {
         return new SecurityUser(id, nickname, "", authorities);
     }
 
+    public MemberProfile getMemberProfile(Long memberId) {
+        Optional<Member> optional=memberRepository.findById(memberId);
+        if(optional.isEmpty()) return null;
+
+        Member member=optional.get();
+        MemberDto memberDto=new MemberDto(member);
+
+        RepostOnlyResponse repostWritten=new RepostOnlyResponse(
+                repostRepository.findRepostsByMember_Id(memberId)
+                        .stream().filter(repost -> repost.getDeletedAt()==null)
+                        .map(RepostOnly::new)
+                        .collect(Collectors.toList())
+        );
+
+        RepostOnlyResponse repostLiked=new RepostOnlyResponse(
+                likeRepository.findLikesByMember_Id(memberId)
+                        .stream().filter(like -> like.getRepost().getDeletedAt()==null)
+                        .map(like -> new RepostOnly(like.getRepost()))
+                        .collect(Collectors.toList())
+        );
+
+
+        CommentResponse commentWritten=new CommentResponse(
+            commentRepository.findCommentsByMember_Id(memberId)
+                    .stream().filter(comment -> comment.getDeletedAt()==null)
+                    .map(CommentDTO::new)
+                    .collect(Collectors.toList())
+        );
+
+        FollowerListResponse followerList=new FollowerListResponse(
+                followRepository.findFollowsByFollowee_Id(memberId)
+        );
+
+        FolloweeListResponse followeeList=new FolloweeListResponse(
+                followRepository.findFollowsByFollower_Id(memberId)
+        );
+
+        if(member.getRole().equals(MemberRole.PUBLISHER)){
+            NewsOnlyResponse newsWritten= new NewsOnlyResponse(
+                            newsRepository.findNewsByPublisher(member.getNickname())
+                                    .stream().filter(news->news.getDeletedAt()==null)
+                                    .map(NewsOnly::new)
+                                    .collect(Collectors.toList())
+                    );
+
+            return new MemberProfile(memberDto,repostWritten,repostLiked,commentWritten,followerList,followeeList,newsWritten);
+        }
+
+        return new MemberProfile(memberDto,repostWritten,repostLiked,commentWritten,followerList,followeeList);
+    }
 }

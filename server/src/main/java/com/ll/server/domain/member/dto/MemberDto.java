@@ -8,11 +8,13 @@ public class MemberDto {
     private String nickname;
     private String email;
     private String providerId;
+    private String profileUrl;
 
     public MemberDto(Member member) {
         this.nickname = member.getNickname();
         this.email = member.getEmail();
         this.providerId = member.getProviderId();
+        this.profileUrl=member.getProfile_url();
 
     }
 }

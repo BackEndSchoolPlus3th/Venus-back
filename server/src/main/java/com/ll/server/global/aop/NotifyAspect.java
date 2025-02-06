@@ -76,7 +76,9 @@ public class NotifyAspect {
             String followerName=followDTO.getFollower();
             String followeeName=followDTO.getFollowee();
             String url="http://localhost:8080/api/v1/follows/followees?nickname="+followerName;
+
             notificationService.saveNotification(follower,followeeName+"님이 팔로우하였습니다.",url);
+
 
         }
 
@@ -95,28 +97,29 @@ public class NotifyAspect {
             List<CommentMentionDTO> mentionList= commentDTO.getMentions();
 
             for(CommentMentionDTO mentionDTO : mentionList){
-                System.out.println("댓글 멘션 찍는 중:"+mentionDTO.getMentionName());
                 Long mentionedUserId=mentionDTO.getMentionUserId();
 
                 if(mentionedUserId.equals(commentWriterId)) {
                     continue;
                 }
                 Member mentionedUser=memberRepository.findById(mentionedUserId).get();
+
                 notificationService.saveNotification(mentionedUser,commentDTO.getCommentWriterName()+"님이 당신을 멘션했습니다.",url);
             }
         }
 
-        if(obj instanceof LikeDTO mockLikeDTO){
-            Long repostId=mockLikeDTO.getRepostId();
-            Long repostWriterId=mockLikeDTO.getRepostWriterId();
+        if(obj instanceof LikeDTO LikeDTO){
+            Long repostId=LikeDTO.getRepostId();
+            Long repostWriterId=LikeDTO.getRepostWriterId();
 
-            String checkedUserName=mockLikeDTO.getCheckedUserName();
-            Long checkedUserId=mockLikeDTO.getCheckedUserId();
+            String checkedUserName=LikeDTO.getCheckedUserName();
+            Long checkedUserId=LikeDTO.getCheckedUserId();
 
             if(!repostId.equals(checkedUserId)) {
                 Member user = memberRepository.findById(repostWriterId).get();
                 String url = "http://localhost:8080/api/v1/reposts/" + repostId + "/likes";
                 notificationService.saveNotification(user, checkedUserName + "님이 당신의 글에 좋아요를 눌렀습니다.", url);
+
             }
         }
 
@@ -126,8 +129,8 @@ public class NotifyAspect {
 
         if(obj instanceof NewsResponse newsResponse){
             List<NewsDTO> newsDTOList=newsResponse.getNewsList();
-            for(NewsDTO NewsDTO: newsDTOList) {
-                createNotificationForNews(NewsDTO);
+            for(NewsDTO newsDTO: newsDTOList) {
+                createNotificationForNews(newsDTO);
             }
         }
 
