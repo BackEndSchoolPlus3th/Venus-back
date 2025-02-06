@@ -38,7 +38,7 @@ public class DataLoader implements CommandLineRunner {
     @Transactional
     public void run(String... args) throws Exception {
 
-        if(memberService.getMember("1@example.com") ==null) {
+        if(memberService.getMemberByEmail("1@example.com") ==null) {
             MemberRequest signupRequest=MemberRequest.builder()
                     .email("1@example.com")
                     .nickname("user1")
@@ -51,7 +51,7 @@ public class DataLoader implements CommandLineRunner {
         }
 
         if(repostRepository.findAll().isEmpty()){
-            Member member=memberService.getMember("1@example.com");
+            Member member=memberService.getMemberByEmail("1@example.com");
             Faker faker=new Faker(Locale.KOREA);
             for(int i=0;i<300;i++) {
                 RepostWriteRequest repostRequest1 = RepostWriteRequest.builder()

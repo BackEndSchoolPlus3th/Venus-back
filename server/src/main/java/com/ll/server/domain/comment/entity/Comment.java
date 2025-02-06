@@ -48,4 +48,7 @@ public class Comment extends BaseEntity {
 
         mentions.add(mention);
     }
+
+    public void delete() {
+        this.deletedAt = LocalDateTime.now();}
 }

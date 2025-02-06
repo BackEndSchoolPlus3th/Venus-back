@@ -7,6 +7,8 @@ import com.ll.server.domain.news.news.entity.News;
 import com.ll.server.domain.news.news.repository.NewsRepository;
 import com.ll.server.domain.notification.Notify;
 import com.ll.server.domain.repost.dto.RepostUnderNews;
+import com.ll.server.global.response.enums.ReturnCode;
+import com.ll.server.global.response.exception.CustomRequestException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Limit;
 import org.springframework.data.domain.Page;
@@ -17,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,11 +32,11 @@ public class NewsService {
         Page<News> result = newsRepository.findAllByOrderByPublishedAtDesc(pageable);
         return new PageImpl<>(
                 result.getContent().stream()
-                        .filter(news->news.getDeletedAt()==null)
+                        .filter(news -> news.getDeletedAt() == null)
                         .map(NewsDTO::new)
                         .collect(Collectors.toList())
-                ,result.getPageable()
-                ,result.getTotalElements()
+                , result.getPageable()
+                , result.getTotalElements()
         );
     }
 
@@ -82,10 +83,7 @@ public class NewsService {
 
     @Transactional
     public NewsDTO updateNews(Long id, NewsUpdateRequest request) {
-        News news=getNews(id);
-        if(news==null){
-            return null;
-        }
+        News news = getNews(id);
 
         news.setContent(request.getContent());
         news.setTitle(request.getTitle());
@@ -109,23 +107,17 @@ public class NewsService {
     @Transactional
     @Notify
     public NewsDTO saveForTest(News news) {
-        News saved=newsRepository.save(news);
+        News saved = newsRepository.save(news);
         return new NewsDTO(saved);
     }
 
-    public List<NewsDTO> getByPublisher(String publisher){
+    public List<NewsDTO> getByPublisher(String publisher) {
         return newsRepository.findNewsByPublisher(publisher).stream()
-                .filter(news->news.getDeletedAt()==null)
-                .map(this::convertToDTO).collect(Collectors.toList());
+                .filter(news -> news.getDeletedAt() == null)
+                .map(NewsDTO::new).collect(Collectors.toList());
     }
 
-    private News getNews(Long newsId) {
-        Optional<News> newsOptional=newsRepository.findById(newsId);
-        if(newsOptional.isEmpty()) return null;
-
-        News news=newsOptional.get();
-        if(news.getDeletedAt()!=null) return null;
-
-        return news;
+    public News getNews(Long newsId) {
+        return newsRepository.findById(newsId).orElseThrow(() -> new CustomRequestException(ReturnCode.NOT_FOUND_ENTITY));
     }
 }

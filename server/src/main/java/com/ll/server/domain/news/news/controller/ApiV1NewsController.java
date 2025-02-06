@@ -5,8 +5,10 @@ import com.ll.server.domain.news.news.dto.NewsDTO;
 import com.ll.server.domain.news.news.dto.NewsInfinityScrollResponse;
 import com.ll.server.domain.news.news.dto.NewsOnly;
 import com.ll.server.domain.news.news.dto.NewsUpdateRequest;
+import com.ll.server.domain.news.news.entity.News;
 import com.ll.server.domain.news.news.service.NewsFetchService;
 import com.ll.server.domain.news.news.service.NewsService;
+import com.ll.server.global.response.enums.ReturnCode;
 import com.ll.server.global.response.response.ApiResponse;
 import com.ll.server.global.response.response.CustomPage;
 import com.ll.server.global.utils.MyConstant;
@@ -67,7 +69,7 @@ public class ApiV1NewsController {
         }
 
         if(!hasContent || !hasTitle || !hasPublisher || category.isBlank()) hasTitle = true;
-        
+
         //검색을 할 때
         Page<NewsOnly> news=newsDocService.search(keyword,hasTitle,hasContent,hasPublisher,category,pageable);
         return ApiResponse.of(CustomPage.of(news));
@@ -83,7 +85,7 @@ public class ApiV1NewsController {
                                          @RequestParam(value="size",defaultValue = "20") int size){
 
         List<NewsOnly> newsList=null;
-        
+
         //검색이 아니라 그냥 무지성으로 쭉쭉 내릴 때
         if(keyword.isBlank()){
             //최초 검색
@@ -97,7 +99,7 @@ public class ApiV1NewsController {
         }
 
         //검색을 할 때
-        
+
         //만약 아무 조건 없이 검색하는 경우
         if(!hasContent || !hasTitle || !hasPublisher || category.isBlank()) hasTitle = true;
 
@@ -119,8 +121,8 @@ public class ApiV1NewsController {
     //뉴스 조회 API
     @GetMapping("/{id}")
     public ApiResponse<NewsDTO> getById(@PathVariable("id") Long id) {
-        NewsDTO newsDTO = newsService.getById(id);
-        //NewsDTO newsDTO = newsService.convertToDTO(news);
+        News news = newsService.getNews(id);
+        NewsDTO newsDTO = new NewsDTO(news);
 
         return ApiResponse.of(newsDTO);
     }
@@ -128,14 +130,17 @@ public class ApiV1NewsController {
     @PatchMapping("/{id}")
     public ApiResponse<NewsDTO> updateNews(@PathVariable("id") Long id, @RequestBody NewsUpdateRequest request) {
         NewsDTO newsDTO = newsService.updateNews(id, request);
-        //NewsDTO newsDTO = newsService.convertToDTO(news);
 
         return ApiResponse.of(newsDTO);
     }
 
     @DeleteMapping("/{id}")
-    public ApiResponse<String> deleteNews(@PathVariable("id") Long id) {
-        return ApiResponse.of( newsService.deleteNews(id));
+    public ApiResponse<String> deleteNews(@PathVariable Long id) {
+        News news = newsService.getNews(id);
+        news.removeReposts();
+        news.delete();
+
+        return ApiResponse.of(ReturnCode.SUCCESS);
     }
 
 }

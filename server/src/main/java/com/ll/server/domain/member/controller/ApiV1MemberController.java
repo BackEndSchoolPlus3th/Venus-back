@@ -42,7 +42,7 @@ public class ApiV1MemberController {
 
     @PostMapping("/login")
     public RsData<Void> login(@Valid @RequestBody MemberLogin memberLogin, HttpServletResponse response) {
-        Member member = memberService.getMember(memberLogin.getEmail());
+        Member member = memberService.getMemberByEmail(memberLogin.getEmail());
         String token = jwtProvider.genAccessToken(member);
 
 
@@ -97,7 +97,7 @@ public class ApiV1MemberController {
 
 
 
-        Member member = this.memberService.getMember(email);
+        Member member = this.memberService.getMemberByEmail(email);
 
         return new RsData("200", "회원정보 조회 성공",
                 new MemberDto(member));

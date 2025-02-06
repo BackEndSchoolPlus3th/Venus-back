@@ -24,6 +24,8 @@ import com.ll.server.domain.repost.repository.RepostRepository;
 import com.ll.server.global.exception.CustomAuthorizationException;
 import com.ll.server.global.exception.ErrorCode;
 import com.ll.server.global.jwt.JwtProvider;
+import com.ll.server.global.response.enums.ReturnCode;
+import com.ll.server.global.response.exception.CustomRequestException;
 import com.ll.server.global.rsData.RsData;
 import com.ll.server.global.security.SecurityUser;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +35,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -75,6 +80,7 @@ public class MemberService {
     public Member join(String email,
                        String password,
                        MemberRole role,
+                       //String name,
                        String nickname,
                        Provider provider,
                        String providerId) {
@@ -82,7 +88,7 @@ public class MemberService {
         // 존재하는 지 체크
         memberRepository.findByEmail(email)
                 .ifPresent(member -> {
-                    throw new IllegalArgumentException("member already exists with " + member);
+                    throw new CustomRequestException(ReturnCode.ALREADY_EXIST);
                 });
 
         Member member = Member.builder()
@@ -101,12 +107,17 @@ public class MemberService {
 
     }
 
-    public Member getMember(String email) {
-        Optional<Member> member = memberRepository.findByEmail(email);
-        //throw new NoSuchElementException("No member found with email: " + email);
-        return member.orElse(null);
+    public Member getMemberById(Long id) {
+        return memberRepository.findById(id).orElseThrow(() -> new CustomRequestException(ReturnCode.NOT_FOUND_ENTITY));
     }
 
+    public Member getMemberByEmail(String email) {
+        return memberRepository.findByEmail(email).orElseThrow(() -> new CustomRequestException(ReturnCode.NOT_FOUND_ENTITY));
+    }
+
+    public List<Member> getMembersByNickName(List<String> nickName) {
+        return memberRepository.findMembersByNicknameIn(nickName);
+    }
 
     // 토큰 유효성 검증
     public boolean validateToken(String token) {
@@ -119,6 +130,7 @@ public class MemberService {
         String accessToken = jwtProvider.genAccessToken(member);
         return new RsData<>("200", "토큰 갱신에 성공하였습니다.", accessToken);
     }
+
     // 토큰으로 User 정보 가져오기
     public SecurityUser getUserFromAccessToken(String accessToken) {
         Map<String, Object> payloadBody = jwtProvider.getClaims(accessToken);

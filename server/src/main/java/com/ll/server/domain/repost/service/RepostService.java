@@ -8,14 +8,18 @@ import com.ll.server.domain.like.dto.LikeDTO;
 import com.ll.server.domain.like.entity.Like;
 import com.ll.server.domain.member.entity.Member;
 import com.ll.server.domain.member.repository.MemberRepository;
+import com.ll.server.domain.member.service.MemberService;
 import com.ll.server.domain.news.news.entity.News;
 import com.ll.server.domain.news.news.repository.NewsRepository;
+import com.ll.server.domain.news.news.service.NewsService;
 import com.ll.server.domain.notification.Notify;
 import com.ll.server.domain.repost.dto.RepostDTO;
 import com.ll.server.domain.repost.dto.RepostOnly;
 import com.ll.server.domain.repost.dto.RepostWriteRequest;
 import com.ll.server.domain.repost.entity.Repost;
 import com.ll.server.domain.repost.repository.RepostRepository;
+import com.ll.server.global.response.enums.ReturnCode;
+import com.ll.server.global.response.exception.CustomRequestException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -25,7 +29,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -36,36 +39,18 @@ public class RepostService {
     private final MemberRepository memberRepository;
     private final NewsRepository newsRepository;
     private final CommentRepository commentRepository;
-
-
-    public RepostDTO findById(Long id){
-
-        Repost repost=getRepost(id);
-        if(repost==null) return null;
-
-        return new RepostDTO(repost);
-    }
-
-    @Transactional
-    public String delete(Long id){
-        Repost repost=getRepost(id);
-        if(repost==null)  return "삭제 실패";
-
-        repost.setDeletedAt(LocalDateTime.now());
-        repost.deleteComments();
-        repost.deleteLikes();
-        return "삭제 성공";
-    }
+    private final MemberService memberService;
+    private final NewsService newsService;
 
     @Transactional
     @Notify
-    public RepostDTO save(RepostWriteRequest request){
-        Member user=memberRepository.findById(request.getWriterId()).get();
+    public RepostDTO save(RepostWriteRequest request) {
+        Member user = memberService.getMemberById(request.getWriterId());
 
-        News news=newsRepository.findById(request.getNewsId()).get();
+        News news = newsService.getNews(request.getNewsId());
 
-        List<Member> metionedMemberList=memberRepository.findMembersByNicknameIn(request.getMentionedNames());
-        Repost repost=
+        List<Member> metionedMemberList = memberService.getMembersByNickName(request.getMentionedNames());
+        Repost repost =
                 Repost.builder()
                         .member(user)
                         .news(news)
@@ -75,8 +60,8 @@ public class RepostService {
 
         repostRepository.save(repost);
 
-        if(metionedMemberList!=null && !metionedMemberList.isEmpty()){
-            for(Member mentionedMember : metionedMemberList){
+        if (metionedMemberList != null && !metionedMemberList.isEmpty()) {
+            for (Member mentionedMember : metionedMemberList) {
                 repost.addMention(mentionedMember);
             }
         }
@@ -86,10 +71,10 @@ public class RepostService {
         return new RepostDTO(repost);
     }
 
-    public List<RepostDTO> findByUserNickname(String nickname){
+    public List<RepostDTO> findByUserNickname(String nickname) {
         return repostRepository.findRepostsByMember_Nickname(nickname)
                 .stream()
-                .filter(repost->repost.getDeletedAt()==null)
+                .filter(repost -> repost.getDeletedAt() == null)
                 .map(RepostDTO::new)
                 .collect(Collectors.toList());
     }
@@ -107,15 +92,15 @@ public class RepostService {
         );
     }
 
-    public Page<CommentDTO> getAllComment(Long postId,Pageable pageable) {
+    public Page<CommentDTO> getAllComment(Long postId, Pageable pageable) {
         Repost repost = getRepost(postId);
         if (repost == null) return null;
 
-        Page<Comment> comments = commentRepository.findCommentsByRepostId(postId,pageable);
+        Page<Comment> comments = commentRepository.findCommentsByRepostId(postId, pageable);
 
         return new PageImpl<>(
                 comments.getContent().stream()
-                        .filter(comment -> comment.getDeletedAt()==null)
+                        .filter(comment -> comment.getDeletedAt() == null)
                         .map(CommentDTO::new).collect(Collectors.toList()),
                 comments.getPageable(),
                 comments.getTotalElements()
@@ -123,25 +108,19 @@ public class RepostService {
     }
 
     @Transactional
-    public String deleteComment(Long postId, Long commentId) {
-        Repost repost=getRepost(postId);
-        if(repost==null) return "댓글 삭제 실패";
+    public void deleteComment(Long postId, Long commentId) {
+        Repost repost = getRepost(postId);
 
         Comment target = getComment(commentId, repost);
-        if (target == null) return "댓글 삭제 실패";
 
-        target.setDeletedAt(LocalDateTime.now());
-
-        return "댓글 삭제 성공";
+        target.delete();
     }
 
     @Transactional
     public CommentDTO modifyComment(Long postId, Long commentId, String content) {
         Repost repost = getRepost(postId);
-        if (repost == null) return null;
 
         Comment target = getComment(commentId, repost);
-        if (target == null) return null;
 
         target.setContent(content);
         target.setModifyDate(LocalDateTime.now());
@@ -150,40 +129,32 @@ public class RepostService {
     }
 
     private Comment getComment(Long commentId, Repost repost) {
-        Optional<Comment> commentOptional= repost.getComments().stream()
-                .filter(comment -> comment.getId().equals(commentId) && comment.getDeletedAt()==null)
-                .findFirst();
-        return commentOptional.orElse(null);
+        Comment getComment = repost.getComments().stream()
+                .filter(comment -> comment.getId().equals(commentId) && comment.getDeletedAt() == null)
+                .findFirst().orElseThrow(() -> new CustomRequestException(ReturnCode.NOT_FOUND_ENTITY));
+        return getComment;
     }
 
     @Transactional
     @Notify
     public CommentDTO addComment(Long postId, CommentWriteRequest request) {
         Repost repost = getRepost(postId);
-        if (repost == null) return null;
 
-        Member member=memberRepository.findById(request.getWriterId()).get();
+        Member member = memberService.getMemberById(request.getWriterId());
 
-        List<Member> mentionedMembers=memberRepository.findMembersByNicknameIn(request.getMentionedNames());
+        List<Member> mentionedMembers = memberService.getMembersByNickName(request.getMentionedNames());
 
-        Comment comment=repost.addComment(member,mentionedMembers,request.getContent());
+        Comment comment = repost.addComment(member, mentionedMembers, request.getContent());
 
         return new CommentDTO(comment);
     }
 
-    private Repost getRepost(Long postId) {
-        Optional<Repost> repostOptional=repostRepository.findById(postId);
-        if(repostOptional.isEmpty()) return null;
-
-        Repost repost=repostOptional.get();
-        if(repost.getDeletedAt()!=null) return null;
-
-        return repost;
+    public Repost getRepost(Long postId) {
+        return repostRepository.findById(postId).orElseThrow(() -> new CustomRequestException(ReturnCode.NOT_FOUND_ENTITY));
     }
 
     public List<LikeDTO> getAllLike(Long repostId) {
         Repost repost = getRepost(repostId);
-        if(repost ==null) return null;
 
         return repost.getLikes().stream()
                 .filter(like -> !like.getDeleted())
@@ -192,36 +163,26 @@ public class RepostService {
     }
 
     @Transactional
-    public String deleteLike(Long repostId, Long userId) {
-        Repost repost=getRepost(repostId);
-        if(repost==null) return "좋아요 취소 실패";
+    public void deleteLike(Long repostId, Long userId) {
+        Repost repost = getRepost(repostId);
 
-        List<Like> likes=repost.getLikes();
+        List<Like> likes = repost.getLikes();
 
-        Optional<Like> likeOptional=
-        likes.stream()
+        Like memberLike = likes.stream()
                 .filter(like -> !like.getDeleted() && like.getMember().getId().equals(userId))
-                .findFirst();
+                .findFirst()
+                .orElseThrow(() -> new CustomRequestException(ReturnCode.NOT_FOUND_ENTITY));
 
-        if(likeOptional.isEmpty()) return "좋아요 취소 실패";
-
-        Like like=likeOptional.get();
-        like.setDeleted(true);
-
-        return "좋아요 취소 성공";
-
+        memberLike.setDeleted(true);
     }
 
     @Transactional
     @Notify
     public LikeDTO markLike(Long repostId, Long userId) {
-        Repost repost=getRepost(repostId);
-        if(repost==null) return null;
+        Repost repost = getRepost(repostId);
 
-        Member user=memberRepository.findById(userId).get();
-        Like like=repost.addLike(user);
-
-        return new LikeDTO(like);
+        Member user = memberService.getMemberById(userId);
+        return new LikeDTO(repost.addLike(user));
 
     }
 }
