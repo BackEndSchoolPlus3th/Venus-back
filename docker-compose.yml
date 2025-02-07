@@ -10,6 +10,11 @@ services:
       - ./mysql/store:/var/lib/mysql
     networks:
       - network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.4'   # DB 컨테이너 최대 40% CPU 사용
+
   server:
     build:
       context: ./server
@@ -26,6 +31,10 @@ services:
       SPRING_DATASOURCE_PASSWORD: root1234
     networks:
       - network
+    deploy:
+      resources:
+        limits:
+          cpus: '0.4'   # Server 컨테이너 최대 40% CPU 사용
 
 networks:
   network:
