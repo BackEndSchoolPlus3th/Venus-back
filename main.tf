@@ -186,8 +186,8 @@ sudo mkdir -p /usr/local/lib/docker/cli-plugins/
 sudo curl -SL "https://github.com/docker/compose/releases/latest/download/docker-compose-linux-$(uname -m)" -o /usr/local/lib/docker/cli-plugins/docker-compose
 sudo chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
 
-sudo cd ~
-sudo git clone https://github.com/BackEndSchoolPlus3th/Venus-back.git
+sudo dnf update -y
+sudo dnf install -y make
 
 END_OF_FILE
 }
@@ -197,7 +197,7 @@ resource "aws_instance" "ec2_1" {
   # 사용할 AMI ID
   ami = "ami-04c596dcf23eb98d8"
   # EC2 인스턴스 유형
-  instance_type = "t2.large"
+  instance_type = "t3.large"
   # 사용할 서브넷 ID
   subnet_id = aws_subnet.subnet_1.id
   # 적용할 보안 그룹 ID
