@@ -62,22 +62,23 @@ public class JwtProvider {
 
     public Map<String, Object> getClaims(String accessToken) {
 
-        String body = Jwts.parserBuilder()
-                .setSigningKey(getSecretKey())
+        String body = Jwts.parser()
+                .verifyWith(getSecretKey())
                 .build()
-                .parseClaimsJws(accessToken)
-                .getBody()
+                .parseSignedClaims(accessToken)
+                .getPayload()
                 .get("body", String.class);
+
         return Ut.toMap(body);
     }
 
     // 유효성 검증
     public boolean verify (String token) {
         try {
-            Jwts.parserBuilder()
-                    .setSigningKey(getSecretKey())
+            Jwts.parser()
+                    .verifyWith(getSecretKey())
                     .build()
-                    .parseClaimsJws(token);
+                    .parseSignedClaims(token);
             return true;
         } catch (Exception e) {
             return false;

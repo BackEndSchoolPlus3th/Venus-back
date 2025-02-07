@@ -42,16 +42,19 @@ dependencies {
 
 	// 인증&인가
 	implementation("org.springframework.boot:spring-boot-starter-validation")
-	implementation("org.springframework.boot:spring-boot-starter-security")
+	implementation("org.springframework.boot:spring-boot-starter-security") // spring security
 
-	// jwt
-	implementation("io.jsonwebtoken:jjwt-api:0.11.5")
-	runtimeOnly("io.jsonwebtoken:jjwt-impl:0.11.5")
-	runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.11.5") // JSON 직렬화 필요
+	testImplementation("org.springframework.security:spring-security-test")
+    implementation("org.springframework.boot:spring-boot-starter-oauth2-client") // oauth2
+	implementation("org.springframework.data:spring-data-redis") // Redis
+	implementation("io.jsonwebtoken:jjwt-api:0.12.5")
+	implementation("io.jsonwebtoken:jjwt-impl:0.12.5")
+	implementation("io.jsonwebtoken:jjwt-jackson:0.12.5") //JWT
 
 	//swagger
 	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0")
 
+	implementation("io.lettuce:lettuce-core")
 	//implementation("org.springframework.boot:spring-boot-starter-data-elasticsearch")
 }
 dependencyManagement {

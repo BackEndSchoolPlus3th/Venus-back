@@ -2,8 +2,12 @@ package com.ll.server.domain.member.service;
 
 import com.ll.server.domain.member.MemberRole;
 import com.ll.server.domain.member.dto.MemberRequest;
+import com.ll.server.domain.member.dto.MemberResponse;
 import com.ll.server.domain.member.entity.Member;
+import com.ll.server.domain.member.enums.Provider;
 import com.ll.server.domain.member.repository.MemberRepository;
+import com.ll.server.global.exception.CustomException;
+import com.ll.server.global.exception.ErrorCode;
 import com.ll.server.global.jwt.JwtProvider;
 import com.ll.server.global.response.enums.ReturnCode;
 import com.ll.server.global.response.exception.CustomRequestException;
@@ -16,7 +20,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -30,6 +36,20 @@ public class MemberService {
     @Transactional
     public Member join(MemberRequest request) {
         return this.join(request.getEmail(), request.getPassword(), request.getRole(), request.getNickname(), request.getProviderId());
+    }
+
+    public MemberResponse getMemberInfo(String email) {
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        return MemberResponse.builder()
+                .id(member.getId())
+                .email(member.getEmail())
+                .nickname(member.getNickname())
+                .profileUrl(member.getProfileUrl())
+                .role(member.getRole().name())
+                .build();
+
     }
 
     @Transactional
@@ -49,10 +69,10 @@ public class MemberService {
         Member member = Member.builder()
                 .email(email)
                 .password(passwordEncoder.encode(password))
-                .role(role)
+                .role(com.ll.server.domain.member.enums.MemberRole.USER)
                 .nickname(nickname)
                 //.name(name)
-                .provider("naver")
+                .provider(Provider.NAVER)
                 .providerId(providerId)
                 .build();
 
