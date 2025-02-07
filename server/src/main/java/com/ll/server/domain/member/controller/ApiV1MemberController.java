@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/members")
 @RequiredArgsConstructor
@@ -48,6 +50,7 @@ public class ApiV1MemberController {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(memberLogin.getEmail(), memberLogin.getPassword())
         );
+        System.out.println(authentication);
 
         //  2. SecurityContextHolder에 인증 정보 저장
         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -55,6 +58,7 @@ public class ApiV1MemberController {
         // 3. JWT 토큰 생성 및 쿠키 저장
         Member member = memberService.getMember(memberLogin.getEmail());
         String token = jwtProvider.genAccessToken(member);
+//        System.out.println(token);
 
         Cookie accessTokenCookie = new Cookie("accessToken", token);
         accessTokenCookie.setHttpOnly(true);
