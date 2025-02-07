@@ -12,6 +12,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,6 +29,8 @@ public class RepostDTO {
     private CommentResponse commentInfo;
     private LikeResponse likeInfo;
     private String imageUrl;
+    private String memberProfileImageUrl;
+    private LocalDateTime createDate;
 
     public RepostDTO(Repost repost){
         News newsEntity=repost.getNews();
@@ -64,6 +67,7 @@ public class RepostDTO {
         );
 
         imageUrl = repost.getImageUrl();
-
+        memberProfileImageUrl=repost.getMember().getProfileUrl();
+        createDate = repost.getCreateDate();
     }
 }

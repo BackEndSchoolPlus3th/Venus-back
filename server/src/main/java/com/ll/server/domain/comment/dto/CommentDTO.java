@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,6 +24,9 @@ public class CommentDTO {
     private String content;
     private Long commentWriterId;
     private String commentWriterName;
+    private String commentWriterProfileImageUrl;
+
+    private LocalDateTime createDate;
 
     public CommentDTO(Comment comment){
         commentId=comment.getId();
@@ -39,5 +43,7 @@ public class CommentDTO {
 
         commentWriterId=comment.getMember().getId();
         commentWriterName=comment.getMember().getNickname();
+        commentWriterProfileImageUrl=comment.getMember().getProfileUrl();
+        createDate=comment.getCreateDate();
     }
 }

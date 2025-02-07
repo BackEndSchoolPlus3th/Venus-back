@@ -45,17 +45,12 @@ public class News extends BaseEntity {
 
     public void removeReposts() {
         reposts.forEach(
-                repost -> {
-                    if (repost.getDeletedAt() == null) {
-                        repost.setDeletedAt(LocalDateTime.now());
-                        repost.deleteComments();
-                        repost.deleteLikes();
-                    }
-                }
+                Repost::delete
         );
     }
 
     public void delete() {
         this.deletedAt = LocalDateTime.now();
+        removeReposts();
     }
 }

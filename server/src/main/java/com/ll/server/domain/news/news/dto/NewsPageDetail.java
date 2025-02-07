@@ -3,7 +3,14 @@ package com.ll.server.domain.news.news.dto;
 import com.ll.server.domain.news.news.entity.News;
 import com.ll.server.domain.repost.dto.RepostUnderNews;
 import com.ll.server.global.response.response.CustomPage;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
+
+@Getter
+@NoArgsConstructor
 public class NewsPageDetail {
     private Long id;
     private String title;
@@ -14,7 +21,7 @@ public class NewsPageDetail {
     private String thumbnailUrl;
     private String contentUrl;
     private String category;
-    private String publishedAt;
+    private LocalDateTime publishedAt;
     private CustomPage<RepostUnderNews> reposts;
 
     public NewsPageDetail(News news, CustomPage<RepostUnderNews> reposts){

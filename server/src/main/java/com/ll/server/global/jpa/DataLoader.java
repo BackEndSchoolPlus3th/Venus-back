@@ -1,5 +1,7 @@
 package com.ll.server.global.jpa;
 
+import com.ll.server.domain.comment.dto.CommentWriteRequest;
+import com.ll.server.domain.comment.repository.CommentRepository;
 import com.ll.server.domain.follow.controller.ApiV1FollowController;
 import com.ll.server.domain.member.dto.MemberRequest;
 import com.ll.server.domain.member.entity.Member;
@@ -14,7 +16,9 @@ import com.ll.server.domain.news.news.service.NewsFetchService;
 import com.ll.server.domain.news.news.service.NewsService;
 import com.ll.server.domain.repost.controller.ApiV1RepostController;
 import com.ll.server.domain.repost.dto.RepostWriteRequest;
+import com.ll.server.domain.repost.entity.Repost;
 import com.ll.server.domain.repost.repository.RepostRepository;
+import com.ll.server.domain.repost.service.RepostService;
 import lombok.RequiredArgsConstructor;
 import net.datafaker.Faker;
 import org.springframework.boot.CommandLineRunner;
@@ -24,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -40,10 +45,14 @@ public class DataLoader implements CommandLineRunner {
     private final MemberRepository memberRepository;
 
     private final NewsFetchService newsFetchService;
+    private final RepostService repostService;
+    private final CommentRepository commentRepository;
 
     @Override
     @Transactional
     public void run(String... args) throws Exception {
+        Faker faker=new Faker(Locale.KOREA);
+
         NewsResponse newsResponse=null;
         List<NewsDTO> newsDTO=null;
         if(newsRepository.findAll().isEmpty()){
@@ -66,16 +75,47 @@ public class DataLoader implements CommandLineRunner {
 
 
         if(repostRepository.findAll().isEmpty()){
+            Long targetId=0L;
+            if(newsDTO==null || newsDTO.isEmpty()){
+                newsDTO = newsRepository.findAll().stream().map(NewsDTO::new).collect(Collectors.toList());
+                newsResponse=new NewsResponse(newsDTO);
+                targetId = newsDTO.get(0).getId();
+            }
             Member member=memberService.getMemberByEmail("1@example.com");
-            Faker faker=new Faker(Locale.KOREA);
             for(int i=0;i<newsResponse.getCount()/2;i++) {
-                RepostWriteRequest repostRequest1 = RepostWriteRequest.builder()
+
+                if(i<5){
+                    RepostWriteRequest repostRequest = RepostWriteRequest.builder()
+                            .content(String.join("\n", faker.lorem().sentences(3)))
+                            .mentions(member.getNickname() + "," + member.getNickname())
+                            .newsId(targetId)
+                            .writerId(member.getId())
+                            .pinned(true)
+                            .build();
+                    repostController.write(repostRequest);
+                    continue;
+                }
+
+                RepostWriteRequest repostRequest = RepostWriteRequest.builder()
                         .content(String.join("\n", faker.lorem().sentences(3)))
                         .mentions(member.getNickname() + "," + member.getNickname())
-                        .newsId(newsDTO.get(i).getId())
+                        .newsId(targetId)
+                        .writerId(member.getId())
+                        .pinned(false)
+                        .build();
+                repostController.write(repostRequest);
+            }
+        }
+
+        if(commentRepository.findAll().isEmpty()){
+            Repost repost = repostRepository.findAll().getFirst();
+            Member member=memberService.getMemberByEmail("1@example.com");
+            for(int i=0;i<100;i++){
+                CommentWriteRequest req = CommentWriteRequest.builder()
+                        .content(faker.famousLastWords().lastWords())
                         .writerId(member.getId())
                         .build();
-                repostController.write(repostRequest1);
+                repostService.addComment(repost.getId(), req);
             }
         }
 

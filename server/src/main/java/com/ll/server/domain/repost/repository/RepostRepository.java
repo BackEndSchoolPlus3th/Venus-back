@@ -18,7 +18,7 @@ public interface RepostRepository extends JpaRepository<Repost, Long> {
     List<Repost> findRepostsByMember_Id(Long memberId);
 
     @Query("""
-            SELECT '*' FROM Repost r\s
+            SELECT r FROM Repost r\s
             WHERE r.news.id = :newsId
             ORDER BY\s
             CASE WHEN r.pinned = true THEN 0 ELSE 1 END,\s
@@ -29,20 +29,20 @@ public interface RepostRepository extends JpaRepository<Repost, Long> {
                                      Limit limit);
 
     @Query("""
-            SELECT '*' FROM Repost r\s
-            WHERE r.news.id = :newsId
+            SELECT r FROM Repost r\s
+            WHERE r.news.id = :newsId AND r.createDate < :lastTime AND r.id < :lastId AND r.pinned = false
             ORDER BY\s
-            CASE WHEN r.pinned = true THEN 0 ELSE 1 END,\s
             r.createDate DESC,\s
             r.id DESC
             """)
+    //첫 페이지에만 고정된 것들이 있다고 가정한다.
     List<Repost> afterGetNewsReposts(@Param("newsId") Long newsId,
                                      @Param("lastTime") LocalDateTime lastTime,
                                      @Param("lastId") Long lastId,
                                      Limit limit);
 
     @Query("""
-            SELECT '*' FROM Repost r\s
+            SELECT r FROM Repost r\s
             WHERE r.news.id = :newsId
             ORDER BY\s
             CASE WHEN r.pinned = true THEN 0 ELSE 1 END,\s
@@ -51,11 +51,11 @@ public interface RepostRepository extends JpaRepository<Repost, Long> {
             """)
     Page<Repost> getNewsReposts(@Param("newsId") Long newsId, Pageable pageable);
 
-    Page<Repost> findAllByOrderByCreateDateDescIdDesc(Pageable pageable);
 
     List<Repost> findAllByOrderByCreateDateDescIdDesc(Limit limit);
 
     List<Repost> findAllByCreateDateBeforeAndIdLessThanOrderByCreateDateDescIdDesc(LocalDateTime lastTime,Long lastId, Limit limit);
 
     List<Repost> findAllByIdInOrderByCreateDateDescIdDesc(List<Long> ids);
+
 }

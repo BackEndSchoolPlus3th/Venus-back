@@ -19,6 +19,7 @@ public class RepostOnly {
     private int likeCount;
     private String imageUrl;
     private LocalDateTime createDate;
+    private String memberProfileImageUrl;
 
     public RepostOnly(Repost repost){
         repostId=repost.getId();
@@ -32,6 +33,8 @@ public class RepostOnly {
 
         imageUrl = repost.getImageUrl();
         createDate=repost.getCreateDate();
+
+        memberProfileImageUrl=repost.getMember().getProfileUrl();
 
     }
 }

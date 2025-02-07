@@ -1,13 +1,13 @@
 package com.ll.server.domain.repost.controller;
 
 import com.ll.server.domain.comment.dto.CommentDTO;
+import com.ll.server.domain.comment.dto.CommentInfinityScrollResponse;
 import com.ll.server.domain.comment.dto.CommentModifyRequest;
 import com.ll.server.domain.comment.dto.CommentWriteRequest;
 import com.ll.server.domain.elasticsearch.repost.service.RepostDocService;
 import com.ll.server.domain.like.dto.LikeDTO;
 import com.ll.server.domain.like.dto.LikeResponse;
 import com.ll.server.domain.repost.dto.*;
-import com.ll.server.domain.repost.entity.Repost;
 import com.ll.server.domain.repost.service.RepostService;
 import com.ll.server.global.response.enums.ReturnCode;
 import com.ll.server.global.response.response.ApiResponse;
@@ -41,7 +41,7 @@ public class ApiV1RepostController {
     }
 
     //repost 영역
-    //탭으로 repost 선택 시 호출됨.
+    //탭으로 repost 선택 시 호출됨. 검색 시에도 마찬가지.
     @GetMapping
     public ApiResponse<?> getAllRepost(@RequestParam(value = "keyword",defaultValue = "") String keyword,
                                        @RequestParam(value = "page",defaultValue = "0")int page,
@@ -59,6 +59,7 @@ public class ApiV1RepostController {
 
     }
 
+    //인피니티스크롤 버전
     @SneakyThrows
     @GetMapping("/infinityTest")
     public ApiResponse<?> searchInfinity(@RequestParam(value = "keyword",defaultValue = "") String keyword,
@@ -88,19 +89,35 @@ public class ApiV1RepostController {
         return ApiResponse.of(result);
     }
 
+    //repost 최초 상세 조회. 댓글에 페이지네이션을 적용 (전통적 페이지네이션)
     @GetMapping("/{repostId}")
-    public ApiResponse<RepostDTO> getRepost(@PathVariable("repostId") Long id) {
-        Repost repost = repostService.getRepost(id);
-        RepostDTO repostDTO = new RepostDTO(repost);
-        return ApiResponse.of(repostDTO);
+    public ApiResponse<RepostPageDetail> getRepost(@PathVariable("repostId") Long id,
+                                            @RequestParam(value = "size",defaultValue = "20")int size) {
+        int page=0;
+        PageLimitSizeValidator.validateSize(page,size, MyConstant.PAGELIMITATION);
+        Pageable pageable=PageRequest.of(page,size,Sort.by("createDate","id").ascending());
+
+        RepostDTO repost = repostService.getRepostDTOById(id);
+        Page<CommentDTO> comments = repostService.getCommentPage(id,pageable);
+        RepostPageDetail repostDetail = new RepostPageDetail(repost, CustomPage.of(comments));
+        return ApiResponse.of(repostDetail);
     }
+    
+
+    //repost 최초 상세 조회. 댓글에 페이지네이션 적용 (커서 페이지네이션)
+    @GetMapping("/{repostId}/infinityTest")
+    public ApiResponse<RepostInfinityDetail> getRepostInfinity(@PathVariable("repostId") Long id,
+                                                               @RequestParam(value = "size", defaultValue = "20") int size) {
+        RepostDTO repost = repostService.getRepostDTOById(id);
+        CommentInfinityScrollResponse comments=new CommentInfinityScrollResponse(repostService.firstGetComment(id,size));
+        RepostInfinityDetail detail = new RepostInfinityDetail(repost, comments);
+        return ApiResponse.of(detail);
+    }
+
 
     @DeleteMapping("/{repostId}")
     public ApiResponse<String> deletePost(@PathVariable("repostId") Long id) {
-        Repost repost = repostService.getRepost(id);
-        repost.deleteComments();
-        repost.deleteLikes();
-        repost.delete();
+        repostService.deleteRepost(id);
 
         return ApiResponse.of(ReturnCode.SUCCESS);
     }
@@ -111,13 +128,29 @@ public class ApiV1RepostController {
     }
 
     //comment 영역
+    
+    //상세 조회 이후 댓글의 페이지네이션. (typical)
     @GetMapping("/{repostId}/comments")
-    public ApiResponse<?> getAllComment(@PathVariable("repostId") Long postId, @RequestBody ClientPageRequest request) {
-        PageLimitSizeValidator.validateSize(request.getPage(), request.getLimit(), MyConstant.PAGELIMITATION);
-        Pageable pageable = PageRequest.of(request.getPage(), request.getLimit());
-        Page<CommentDTO> result = repostService.getAllComment(postId, pageable);
+    public ApiResponse<?> getPageComment(@PathVariable("repostId") Long postId,
+                                        @RequestParam(value = "page",defaultValue = "1")int page,
+                                        @RequestParam(value = "size",defaultValue = "20")int size) {
+        PageLimitSizeValidator.validateSize(page,size, MyConstant.PAGELIMITATION);
+        Pageable pageable=PageRequest.of(page,size,Sort.by("createDate","id").ascending());
+
+        Page<CommentDTO> result = repostService.getCommentPage(postId,pageable);
         return ApiResponse.of(CustomPage.of(result));
     }
+
+    //상세 조회 이후 댓글의 페이지네이션. (cursor)
+    @GetMapping("/{repostId}/comments/infinityTest")
+    public ApiResponse<?> getInfinityComment(@PathVariable("repostId") Long postId,
+                                         @RequestParam(value = "lastId")long lastCommentId,
+                                         @RequestParam(value = "lastTime")LocalDateTime lastTime,
+                                         @RequestParam(value = "size",defaultValue = "20")int size) {
+        CommentInfinityScrollResponse result = new CommentInfinityScrollResponse(repostService.afterGetComment(postId,size,lastTime,lastCommentId));
+        return ApiResponse.of(result);
+    }
+
 
     @DeleteMapping("/{repostId}/comments/{commentId}")
     public ApiResponse<String> deleteComment(@PathVariable("repostId") Long postId,

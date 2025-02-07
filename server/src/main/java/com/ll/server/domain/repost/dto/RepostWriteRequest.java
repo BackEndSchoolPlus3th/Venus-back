@@ -18,6 +18,8 @@ public class RepostWriteRequest {
     private String content;
     private String mentions;
     private String imageUrl;
+    @Builder.Default
+    private boolean pinned=false;
 
     public List<String> getMentionedNames(){
         if(mentions==null || mentions.isBlank()) return null;

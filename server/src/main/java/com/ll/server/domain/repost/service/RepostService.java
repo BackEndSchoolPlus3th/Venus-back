@@ -58,6 +58,7 @@ public class RepostService {
                         .news(news)
                         .content(request.getContent())
                         .imageUrl(request.getImageUrl())
+                        .pinned(request.isPinned())
                         .build();
 
         repostRepository.save(repost);
@@ -106,19 +107,48 @@ public class RepostService {
                 .map(RepostOnly::new).collect(Collectors.toList());
     }
 
-    public Page<CommentDTO> getAllComment(Long postId, Pageable pageable) {
-        Repost repost = getRepost(postId);
-        if (repost == null) return null;
+    public Page<CommentDTO> getCommentPage(Long postId,Pageable pageable){
+        Repost repost=getRepost(postId);
 
-        Page<Comment> comments = commentRepository.findCommentsByRepostId(postId, pageable);
+        Page<Comment> comments = commentRepository.findCommentsByRepost_Id(postId,pageable);
 
         return new PageImpl<>(
-                comments.getContent().stream()
-                        .filter(comment -> comment.getDeletedAt() == null)
+                comments.getContent().stream().filter(comment -> comment.getDeletedAt()==null)
                         .map(CommentDTO::new).collect(Collectors.toList()),
                 comments.getPageable(),
                 comments.getTotalElements()
         );
+    }
+
+    public List<CommentDTO> firstGetComment(Long postId, int size) {
+        Repost repost = getRepost(postId);
+
+        return commentRepository.findCommentsByRepost_IdOrderByCreateDateAscIdAsc(postId,Limit.of(size))
+                .stream().filter(comment -> comment.getDeletedAt()==null)
+                .map(CommentDTO::new).collect(Collectors.toList());
+    }
+
+    public List<CommentDTO> afterGetComment(Long postId, int size,LocalDateTime lastTime ,long lastId){
+        Repost repost = getRepost(postId);
+
+        return commentRepository.findCommentsByRepost_IdAndIdGreaterThanAndCreateDateAfterOrderByCreateDateAscIdAsc(postId,lastId,lastTime,Limit.of(size))
+                .stream().filter(comment -> comment.getDeletedAt()==null)
+                .map(CommentDTO::new).collect(Collectors.toList());
+    }
+
+    public List<CommentDTO> getAllComment(Long postId) {
+        Repost repost = getRepost(postId);
+
+        return commentRepository.findCommentsByRepost_Id(postId)
+                .stream().filter(comment -> comment.getDeletedAt()==null)
+                .map(CommentDTO::new).collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void deleteRepost(Long postId){
+        Repost repost = getRepost(postId);
+        repost.delete();
+
     }
 
     @Transactional
@@ -129,6 +159,7 @@ public class RepostService {
 
         target.delete();
     }
+
 
     @Transactional
     public CommentDTO modifyComment(Long postId, Long commentId, String content) {
@@ -165,6 +196,18 @@ public class RepostService {
 
     public Repost getRepost(Long postId) {
         return repostRepository.findById(postId).orElseThrow(() -> new CustomRequestException(ReturnCode.NOT_FOUND_ENTITY));
+    }
+
+    public RepostDTO getRepostDTOById(Long postId){
+        Repost repost=null;
+
+        try {
+            repost = getRepost(postId);
+        }catch (Exception e){
+            return null;
+        }
+
+        return new RepostDTO(repost);
     }
 
     public List<LikeDTO> getAllLike(Long repostId) {
@@ -237,5 +280,16 @@ public class RepostService {
         return reposts.stream().filter(repost -> repost.getDeletedAt()==null)
                 .map(RepostUnderNews::new)
                 .collect(Collectors.toList());
+    }
+
+    public Page<RepostUnderNews> getNewsRepostAfter(Long newsId, Pageable pageable) {
+        Page<Repost> reposts=repostRepository.getNewsReposts(newsId,pageable);
+        return new PageImpl<>(
+                reposts.getContent().stream().filter(repost -> repost.getDeletedAt()==null)
+                        .map(RepostUnderNews::new)
+                        .collect(Collectors.toList()),
+                reposts.getPageable(),
+                reposts.getTotalElements()
+        );
     }
 }

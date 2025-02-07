@@ -122,5 +122,7 @@ public class Repost extends BaseEntity {
 
     public void delete() {
         this.deletedAt = LocalDateTime.now();
+        deleteLikes();
+        deleteComments();
     }
 }
