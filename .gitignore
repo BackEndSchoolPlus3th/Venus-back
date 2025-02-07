@@ -37,3 +37,6 @@ out/
 .vscode/
 
 application-secret.yml
+
+#terraform
+.terraform
