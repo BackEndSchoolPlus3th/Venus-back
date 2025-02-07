@@ -43,4 +43,18 @@ public class NewsDTO {
         publishedAt = news.getPublishedAt();
         reposts = news.getReposts().stream().map(RepostUnderNews::new).collect(Collectors.toList());
     }
+
+    public NewsDTO(News news, List<RepostUnderNews> reposts){
+        id = news.getId();
+        title = news.getTitle();
+        content = news.getContent();
+        author = news.getAuthor();
+        publisherName = news.getPublisher();
+        imageUrl = news.getImageUrl();
+        thumbnailUrl = news.getThumbnailUrl();
+        contentUrl = news.getContentUrl();
+        category = news.getCategory().getCategory();
+        publishedAt = news.getPublishedAt();
+        this.reposts=reposts;
+    }
 }

@@ -130,7 +130,6 @@ public class MemberService {
         String accessToken = jwtProvider.genAccessToken(member);
         return new RsData<>("200", "토큰 갱신에 성공하였습니다.", accessToken);
     }
-
     // 토큰으로 User 정보 가져오기
     public SecurityUser getUserFromAccessToken(String accessToken) {
         Map<String, Object> payloadBody = jwtProvider.getClaims(accessToken);

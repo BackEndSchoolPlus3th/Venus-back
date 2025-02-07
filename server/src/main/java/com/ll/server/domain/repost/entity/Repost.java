@@ -58,7 +58,8 @@ public class Repost extends BaseEntity {
     @JsonIgnore
     private List<Comment> comments = new ArrayList<>();
 
-    private Boolean pinned;
+    @Builder.Default
+    private Boolean pinned=false;
 
     @Column(columnDefinition = "TEXT")
     private String imageUrl;

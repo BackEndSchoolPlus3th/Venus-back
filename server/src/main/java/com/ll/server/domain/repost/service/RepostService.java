@@ -15,6 +15,7 @@ import com.ll.server.domain.news.news.service.NewsService;
 import com.ll.server.domain.notification.Notify;
 import com.ll.server.domain.repost.dto.RepostDTO;
 import com.ll.server.domain.repost.dto.RepostOnly;
+import com.ll.server.domain.repost.dto.RepostUnderNews;
 import com.ll.server.domain.repost.dto.RepostWriteRequest;
 import com.ll.server.domain.repost.entity.Repost;
 import com.ll.server.domain.repost.repository.RepostRepository;
@@ -197,5 +198,44 @@ public class RepostService {
         Member user = memberService.getMemberById(userId);
         return new LikeDTO(repost.addLike(user));
 
+    }
+
+    @Transactional
+    public void putPin(Long repostId){
+        Repost repost=getRepost(repostId);
+
+        repost.setPinned(true);
+    }
+
+    @Transactional
+    public void pullPin(Long repostId){
+        Repost repost=getRepost(repostId);
+
+        repost.setPinned(false);
+    }
+
+    public Page<RepostUnderNews> getNewsRepost(Long newsId, Pageable pageable){
+        Page<Repost> reposts=repostRepository.getNewsReposts(newsId,pageable);
+        return new PageImpl<>(
+                reposts.getContent().stream().filter(repost -> repost.getDeletedAt()==null)
+                        .map(RepostUnderNews::new)
+                        .collect(Collectors.toList()),
+                reposts.getPageable(),
+                reposts.getTotalElements()
+        );
+    }
+
+    public List<RepostUnderNews> firstGetNewsRepost(Long newsId, int size){
+        List<Repost> reposts = repostRepository.firstGetNewsReposts(newsId, Limit.of(size));
+        return reposts.stream().filter(repost -> repost.getDeletedAt()==null)
+                .map(RepostUnderNews::new)
+                .collect(Collectors.toList());
+    }
+
+    public List<RepostUnderNews> afterGetNewsRepost(Long newsId, int size, LocalDateTime lastTime, Long lastId){
+        List<Repost> reposts = repostRepository.afterGetNewsReposts(newsId, lastTime, lastId,Limit.of(size));
+        return reposts.stream().filter(repost -> repost.getDeletedAt()==null)
+                .map(RepostUnderNews::new)
+                .collect(Collectors.toList());
     }
 }

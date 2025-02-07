@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,6 +26,7 @@ public class RepostUnderNews {
     private CommentResponse commentInfo;
     private LikeResponse likeInfo;
     private String imageUrl;
+    private LocalDateTime createDate;
 
     public RepostUnderNews(Repost repost){
         repostId=repost.getId();
@@ -50,6 +52,8 @@ public class RepostUnderNews {
         );
 
         imageUrl = repost.getImageUrl();
+
+        createDate=repost.getCreateDate();
 
     }
 }
