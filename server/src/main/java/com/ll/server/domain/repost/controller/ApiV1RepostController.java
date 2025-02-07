@@ -18,7 +18,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -28,12 +27,13 @@ public class ApiV1RepostController {
     //private final RepostDocService repostDocService;
     private final RepostRepository repostRepository;
     private final AccessTokenFromCookie accessTokenFromCookie;
-    //repost 영역(repost 수정은 없음)
+    private final JwtProvider jwtProvider;
+
+    //repost 영역
 
     // 목록 조회
     @GetMapping
     public List<RepostDTO> getAllRepost(){
-
         return repostService.findAll();
     }
 
@@ -48,14 +48,8 @@ public class ApiV1RepostController {
     public String deletePost(@PathVariable("id") Long repostId, HttpServletRequest request){
         // 토큰 확인
         String accessToken = accessTokenFromCookie.getAccessTokenFromCookie(request);
-
-
-        // 클래스(JwtProvider)로 바로 접근하지 말고 객체 생성해서 접근!!!!
-        JwtProvider jwtProvider = new JwtProvider();
-        Map<String, Object> claims = jwtProvider.getClaims(accessToken);
-        Object ob_id = claims.get("id"); // 옵젝트로 나옴
-        Long userId = Long.valueOf(ob_id.toString()); // string으로 바꿈
-        System.out.println("userID = " + userId);
+        // 토큰에서 id 추출
+        Long userId=jwtProvider.getUserIdFromToken(accessToken);
         return repostService.checkDelete_R(repostId, userId);
     };
 
@@ -83,15 +77,9 @@ public class ApiV1RepostController {
                                 @PathVariable("commentId")Long commentId,
                                 HttpServletRequest request){
         // 토큰 확인
-        // 1. 쿠키에서 엑세스 토큰 추출 -> 액세스토큰에서 사용자 정보 추출
         String accessToken = accessTokenFromCookie.getAccessTokenFromCookie(request);
-
-        // 같은 유저인지 확인
-        JwtProvider jwtProvider = new JwtProvider();
-        Map<String, Object> claims = jwtProvider.getClaims(accessToken);
-        Object ob_id = claims.get("id"); // 옵젝트로 나옴
-        Long userId = Long.valueOf(ob_id.toString()); // string으로 바꿈
-        System.out.println("userID = " + userId);
+        // 토큰에서 id 추출
+        Long userId=jwtProvider.getUserIdFromToken(accessToken);
         return repostService.checkDelete_C(postId, commentId, userId);
 
     }
@@ -103,18 +91,10 @@ public class ApiV1RepostController {
                                     @RequestBody CommentModifyRequest requestBody,
                                     HttpServletRequest request) {
         // 토큰 확인
-        // 1. 쿠키에서 엑세스 토큰 추출 -> 액세스토큰에서 사용자 정보 추출
         String accessToken = accessTokenFromCookie.getAccessTokenFromCookie(request);
-
-        // 같은 유저인지 확인
-        JwtProvider jwtProvider = new JwtProvider();
-        Map<String, Object> claims = jwtProvider.getClaims(accessToken);
-        Object ob_id = claims.get("id"); // 옵젝트로 나옴
-        Long userId = Long.valueOf(ob_id.toString()); // string으로 바꿈
-        System.out.println("userID = " + userId);
+        // 토큰에서 id 추출
+        Long userId=jwtProvider.getUserIdFromToken(accessToken);
         return repostService.modify_C(postId, commentId, requestBody.getContent(), userId);
-
-//        return repostService.modifyComment(postId, commentId, requestBody.getContent());
     }
 
     // 작성

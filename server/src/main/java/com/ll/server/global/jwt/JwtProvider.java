@@ -2,7 +2,6 @@ package com.ll.server.global.jwt;
 
 import com.ll.server.domain.member.entity.Member;
 import com.ll.server.global.jpa.util.Ut;
-import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -26,9 +25,6 @@ public class JwtProvider {
 
     // 변수선언
     private static SecretKey cachedSecretKey;
-
-
-
 
     public SecretKey getSecretKey() {
         if (cachedSecretKey == null) {
@@ -64,7 +60,6 @@ public class JwtProvider {
     }
 
     public Map<String, Object> getClaims(String accessToken) {
-
         String body = Jwts.parserBuilder()
                 .setSigningKey(getSecretKey())
                 .build()
@@ -72,6 +67,12 @@ public class JwtProvider {
                 .getBody()
                 .get("body", String.class);
         return Ut.toMap(body);
+    }
+
+    // 토큰에서 id 추출
+    public Long getUserIdFromToken(String token) {
+        Map<String, Object> claims = getClaims(token);
+        return Long.valueOf(claims.get("id").toString());
     }
 
     // 유효성 검증
@@ -86,16 +87,5 @@ public class JwtProvider {
             return false;
         }
     }
-
-    // JWT 토큰에서 사용자 ID 추출
-    public static Long getUserIdFromToken(String accessToken) {
-        Claims claims = Jwts.parser()
-                .setSigningKey(cachedSecretKey)
-                .parseClaimsJws(accessToken)
-                .getBody();
-        return Long.valueOf(claims.get("id", String.class));
-    }
-
-
 
 }

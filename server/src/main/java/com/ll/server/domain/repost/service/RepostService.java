@@ -90,6 +90,8 @@ public class RepostService {
         Comment comment = target.orElseThrow(() -> new RuntimeException("Comment not found"));
         Member commentMember = comment.getMember();
         Long writerId = commentMember.getId();
+
+
         if (writerId.equals(userId)) {
             if (target.isPresent()) {
                 comment.setContent(content);
@@ -98,6 +100,7 @@ public class RepostService {
         } else {
             throw new RuntimeException("수정 권한이 없습니다.");
         }
+
         return new CommentDTO(comment);
     }
 
