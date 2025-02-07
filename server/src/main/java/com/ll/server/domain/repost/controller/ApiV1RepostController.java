@@ -49,7 +49,6 @@ public class ApiV1RepostController {
         // 토큰 확인
         // 1. 쿠키에서 엑세스 토큰 추출 -> 액세스토큰에서 사용자 정보 추출
         Cookie[] cookies = request.getCookies();
-
         String accessToken = null;
         if (cookies != null) {
             for (Cookie cookie : cookies) {
@@ -65,7 +64,8 @@ public class ApiV1RepostController {
         Object ob_id = claims.get("id"); // 옵젝트로 나옴
         Long userId = Long.valueOf(ob_id.toString()); // string으로 바꿈
         System.out.println("userID = " + userId);
-        return repostService.checkDelete(repostId, userId);};
+        return repostService.checkDelete_R(repostId, userId);
+    };
 
 
     // 생성
@@ -83,12 +83,36 @@ public class ApiV1RepostController {
         return new CommentResponse(repostService.getAllComment(postId));
     }
 
+
+
+    // 삭제
     @DeleteMapping("/{repostId}/comments/{commentId}")
     public String deleteComment(@PathVariable("repostId")Long postId,
-                                @PathVariable("commentId")Long commentId){
-        return repostService.deleteComment(postId,commentId);
+                                @PathVariable("commentId")Long id,
+                                HttpServletRequest request){
+        // 토큰 확인
+        // 1. 쿠키에서 엑세스 토큰 추출 -> 액세스토큰에서 사용자 정보 추출
+        Cookie[] cookies = request.getCookies();
+        String accessToken = null;
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals("accessToken")) {
+                    accessToken = cookie.getValue();  // 쿠키에서 accessToken 값 추출
+                }
+            }
+        }
+
+        // 같은 유저인지 확인
+        JwtProvider jwtProvider = new JwtProvider();
+        Map<String, Object> claims = jwtProvider.getClaims(accessToken);
+        Object ob_id = claims.get("id"); // 옵젝트로 나옴
+        Long userId = Long.valueOf(ob_id.toString()); // string으로 바꿈
+        System.out.println("userID = " + userId);
+        return repostService.checkDelete_C(postId,id, userId);
+
     }
 
+    // 수정
     @PatchMapping("/{repostId}/comments/{commentId}")
     public CommentDTO modifyComment(@PathVariable("repostId")Long postId,
                                     @PathVariable("commentId")Long commentId,
@@ -96,6 +120,8 @@ public class ApiV1RepostController {
         return repostService.modifyComment(postId, commentId,request.getContent());
     }
 
+    // 작성
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/{repostId}/comments")
     public CommentDTO addComment(@PathVariable("repostId") Long postId,
                                      @RequestBody CommentWriteRequest request){

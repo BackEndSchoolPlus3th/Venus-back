@@ -3,6 +3,7 @@ package com.ll.server.domain.repost.service;
 import com.ll.server.domain.comment.dto.CommentDTO;
 import com.ll.server.domain.comment.dto.CommentWriteRequest;
 import com.ll.server.domain.comment.entity.Comment;
+import com.ll.server.domain.comment.repository.CommentRepository;
 import com.ll.server.domain.like.dto.LikeDTO;
 import com.ll.server.domain.like.entity.Like;
 import com.ll.server.domain.member.entity.Member;
@@ -30,6 +31,7 @@ public class RepostService {
     private final RepostRepository repostRepository;
     private final MemberRepository memberRepository;
     private final NewsRepository newsRepository;
+    private final CommentRepository commentRepository;
 
 
     public RepostDTO findById(Long id){
@@ -39,7 +41,7 @@ public class RepostService {
 
 
     @Transactional
-    public String checkDelete(Long repostId, Long userId) {
+    public String checkDelete_R(Long repostId, Long userId) {
         Optional<Repost> target = repostRepository.findById(repostId);
         Repost repost = target.orElseThrow(() -> new RuntimeException("Repost not found"));
         System.out.println("repost = " + repost);
@@ -49,11 +51,28 @@ public class RepostService {
 
         if (writerId.equals(userId)) {
             if (target.isPresent() && target.get().getDeletedAt() == null) {
-                Repost repost2 = target.get();
-                repost2.setDeletedAt(LocalDateTime.now());
-                repost2.deleteComments();
-                repost2.deleteLikes();
+                repost.setDeletedAt(LocalDateTime.now());
+                repost.deleteComments();
+                repost.deleteLikes();
             }
+        } else {
+            throw new RuntimeException("삭제 권한이 없습니다.");
+        }
+        return "삭제 성공";
+    }
+
+    @Transactional
+    public String checkDelete_C(Long repostId, Long id, Long userId) {
+        Optional<Comment> target = commentRepository.findByRepostIdAndId(repostId,id);
+        Comment comment = target.orElseThrow(() -> new RuntimeException("Repost not found"));
+        System.out.println("comment = " + comment);
+        Member commentMember = comment.getMember();
+        Long writerId = commentMember.getId();
+        System.out.println("writerId = " + writerId);
+
+        if (writerId.equals(userId)) {
+            if (target.isPresent() && target.get().getDeletedAt() == null)
+                comment.setDeletedAt(LocalDateTime.now());
         } else {
             throw new RuntimeException("삭제 권한이 없습니다.");
         }
