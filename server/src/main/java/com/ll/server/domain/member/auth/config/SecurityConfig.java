@@ -7,7 +7,6 @@ import com.ll.server.domain.member.auth.security.oauth2.CustomOAuth2UserService;
 import com.ll.server.domain.member.auth.security.oauth2.handler.OAuth2AuthenticationFailureHandler;
 import com.ll.server.domain.member.auth.security.oauth2.handler.OAuth2AuthenticationSuccessHandler;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -26,6 +25,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 
 @Configuration
@@ -110,9 +110,11 @@ public class SecurityConfig {
         allowedHttpMethods.add("POST");
         allowedHttpMethods.add("PUT");
         allowedHttpMethods.add("DELETE");
+        allowedHttpMethods.add("OPTIONS");
         configuration.setAllowedMethods(allowedHttpMethods);
 
-        configuration.setAllowedHeaders(Collections.singletonList("*"));
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type"));
+        // configuration.setAllowedHeaders(Collections.singletonList("*"));
         // configuration.setAllowedHeaders(List.of(HttpHeaders.AUTHORIZATION, HttpHeaders.CONTENT_TYPE));
 
         //인증, 인가를 위한 credentials 를 TRUE로 설정
