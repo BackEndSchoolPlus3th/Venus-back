@@ -52,10 +52,11 @@ public class ApiV1NewsController {
                                      @RequestParam(value="content",defaultValue="false") boolean hasContent,
                                      @RequestParam(value="publisher",defaultValue="false") boolean hasPublisher,
                                      @RequestParam(value="category",defaultValue="") String category,
-                                     @RequestBody NewsGetRequest request) {
+                                     @RequestParam(value="page",defaultValue = "0")int page,
+                                     @RequestParam(value="size",defaultValue = "20")int size) {
         //요청한 page, limit이 50을 넘지 않는지 확인
-        PageLimitSizeValidator.validateSize(request.getPage(), request.getLimit(), MyConstant.PAGELIMITATION);
-        Pageable pageable = PageRequest.of(request.getPage(), request.getLimit(), Sort.by("id").descending());
+        PageLimitSizeValidator.validateSize(page, size, MyConstant.PAGELIMITATION);
+        Pageable pageable = PageRequest.of(page, size);
 
 
         //검색을 안 할 때

@@ -55,7 +55,7 @@ public class NewsDocService {
                 ),NewsDoc.class
         );
 
-        long totalHits= Objects.requireNonNull(result.hits().total()).value();
+        long totalHits= result.hits().hits().size();
 
         List<NewsOnly> newsOnlyList= result.hits().hits().stream()
                 .map(hit->new NewsOnly(Objects.requireNonNull(hit.source())))

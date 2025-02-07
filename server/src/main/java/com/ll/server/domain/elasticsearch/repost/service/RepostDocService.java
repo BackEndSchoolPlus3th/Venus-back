@@ -35,18 +35,40 @@ public class RepostDocService {
     private final RepostDocRepository repostDocRepository;
     private final RepostRepository repostRepository;
 
+    @SneakyThrows
     @Transactional(readOnly = true)
     public Page<RepostOnly> searchContent(String keyword, Pageable pageable){
-        Page<RepostDoc> results=repostDocRepository.searchByContent(keyword,pageable);
-        List<Long> ids=results.getContent().stream().map(RepostDoc::getId).toList();
+        ElasticsearchClient client = new ElasticSearchClientConfig().createElasticsearchClient();
+
+        SearchRequest searchRequest=SearchRequest.of(
+                s->s.index("repost")
+                        .size(pageable.getPageSize())
+                        .from((int)pageable.getOffset())
+                        .query(q->
+                                q.bool(
+                                        b->b.mustNot(mn->mn.exists(e->e.field("deleted_at")))
+                                                .should(should->should.match(m->m.field("content").query(keyword)))
+
+                                )
+                        )
+                        .sort
+                                (SortOptions.of(sort1->sort1.field(f1->f1.field("create_date").order(SortOrder.Desc))),
+                                        SortOptions.of(sort2->sort2.field(f2->f2.field("id").order(SortOrder.Desc)))
+                                )
+        );
+
+        SearchResponse<RepostDoc> response=client.search(searchRequest,RepostDoc.class);
+
+        List<Long> ids=response.hits().hits().stream().map(hit-> Objects.requireNonNull(hit.source()).getId()).toList();
+        long totalElements= response.hits().hits().size();
 
         List<Repost> realResult=repostRepository.findAllByIdInOrderByCreateDateDescIdDesc(ids);
         return new PageImpl<>(
                 realResult.stream().filter(repost -> repost.getDeletedAt()==null)
                 .map(RepostOnly::new)
                         .collect(Collectors.toList()),
-                results.getPageable(),
-                results.getTotalElements()
+                pageable,
+                totalElements
                 );
 
     }
