@@ -26,7 +26,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 
 @Configuration
 @EnableWebSecurity
@@ -72,11 +71,12 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests(authorizeRequests ->
                 authorizeRequests
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/api/v1/auth/**", "/api/v1/oauth2/**").permitAll() // 인증 관련 API 모두 허용
                         .requestMatchers("/api/v1/user/**").hasRole("USER")
                         .requestMatchers("/api/v1/publisher").hasRole("PUBLISHER")
                         .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
-                        .anyRequest().authenticated() // 나머지 API는 인증 필요
+                        .anyRequest().permitAll() // 나머지 API는 인증 필요
         );
 
         http.oauth2Login(oauth2 ->

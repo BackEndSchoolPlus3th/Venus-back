@@ -14,17 +14,15 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
-import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
-import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.Collections;
 import java.util.Map;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -67,8 +65,14 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         Member existingMember = memberRepository.findByProviderAndProviderId(provider.toString(), member.getProviderId())
                 .orElseGet(() -> memberRepository.save(member));
 
+        // CustomOAuth2User 객체 생성
+        CustomOAuth2User oAuth2User = new CustomOAuth2User(
+                existingMember,
+                Collections.emptyMap(),
+                Collections.singleton(new SimpleGrantedAuthority(existingMember.getRole().toString())));
+
         // CustomOAuth2User 객체 생성하여 반환 (OAuth2User 인터페이스 구현)
-        return new UsernamePasswordAuthenticationToken(existingMember, null, existingMember.getAuthorities());
+        return new UsernamePasswordAuthenticationToken(oAuth2User, null, oAuth2User.getAuthorities());
     }
 
     private Member getUserInfo(Provider provider, String authorizationCode) {
@@ -139,7 +143,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                         .provider(Provider.KAKAO)
                         .providerId(id)
                         .role(MemberRole.USER)
-                        .password("kakao_social_login")
+                        .password("kakao_social_login") // 카카오 임시 비밀번호 설정
                         .build();
             } else {
                 throw new CustomException(ErrorCode.INVALID_INPUT_VALUE);
