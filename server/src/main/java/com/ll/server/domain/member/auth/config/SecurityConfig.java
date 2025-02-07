@@ -7,7 +7,6 @@ import com.ll.server.domain.member.auth.security.oauth2.CustomOAuth2UserService;
 import com.ll.server.domain.member.auth.security.oauth2.handler.OAuth2AuthenticationFailureHandler;
 import com.ll.server.domain.member.auth.security.oauth2.handler.OAuth2AuthenticationSuccessHandler;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;

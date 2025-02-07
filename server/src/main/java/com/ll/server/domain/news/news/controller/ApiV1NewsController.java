@@ -1,10 +1,15 @@
 package com.ll.server.domain.news.news.controller;
 
 import com.ll.server.domain.news.news.dto.NewsDTO;
+import com.ll.server.domain.news.news.dto.NewsInfinityDetail;
+import com.ll.server.domain.news.news.dto.NewsPageDetail;
 import com.ll.server.domain.news.news.dto.NewsUpdateRequest;
 import com.ll.server.domain.news.news.entity.News;
 import com.ll.server.domain.news.news.service.NewsFetchService;
 import com.ll.server.domain.news.news.service.NewsService;
+import com.ll.server.domain.repost.dto.RepostInfinityResponse;
+import com.ll.server.domain.repost.dto.RepostUnderNews;
+import com.ll.server.domain.repost.service.RepostService;
 import com.ll.server.global.response.enums.ReturnCode;
 import com.ll.server.global.response.response.ApiResponse;
 import com.ll.server.global.response.response.CustomPage;
@@ -15,8 +20,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,6 +32,7 @@ public class ApiV1NewsController {
 
     private final NewsService newsService;
     private final NewsFetchService newsFetchService;
+    private final RepostService repostService;
 
     //private final NewsDocService newsDocService;
 
@@ -42,24 +50,66 @@ public class ApiV1NewsController {
     }
 
     @GetMapping
-    public ApiResponse<?> getAllNews(NewsGetRequest request) {
+    public ApiResponse<?> getAllNews(@RequestParam(value = "page",defaultValue = "0") int page,
+                                     @RequestParam(value = "size",defaultValue = "20") int size) {
         //요청한 page, limit이 50을 넘지 않는지 확인
-        PageLimitSizeValidator.validateSize(request.getPage(), request.getLimit(), MyConstant.PAGELIMITATION);
-        Pageable pageable = PageRequest.of(request.getPage(), request.getLimit(), Sort.by("id").descending());
+        PageLimitSizeValidator.validateSize(page, size, MyConstant.PAGELIMITATION);
+        Pageable pageable = PageRequest.of(page, size);
 
         Page<NewsDTO> news = newsService.getAll(pageable);
 
         return ApiResponse.of(CustomPage.of(news));
     }
 
-    //뉴스 조회 API
+    //뉴스 최초 조회 API
     @GetMapping("/{id}")
-    public ApiResponse<NewsDTO> getById(@PathVariable("id") Long id) {
-//        NewsDTO newsDTO = newsService.getById(id);
-        News news = newsService.getNews(id);
-        NewsDTO newsDTO = new NewsDTO(news);
+    public ApiResponse<NewsPageDetail> getById(@PathVariable("id") Long id,
+                                               @RequestParam(value = "size",defaultValue = "20") int size) {
+        int page=0;
+        PageLimitSizeValidator.validateSize(page, size, MyConstant.PAGELIMITATION);
+        Pageable pageable = PageRequest.of(page, size);
 
-        return ApiResponse.of(newsDTO);
+        News news = newsService.getNews(id);
+        CustomPage<RepostUnderNews> repostPage = CustomPage.of(repostService.getNewsRepost(id,pageable));
+        NewsPageDetail newsPageDetail = new NewsPageDetail(news,repostPage);
+
+        return ApiResponse.of(newsPageDetail);
+    }
+
+    //뉴스의 리포스트 무한 스크롤 요청 시 (전통적인 페이지네이션으로 반환하는) 엔드포인트
+    @GetMapping("/{id}/reposts")
+    public ApiResponse<?> getUnderReposts(@PathVariable("id") Long id,
+                                          @RequestParam(value = "page",defaultValue = "1") int page,
+                                          @RequestParam(value = "size",defaultValue = "20") int size){
+        PageLimitSizeValidator.validateSize(page, size, MyConstant.PAGELIMITATION);
+        Pageable pageable = PageRequest.of(page, size);
+
+        CustomPage<RepostUnderNews> repostPage=CustomPage.of(repostService.getNewsRepost(id,pageable));
+
+        return ApiResponse.of(repostPage);
+    }
+
+
+    //뉴스 최초 조회 무한스크롤
+    @GetMapping("/infinityTest/{id}")
+    public ApiResponse<NewsDTO> getByIdInfinity(@PathVariable("id") Long id,
+                                                @RequestParam(value = "size", defaultValue = "20") int size){
+
+        News news = newsService.getNews(id);
+        RepostInfinityResponse reposts = new RepostInfinityResponse(repostService.firstGetNewsRepost(id,size));
+
+        return ApiResponse.of(new NewsInfinityDetail(news,reposts));
+    }
+
+    @GetMapping("/infinityTest/{id}/reposts")
+    public ApiResponse<?> getUnderRepostsInfinity(@PathVariable("id") Long id,
+                                                @RequestParam(value = "size", defaultValue = "20") int size,
+                                                  @RequestParam(value = "lastTime")LocalDateTime lastTime,
+                                                  @RequestParam(value = "lastId")Long lastRepostId){
+
+        List<RepostUnderNews> reposts=repostService.firstGetNewsRepost(id,size);
+        RepostInfinityResponse response=new RepostInfinityResponse(reposts);
+        return ApiResponse.of(response);
     }
 
     @PatchMapping("/{id}")

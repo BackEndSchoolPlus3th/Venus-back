@@ -25,7 +25,7 @@ public class NewsService {
 
     public Page<NewsDTO> getAll(Pageable pageable) {
 
-        Page<News> result = newsRepository.findAllByOrderByPublishedAtDesc(pageable);
+        Page<News> result = newsRepository.findAllByOrderByPublishedAtDescIdDesc(pageable);
         return new PageImpl<>(
                 result.getContent().stream()
                         .filter(news -> news.getDeletedAt() == null)
