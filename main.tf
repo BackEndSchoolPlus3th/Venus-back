@@ -186,8 +186,8 @@ sudo mkdir -p /usr/local/lib/docker/cli-plugins/
 sudo curl -SL "https://github.com/docker/compose/releases/latest/download/docker-compose-linux-$(uname -m)" -o /usr/local/lib/docker/cli-plugins/docker-compose
 sudo chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
 
-sudo dnf update -y
-sudo dnf install -y make
+sudo cd ~
+sudo git clone https://github.com/BackEndSchoolPlus3th/Venus-back.git
 
 END_OF_FILE
 }
