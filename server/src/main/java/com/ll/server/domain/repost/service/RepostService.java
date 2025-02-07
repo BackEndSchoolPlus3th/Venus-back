@@ -40,6 +40,7 @@ public class RepostService {
     }
 
 
+    // repost 삭제
     @Transactional
     public String checkDelete_R(Long repostId, Long userId) {
         Optional<Repost> target = repostRepository.findById(repostId);
@@ -61,6 +62,7 @@ public class RepostService {
         return "삭제 성공";
     }
 
+    // 댓글 삭제
     @Transactional
     public String checkDelete_C(Long repostId, Long id, Long userId) {
         Optional<Comment> target = commentRepository.findByRepostIdAndId(repostId,id);
@@ -80,6 +82,24 @@ public class RepostService {
     }
 
 
+    // 댓글 수정
+    @Transactional
+    public CommentDTO modify_C(Long postId, Long commentId, String content, Long userId) {
+        // id 같은지 확인
+        Optional<Comment> target = commentRepository.findByRepostIdAndId(postId, commentId);
+        Comment comment = target.orElseThrow(() -> new RuntimeException("Comment not found"));
+        Member commentMember = comment.getMember();
+        Long writerId = commentMember.getId();
+        if (writerId.equals(userId)) {
+            if (target.isPresent()) {
+                comment.setContent(content);
+                comment.setModifyDate(LocalDateTime.now());
+            }
+        } else {
+            throw new RuntimeException("수정 권한이 없습니다.");
+        }
+        return new CommentDTO(comment);
+    }
 
     @Transactional
     @Notify
@@ -139,36 +159,36 @@ public class RepostService {
 
     }
 
-    @Transactional
-    public String deleteComment(Long postId, Long commentId) {
-        Optional<Repost> repostOptional=repostRepository.findById(postId);
-        if(repostOptional.isEmpty()) return "댓글 삭제 실패";
+//    @Transactional
+//    public String deleteComment(Long postId, Long commentId) {
+//        Optional<Repost> repostOptional=repostRepository.findById(postId);
+//        if(repostOptional.isEmpty()) return "댓글 삭제 실패";
+//
+//        Repost repost=repostOptional.get();
+//
+//        if(repost.getDeletedAt()!=null) return "댓글 삭제 실패";
+//
+//        Comment target = getComment(commentId, repost);
+//        if (target == null) return "댓글 삭제 실패";
+//
+//        target.setDeletedAt(LocalDateTime.now());
+//
+//        return "댓글 삭제 성공";
+//    }
 
-        Repost repost=repostOptional.get();
-
-        if(repost.getDeletedAt()!=null) return "댓글 삭제 실패";
-
-        Comment target = getComment(commentId, repost);
-        if (target == null) return "댓글 삭제 실패";
-
-        target.setDeletedAt(LocalDateTime.now());
-
-        return "댓글 삭제 성공";
-    }
-
-    @Transactional
-    public CommentDTO modifyComment(Long postId, Long commentId, String content) {
-        Repost repost = getRepost(postId);
-        if (repost == null) return null;
-
-        Comment target = getComment(commentId, repost);
-        if (target == null) return null;
-
-        target.setContent(content);
-        target.setModifyDate(LocalDateTime.now());
-
-        return new CommentDTO(target);
-    }
+//    @Transactional
+//    public CommentDTO modifyComment(Long postId, Long commentId, String content) {
+//        Repost repost = getRepost(postId);
+//        if (repost == null) return null;
+//
+//        Comment target = getComment(commentId, repost);
+//        if (target == null) return null;
+//
+//        target.setContent(content);
+//        target.setModifyDate(LocalDateTime.now());
+//
+//        return new CommentDTO(target);
+//    }
 
     private Comment getComment(Long commentId, Repost repost) {
         Optional<Comment> commentOptional= repost.getComments().stream()
@@ -243,6 +263,7 @@ public class RepostService {
         return new LikeDTO(repost.addLike(user));
 
     }
+
 
 
 }

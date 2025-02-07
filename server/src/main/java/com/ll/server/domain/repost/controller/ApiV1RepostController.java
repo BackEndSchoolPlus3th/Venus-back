@@ -88,7 +88,7 @@ public class ApiV1RepostController {
     // 삭제
     @DeleteMapping("/{repostId}/comments/{commentId}")
     public String deleteComment(@PathVariable("repostId")Long postId,
-                                @PathVariable("commentId")Long id,
+                                @PathVariable("commentId")Long commentId,
                                 HttpServletRequest request){
         // 토큰 확인
         // 1. 쿠키에서 엑세스 토큰 추출 -> 액세스토큰에서 사용자 정보 추출
@@ -108,7 +108,7 @@ public class ApiV1RepostController {
         Object ob_id = claims.get("id"); // 옵젝트로 나옴
         Long userId = Long.valueOf(ob_id.toString()); // string으로 바꿈
         System.out.println("userID = " + userId);
-        return repostService.checkDelete_C(postId,id, userId);
+        return repostService.checkDelete_C(postId, commentId, userId);
 
     }
 
@@ -116,8 +116,28 @@ public class ApiV1RepostController {
     @PatchMapping("/{repostId}/comments/{commentId}")
     public CommentDTO modifyComment(@PathVariable("repostId")Long postId,
                                     @PathVariable("commentId")Long commentId,
-                                    @RequestBody CommentModifyRequest request) {
-        return repostService.modifyComment(postId, commentId,request.getContent());
+                                    @RequestBody CommentModifyRequest requestBody,
+                                    HttpServletRequest request) {
+        // 토큰 확인
+        // 1. 쿠키에서 엑세스 토큰 추출 -> 액세스토큰에서 사용자 정보 추출
+        Cookie[] cookies = request.getCookies();
+        String accessToken = null;
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals("accessToken")) {
+                    accessToken = cookie.getValue();  // 쿠키에서 accessToken 값 추출
+                }
+            }
+        }
+        // 같은 유저인지 확인
+        JwtProvider jwtProvider = new JwtProvider();
+        Map<String, Object> claims = jwtProvider.getClaims(accessToken);
+        Object ob_id = claims.get("id"); // 옵젝트로 나옴
+        Long userId = Long.valueOf(ob_id.toString()); // string으로 바꿈
+        System.out.println("userID = " + userId);
+        return repostService.modify_C(postId, commentId, requestBody.getContent(), userId);
+
+//        return repostService.modifyComment(postId, commentId, requestBody.getContent());
     }
 
     // 작성
