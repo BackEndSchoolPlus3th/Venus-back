@@ -4,8 +4,9 @@ package com.ll.server.domain.member.service;
 import com.ll.server.domain.member.dto.MemberResponse;
 import com.ll.server.domain.member.entity.Member;
 import com.ll.server.domain.member.repository.MemberRepository;
-import com.ll.server.global.exception.CustomException;
-import com.ll.server.global.exception.ErrorCode;
+
+import com.ll.server.global.response.enums.ReturnCode;
+import com.ll.server.global.response.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,7 +19,7 @@ public class MemberService {
 
     public MemberResponse getMemberInfo(String email) {
         Member member = memberRepository.findByEmail(email)
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(ReturnCode.USER_NOT_FOUND));
 
         return MemberResponse.builder()
                 .id(member.getId())

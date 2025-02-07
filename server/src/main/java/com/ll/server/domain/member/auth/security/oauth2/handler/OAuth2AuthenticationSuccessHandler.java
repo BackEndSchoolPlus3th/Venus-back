@@ -49,6 +49,6 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
         // Redirect (프론트 URL로, 토큰을 쿼리 파리미터나 헤더에 담아 전달 가능)
         // TODO: Redirect URL Endpoint 설정 확인하기
         // response.sendRedirect("http://localhost:8080/");
-        response.sendRedirect("http://localhost:8080/swagger-ui/index.html");
+        response.sendRedirect("http://localhost:8080/api-test");
     }
 }

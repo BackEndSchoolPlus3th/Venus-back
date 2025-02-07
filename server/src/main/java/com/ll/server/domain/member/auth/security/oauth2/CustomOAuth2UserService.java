@@ -4,8 +4,9 @@ import com.ll.server.domain.member.entity.Member;
 import com.ll.server.domain.member.enums.MemberRole;
 import com.ll.server.domain.member.enums.Provider;
 import com.ll.server.domain.member.repository.MemberRepository;
-import com.ll.server.global.exception.CustomException;
-import com.ll.server.global.exception.ErrorCode;
+
+import com.ll.server.global.response.enums.ReturnCode;
+import com.ll.server.global.response.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -81,7 +82,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         } else if (provider == Provider.NAVER) {
             return getNaverUserInfo(authorizationCode);
         } else {
-            throw new CustomException(ErrorCode.INVALID_INPUT_VALUE);
+            throw new CustomException(ReturnCode.INVALID_INPUT_VALUE);
         }
     }
 
@@ -111,7 +112,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             String accessToken = (String) responseBody.get("access_token");
             return getKakaoUserInfoByToken(accessToken);
         } catch (Exception e) {
-            throw new CustomException(ErrorCode.INVALID_INPUT_VALUE);
+            throw new CustomException(ReturnCode.INVALID_INPUT_VALUE);
         }
     }
 
@@ -146,10 +147,10 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                         .password("kakao_social_login") // 카카오 임시 비밀번호 설정
                         .build();
             } else {
-                throw new CustomException(ErrorCode.INVALID_INPUT_VALUE);
+                throw new CustomException(ReturnCode.INVALID_INPUT_VALUE);
             }
         } catch (Exception e) {
-            throw new CustomException(ErrorCode.INVALID_INPUT_VALUE);
+            throw new CustomException(ReturnCode.INVALID_INPUT_VALUE);
         }
     }
 
@@ -179,7 +180,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             String accessToken = (String) responseBody.get("access_token");
             return getNaverUserInfoByToken(accessToken);
         } catch (Exception e) {
-            throw new CustomException(ErrorCode.INVALID_INPUT_VALUE);
+            throw new CustomException(ReturnCode.INVALID_INPUT_VALUE);
         }
     }
 
@@ -212,10 +213,10 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                         .password("naver_social_login")
                         .build();
             } else {
-                throw new CustomException(ErrorCode.INVALID_INPUT_VALUE);
+                throw new CustomException(ReturnCode.INVALID_INPUT_VALUE);
             }
         } catch (Exception e) {
-            throw new CustomException(ErrorCode.INVALID_INPUT_VALUE);
+            throw new CustomException(ReturnCode.INVALID_INPUT_VALUE);
         }
     }
 }

@@ -13,11 +13,14 @@ import com.ll.server.domain.member.entity.Member;
 import com.ll.server.domain.member.enums.MemberRole;
 import com.ll.server.domain.member.enums.Provider;
 import com.ll.server.domain.member.repository.MemberRepository;
-import com.ll.server.global.exception.CustomException;
-import com.ll.server.global.exception.ErrorCode;
+
+import com.ll.server.global.response.enums.ReturnCode;
+import com.ll.server.global.response.exception.CustomException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -26,7 +29,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 
-
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -41,7 +44,7 @@ public class AuthService {
     @Transactional
     public void signup(SignupRequest signupRequest) {
         if (memberRepository.existsByEmail(signupRequest.getEmail())) {
-            throw new CustomException(ErrorCode.DUPLICATED_EMAIL);
+            throw new CustomException(ReturnCode.DUPLICATED_EMAIL);
         }
 
         Member member = Member.builder()
@@ -60,13 +63,20 @@ public class AuthService {
         // 이때 authentication 는 인증 여부를 확인하는 authenticated 값이 false
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword());
 
+        log.info("login request: {}", loginRequest);
+
         // 2. 실제로 인증이 이루어지는 부분
         // authenticate() Method가 실행될 때 CustomUserDetailsService에서 만든 loadUserByUsername Method가 실행
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
 
+        log.info("authentication 인증 완료: {}", authentication);
+
         // 3. JWT 토큰 생성
         String accessToken = jwtTokenProvider.generateAccessToken(authentication);
         String refreshToken = jwtTokenProvider.generateRefreshToken(authentication);
+
+        log.info("refresh token: {}", refreshToken);
+        log.info("access token: {}", accessToken);
 
         // 4. RefreshToken Redis 저장
         RefreshToken refreshTokenEntity = RefreshToken.builder()
@@ -75,8 +85,12 @@ public class AuthService {
                 .build();
         refreshTokenRepository.save(refreshTokenEntity);
 
+        log.info("refresh token: {}", refreshToken);
+
         // 5. AccessToken, RefreshToken 쿠키에 저장
         jwtTokenProvider.setTokenInCookie(accessToken, refreshToken, response);
+
+        log.info("cookie 저장 완료");
 
         // 6. 토큰 정보가 담긴 DTO 객체 반환
         return new AuthResponse(accessToken, refreshToken);
@@ -88,12 +102,12 @@ public class AuthService {
         Authentication authentication = jwtTokenProvider.getAuthentication(refreshToken);
 
         if (!jwtTokenProvider.validateToken(refreshToken, authentication)) {
-            throw new CustomException(ErrorCode.INVALID_REFRESH_TOKEN);
+            throw new CustomException(ReturnCode.INVALID_REFRESH_TOKEN);
         }
 
         // 2.RefreshToken DB에서 RefreshToken 조회
         RefreshToken refreshTokenEntity = refreshTokenRepository.findByToken(refreshToken)
-                .orElseThrow(() -> new CustomException(ErrorCode.INVALID_REFRESH_TOKEN));
+                .orElseThrow(() -> new CustomException(ReturnCode.INVALID_REFRESH_TOKEN));
 
         // 3. Refresh Token Redis에서 삭제
         refreshTokenRepository.delete(refreshTokenEntity);

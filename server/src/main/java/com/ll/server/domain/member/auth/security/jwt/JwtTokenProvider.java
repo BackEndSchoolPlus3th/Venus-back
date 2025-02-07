@@ -41,13 +41,13 @@ public class JwtTokenProvider {
 
     public JwtTokenProvider(
             @Value("${jwt.secret}") String secret,
-            @Value("${jwt.access-token-validity-in-seconds}") Long accessTokenValidityInMilliseconds,
-            @Value("${jwt.refresh-token-validity-in-seconds}") Long refreshTokenValidityInMilliseconds,
+            @Value("${jwt.access-token-validity-in-seconds}") Long accessTokenValidityInSeconds,
+            @Value("${jwt.refresh-token-validity-in-seconds}") Long refreshTokenValidityInSeconds,
             UserDetailsService userDetailsService) {
         byte[] keyBytes = Decoders.BASE64.decode(secret);
         this.key = Keys.hmacShaKeyFor(keyBytes);
-        this.accessTokenValidityInMilliseconds = accessTokenValidityInMilliseconds * 1000;
-        this.refreshTokenValidityInMilliseconds = refreshTokenValidityInMilliseconds * 1000;
+        this.accessTokenValidityInMilliseconds = accessTokenValidityInSeconds * 1000;
+        this.refreshTokenValidityInMilliseconds = refreshTokenValidityInSeconds * 1000;
         this.userDetailsService = userDetailsService;
     }
 
