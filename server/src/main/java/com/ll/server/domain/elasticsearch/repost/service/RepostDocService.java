@@ -7,7 +7,6 @@ import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import com.ll.server.domain.elasticsearch.repost.doc.RepostDoc;
-import com.ll.server.domain.elasticsearch.repost.repository.RepostDocRepository;
 import com.ll.server.domain.repost.dto.RepostOnly;
 import com.ll.server.domain.repost.entity.Repost;
 import com.ll.server.domain.repost.repository.RepostRepository;
@@ -32,7 +31,6 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class RepostDocService {
-    private final RepostDocRepository repostDocRepository;
     private final RepostRepository repostRepository;
 
     @SneakyThrows

@@ -71,7 +71,7 @@ public class ApiV1NewsController {
             return ApiResponse.of(CustomPage.of(news));
         }
 
-        if(!hasContent || !hasTitle || !hasPublisher || category.isBlank()) hasTitle = true;
+        if(!keyword.isBlank()&&!hasContent && !hasTitle && !hasPublisher) hasTitle = true;
 
         //검색을 할 때
         Page<NewsOnly> news=newsDocService.search(keyword,hasTitle,hasContent,hasPublisher,category,pageable);
@@ -91,7 +91,7 @@ public class ApiV1NewsController {
         List<NewsOnly> newsList=null;
 
         //검색이 아니라 그냥 무지성으로 쭉쭉 내릴 때
-        if(keyword.isBlank()){
+        if(keyword.isBlank() && category.isBlank()){
             //최초 검색
             if(lastTime==null){
                 newsList=newsService.firstInfinityGetAll(size);
@@ -105,7 +105,7 @@ public class ApiV1NewsController {
         //검색을 할 때
 
         //만약 아무 조건 없이 검색하는 경우
-        if(!hasContent || !hasTitle || !hasPublisher || category.isBlank()) hasTitle = true;
+        if(!keyword.isBlank()&&!hasContent && !hasTitle && !hasPublisher) hasTitle = true;
 
         //최초 검색
         if(lastTime==null) {

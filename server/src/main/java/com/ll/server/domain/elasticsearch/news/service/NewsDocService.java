@@ -8,7 +8,6 @@ import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import com.ll.server.domain.elasticsearch.news.doc.NewsDoc;
-import com.ll.server.domain.elasticsearch.news.repository.NewsDocRepository;
 import com.ll.server.domain.news.news.dto.NewsOnly;
 import com.ll.server.domain.news.news.repository.NewsRepository;
 import com.ll.server.global.config.ElasticSearchClientConfig;
@@ -34,13 +33,13 @@ import java.util.stream.Collectors;
 @Transactional(readOnly=true)
 @Slf4j
 public class NewsDocService {
-    private final NewsDocRepository newsDocRepository;
     private final NewsRepository newsRepository;
 
     @SneakyThrows
     public Page<NewsOnly> search(String keyword, boolean hasTitle, boolean hasContent, boolean hasPublisher, String category, Pageable page){
         ElasticsearchClient client = new ElasticSearchClientConfig().createElasticsearchClient();
-        BoolQuery.Builder bqBuilder = createBoolQuery(keyword, hasTitle, hasContent, hasPublisher, category);
+
+        BoolQuery boolQuery = createBoolQuery(keyword, hasTitle, hasContent, hasPublisher, category);
         SearchResponse<NewsDoc> result= client.search(
                 SearchRequest.of(
                         s->s.index("news")
@@ -50,7 +49,7 @@ public class NewsDocService {
                                         SortOptions.of(so2->so2.field(f-> f.field("id").order(SortOrder.Desc)))
                                 )
                                 .query(
-                                        q->q.bool(bqBuilder.build())
+                                        q->q.bool(boolQuery)
                                 )
                 ),NewsDoc.class
         );
@@ -73,7 +72,8 @@ public class NewsDocService {
     @SneakyThrows
     public List<NewsOnly> firstInfinitySearch(String keyword, boolean hasTitle, boolean hasContent, boolean hasPublisher, String category, int size){
         ElasticsearchClient client = new ElasticSearchClientConfig().createElasticsearchClient();
-        BoolQuery.Builder bqBuilder = createBoolQuery(keyword, hasTitle, hasContent, hasPublisher, category);
+
+        BoolQuery boolQuery = createBoolQuery(keyword, hasTitle, hasContent, hasPublisher, category);
 
         SearchResponse<NewsDoc> result= client.search(
                 SearchRequest.of(
@@ -83,7 +83,7 @@ public class NewsDocService {
                                         , SortOptions.of(so2->so2.field(f-> f.field("id").order(SortOrder.Desc)))
                                 )
                                 .query(
-                                        q->q.bool(bqBuilder.build())
+                                        q->q.bool(boolQuery)
                                 )
                 ),NewsDoc.class
         );
@@ -94,8 +94,10 @@ public class NewsDocService {
                 .collect(Collectors.toList());
     }
 
-    private BoolQuery.Builder createBoolQuery(String keyword, boolean hasTitle, boolean hasContent, boolean hasPublisher, String category) {
+    private BoolQuery createBoolQuery(String keyword, boolean hasTitle, boolean hasContent, boolean hasPublisher, String category) {
         BoolQuery.Builder bqBuilder=new BoolQuery.Builder();
+
+        String realCategory=category.toUpperCase();
 
         bqBuilder.mustNot(mn->mn.exists(ex->ex.field("deleted_at")));
 
@@ -114,19 +116,22 @@ public class NewsDocService {
         }
 
         if(!category.isBlank()){
-            bqBuilder.must(s->s.match(m->m.field("category").query(category)));
+            bqBuilder.filter(f->f.term(t->t.field("category").value(realCategory)));
         }
 
         if(hasShould){
             bqBuilder.minimumShouldMatch("1");
         }
-        return bqBuilder;
+        BoolQuery result=bqBuilder.build();
+        log.info(result.toString());
+
+        return result;
     }
 
     @SneakyThrows
     public List<NewsOnly> afterInfinitySearch(String keyword, boolean hasTitle, boolean hasContent, boolean hasPublisher, String category, int size, LocalDateTime lastTime, long lastId){
         ElasticsearchClient client = new ElasticSearchClientConfig().createElasticsearchClient();
-        BoolQuery.Builder bqBuilder = createBoolQuery(keyword, hasTitle, hasContent, hasPublisher, category);
+        BoolQuery boolQuery = createBoolQuery(keyword, hasTitle, hasContent, hasPublisher, category);
 
         ZonedDateTime zonedDateTime = lastTime.atZone(ZoneId.of("UTC"));
 
@@ -141,7 +146,7 @@ public class NewsDocService {
                                 , SortOptions.of(so2->so2.field(f-> f.field("id").order(SortOrder.Desc)))
                         )
                         .query(
-                                q->q.bool(bqBuilder.build())
+                                q->q.bool(boolQuery)
                         )
                         .searchAfter(FieldValue.of(formattedDate),FieldValue.of(lastId))
         );
