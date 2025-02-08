@@ -21,8 +21,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -78,7 +81,7 @@ public class ApiV1RepostController {
             result=new RepostInfinityScrollResponse(repostService.afterGetAll(size,lastTime,lastId));
             return ApiResponse.of(result);
         }
-        
+
         //검색함
         if(lastTime==null || lastId==null){
             result=new RepostInfinityScrollResponse(repostDocService.firstInfinitySearch(size,keyword));
@@ -92,7 +95,7 @@ public class ApiV1RepostController {
     //repost 최초 상세 조회. 댓글에 페이지네이션을 적용 (전통적 페이지네이션)
     @GetMapping("/{repostId}")
     public ApiResponse<RepostPageDetail> getRepost(@PathVariable("repostId") Long id,
-                                            @RequestParam(value = "size",defaultValue = "20")int size) {
+                                                   @RequestParam(value = "size",defaultValue = "20")int size) {
         int page=0;
         PageLimitSizeValidator.validateSize(page,size, MyConstant.PAGELIMITATION);
         Pageable pageable=PageRequest.of(page,size,Sort.by("createDate","id").ascending());
@@ -102,7 +105,7 @@ public class ApiV1RepostController {
         RepostPageDetail repostDetail = new RepostPageDetail(repost, CustomPage.of(comments));
         return ApiResponse.of(repostDetail);
     }
-    
+
 
     //repost 최초 상세 조회. 댓글에 페이지네이션 적용 (커서 페이지네이션)
     @GetMapping("/{repostId}/infinityTest")
@@ -122,13 +125,16 @@ public class ApiV1RepostController {
         return ApiResponse.of(ReturnCode.SUCCESS);
     }
 
-    @PostMapping
-    public ApiResponse<RepostDTO> write(@RequestBody RepostWriteRequest request) {
-        return ApiResponse.of(repostService.save(request));
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public RepostDTO write(
+            @RequestPart("request") RepostWriteRequest request, // JSON 데이터
+            @RequestPart(value = "imageFile", required = false) MultipartFile imageFile // 이미지 파일 (선택 사항)
+    ) throws IOException {
+        return repostService.save(request, imageFile);
     }
 
     //comment 영역
-    
+
     //상세 조회 이후 댓글의 페이지네이션. (typical)
     @GetMapping("/{repostId}/comments")
     public ApiResponse<?> getPageComment(@PathVariable("repostId") Long postId,

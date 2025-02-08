@@ -37,7 +37,8 @@ dependencies {
 	runtimeOnly("com.h2database:h2")
 	runtimeOnly("com.mysql:mysql-connector-j")
 	annotationProcessor("org.projectlombok:lombok")
-	testImplementation("org.springframework.boot:spring-boot-starter-test")
+//	testImplementation("org.springframework.boot:spring-boot-starter-test")
+	implementation("org.springframework.boot:spring-boot-starter-test")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
 	implementation("org.springframework.boot:spring-boot-starter-security") // spring security
@@ -53,6 +54,11 @@ dependencies {
 	//swagger
 	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0")
 
+	//implementation("org.springframework.boot:spring-boot-starter-data-elasticsearch")
+
+	// aws s3
+	implementation(platform("software.amazon.awssdk:bom:2.24.0"))
+	implementation("software.amazon.awssdk:s3")
 	implementation("org.springframework.boot:spring-boot-starter-data-elasticsearch")
 
 	// 로그백

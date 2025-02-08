@@ -35,22 +35,23 @@ import java.util.stream.Collectors;
 public class DataLoader implements CommandLineRunner {
     private final NewsRepository newsRepository;
     private final NewsService newsService;
+    private final NewsFetchService newsFetchService;
     private final MemberService memberService;
     private final ApiV1FollowController followController;
     private final ApiV1RepostController repostController;
     private final RepostRepository repostRepository;
+    private final MemberRepository memberRepository;
+    private final CommentRepository commentRepository;
+    private final RepostService repostService;
 //    private final RepostDocRepository repostDocRepository;
 //    private final NewsDocRepository newsDocRepository;
-
-    private final MemberRepository memberRepository;
-
-    private final NewsFetchService newsFetchService;
-    private final RepostService repostService;
-    private final CommentRepository commentRepository;
 
     @Override
     @Transactional
     public void run(String... args) throws Exception {
+
+//        repostDocRepository.deleteAll();
+//        newsDocRepository.deleteAll();
         Faker faker=new Faker(Locale.KOREA);
 
         NewsResponse newsResponse=null;
@@ -61,7 +62,7 @@ public class DataLoader implements CommandLineRunner {
         };
 
 
-       if(memberRepository.findByEmail("1@example.com").isEmpty()){
+        if(memberRepository.findByEmail("1@example.com").isEmpty()){
             MemberRequest signupRequest=MemberRequest.builder()
                     .email("1@example.com")
                     .nickname("user1")
@@ -92,7 +93,7 @@ public class DataLoader implements CommandLineRunner {
                             .writerId(member.getId())
                             .pinned(true)
                             .build();
-                    repostController.write(repostRequest);
+                    repostController.write(repostRequest,null);
                     continue;
                 }
 
@@ -103,7 +104,7 @@ public class DataLoader implements CommandLineRunner {
                         .writerId(member.getId())
                         .pinned(false)
                         .build();
-                repostController.write(repostRequest);
+                repostController.write(repostRequest, null);
             }
         }
 
@@ -119,6 +120,7 @@ public class DataLoader implements CommandLineRunner {
             }
         }
 
+
         /*
 
         MemberRequest publisherSignup=MemberRequest.builder()
@@ -126,7 +128,6 @@ public class DataLoader implements CommandLineRunner {
                 .nickname("Test Publisher")
                 .password("1234")
                 .role(MemberRole.PUBLISHER)
-                .provider(Provider.LOCAL)
                 .providerId("1234")
                 .build();
         Member publisherUser=memberService.join(publisherSignup);
@@ -138,7 +139,6 @@ public class DataLoader implements CommandLineRunner {
                     .nickname("user"+(i+1))
                     .password("1234")
                     .role(MemberRole.USER)
-                    .provider(Provider.LOCAL)
                     .providerId("1234")
                     .build();
             users.add(memberService.join(signupRequest));
@@ -192,7 +192,19 @@ public class DataLoader implements CommandLineRunner {
                 .newsId(news.getId())
                 .writerId(user1.getId())
                 .build();
-        RepostDTO repostDTO1=repostController.write(repostRequest1).getData();
+        // ✅ test_img_1.jpg 로드 (클래스패스에서 읽기)
+        InputStream inputStream = getClass().getClassLoader().getResourceAsStream("static/test_img_1.jpg");
+        if (inputStream == null) {
+            throw new FileNotFoundException("File not found in classpath: static/test_img_1.jpg");
+        }
+        // InputStream을 바이트 배열로 변환
+        byte[] imageBytes1 = inputStream.readAllBytes();
+
+        // MockMultipartFile로 변환
+        MultipartFile imageFile1 = new MockMultipartFile("file", "test_img_1.jpg", "image/jpeg", imageBytes1);
+
+        // 📤 저장
+        RepostDTO repostDTO1 = repostController.write(repostRequest1, imageFile1);
         //user1이 작성한 글이므로 user2/3에게 알림이 가고, 멘션을 2와 3에게 했으므로 알림이 감. 알림 8개째.
 
         RepostWriteRequest repostRequest2=RepostWriteRequest.builder()
@@ -201,15 +213,38 @@ public class DataLoader implements CommandLineRunner {
                 .writerId(user2.getId())
                 .build();
 
-        RepostDTO repostDTO2= repostController.write(repostRequest2).getData();
+        // ✅ test_img_2.jpg 로드 (클래스패스에서 읽기)
+        InputStream inputStream2 = getClass().getClassLoader().getResourceAsStream("static/test_img_2.jpg");
+        if (inputStream2 == null) {
+            throw new FileNotFoundException("File not found in classpath: static/test_img_2.jpg");
+        }
+        // InputStream을 바이트 배열로 변환
+        byte[] imageBytes2 = inputStream2.readAllBytes();
+
+        // MockMultipartFile로 변환
+        MultipartFile imageFile2 = new MockMultipartFile("file", "test_img_2.jpg", "image/jpeg", imageBytes2);
+
+        // 📤 저장
+        RepostDTO repostDTO2 = repostController.write(repostRequest2, imageFile2);
 
         RepostWriteRequest repostRequest3=RepostWriteRequest.builder()
                 .content("대부분의 경우 Elasticsearch + DB 하이브리드 접근 방식이 효율적입니다.")
                 .newsId(news.getId())
                 .writerId(user3.getId())
                 .build();
+        // ✅ test_img_3.jpg 로드 (클래스패스에서 읽기)
+        InputStream inputStream3 = getClass().getClassLoader().getResourceAsStream("static/test_img_3.png");
+        if (inputStream3 == null) {
+            throw new FileNotFoundException("File not found in classpath: static/test_img_3.png");
+        }
+        // InputStream을 바이트 배열로 변환
+        byte[] imageBytes3 = inputStream3.readAllBytes();
 
-        RepostDTO repostDTO3=repostController.write(repostRequest3).getData();
+        // MockMultipartFile로 변환
+        MultipartFile imageFile3 = new MockMultipartFile("file", "test_img_3.png", "image/png", imageBytes3);
+
+        // 📤 저장
+        RepostDTO repostDTO3 = repostController.write(repostRequest3, imageFile3);
 
         for(int i=0;i<3;i++){
             CommentWriteRequest commentWriteRequest=
