@@ -1,12 +1,11 @@
 package com.ll.server.global.aws.s3;
 
+import jakarta.annotation.PreDestroy;
 import org.springframework.stereotype.Component;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
 import software.amazon.awssdk.services.s3.model.S3Object;
-
-import javax.annotation.PreDestroy;
 
 @Component
 public class S3Cleaner {
