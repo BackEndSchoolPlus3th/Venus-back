@@ -20,8 +20,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -67,9 +70,12 @@ public class ApiV1RepostController {
         return ApiResponse.of(ReturnCode.SUCCESS);
     }
 
-    @PostMapping
-    public ApiResponse<RepostDTO> write(@RequestBody RepostWriteRequest request) {
-        return ApiResponse.of(repostService.save(request));
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public RepostDTO write(
+            @RequestPart("request") RepostWriteRequest request, // JSON 데이터
+            @RequestPart(value = "imageFile", required = false) MultipartFile imageFile // 이미지 파일 (선택 사항)
+    ) throws IOException {
+        return repostService.save(request, imageFile);
     }
 
     //comment 영역
