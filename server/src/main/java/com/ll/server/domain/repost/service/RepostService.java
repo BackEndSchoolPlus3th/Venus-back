@@ -15,6 +15,7 @@ import com.ll.server.domain.repost.dto.RepostDTO;
 import com.ll.server.domain.repost.dto.RepostWriteRequest;
 import com.ll.server.domain.repost.entity.Repost;
 import com.ll.server.domain.repost.repository.RepostRepository;
+import com.ll.server.global.aws.s3.S3Service;
 import com.ll.server.global.response.enums.ReturnCode;
 import com.ll.server.global.response.exception.CustomRequestException;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +24,9 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -36,21 +39,29 @@ public class RepostService {
     private final CommentRepository commentRepository;
     private final MemberService memberService;
     private final NewsService newsService;
+    private final S3Service s3Service;
 
     @Transactional
     @Notify
-    public RepostDTO save(RepostWriteRequest request) {
+    public RepostDTO save(RepostWriteRequest request, MultipartFile imageFile) throws IOException {
         Member user = memberService.getMemberById(request.getWriterId());
 
         News news = newsService.getNews(request.getNewsId());
 
         List<Member> metionedMemberList = memberService.getMembersByNickName(request.getMentionedNames());
+
+        // ✅ S3 업로드 로직 추가
+        String imageUrl = null;
+        if (imageFile != null && !imageFile.isEmpty()) {
+            imageUrl = s3Service.uploadFile(imageFile, "repost-images");
+        }
+
         Repost repost =
                 Repost.builder()
                         .member(user)
                         .news(news)
                         .content(request.getContent())
-                        .imageUrl(request.getImageUrl())
+                        .imageUrl(imageUrl)
                         .build();
 
         repostRepository.save(repost);
