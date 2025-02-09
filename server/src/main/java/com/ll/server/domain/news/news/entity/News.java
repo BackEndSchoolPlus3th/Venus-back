@@ -51,6 +51,7 @@ public class News extends BaseEntity {
 
     public void delete() {
         this.deletedAt = LocalDateTime.now();
+        setModifyDate(LocalDateTime.now());
         removeReposts();
     }
 }

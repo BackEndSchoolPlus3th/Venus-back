@@ -1,5 +1,7 @@
 package com.ll.server.domain.news.news.service;
 
+import com.ll.server.domain.elasticsearch.news.service.NewsDocService;
+import com.ll.server.domain.elasticsearch.repost.service.RepostDocService;
 import com.ll.server.domain.news.news.dto.NewsDTO;
 import com.ll.server.domain.news.news.dto.NewsOnly;
 import com.ll.server.domain.news.news.dto.NewsUpdateRequest;
@@ -26,6 +28,8 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class NewsService {
     private final NewsRepository newsRepository;
+    private final NewsDocService newsDocService;
+    private final RepostDocService repostDocService;
 
     public Page<NewsDTO> getAll(Pageable pageable) {
 
@@ -87,6 +91,7 @@ public class NewsService {
 
         news.setContent(request.getContent());
         news.setTitle(request.getTitle());
+        news.setModifyDate(LocalDateTime.now());
         return new NewsDTO(news);
     }
 
@@ -99,6 +104,7 @@ public class NewsService {
 
         news.removeReposts();
         news.setDeletedAt(LocalDateTime.now());
+        news.setModifyDate(LocalDateTime.now());
 
         return "삭제 성공";
 

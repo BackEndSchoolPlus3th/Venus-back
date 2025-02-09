@@ -106,8 +106,10 @@ public class Repost extends BaseEntity {
     public void deleteComments() {
         comments.forEach(comment ->
                 {
-                    if (comment.getDeletedAt() == null)
+                    if (comment.getDeletedAt() == null) {
                         comment.setDeletedAt(LocalDateTime.now());
+                        comment.setModifyDate(LocalDateTime.now());
+                    }
                 }
         );
     }
@@ -116,12 +118,15 @@ public class Repost extends BaseEntity {
         likes.forEach(like ->
                 {
                     like.setDeleted(true);
+                    like.setModifyDate(LocalDateTime.now());
                 }
         );
     }
 
     public void delete() {
         this.deletedAt = LocalDateTime.now();
+        setModifyDate(LocalDateTime.now());
+        this.pinned = false;
         deleteLikes();
         deleteComments();
     }

@@ -161,4 +161,8 @@ public class NewsDocService {
                 .collect(Collectors.toList());
     }
 
+    public void deleteNewsDoc(Long newsId){
+
+    }
+
 }

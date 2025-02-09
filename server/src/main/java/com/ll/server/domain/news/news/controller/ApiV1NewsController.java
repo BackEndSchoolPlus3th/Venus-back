@@ -108,7 +108,7 @@ public class ApiV1NewsController {
         if(!keyword.isBlank()&&!hasContent && !hasTitle && !hasPublisher) hasTitle = true;
 
         //최초 검색
-        if(lastTime==null) {
+        if(lastTime==null || lastId == null) {
             //그냥 검색만 하면 제목 기준으로 검색하도록
             newsList=newsDocService.firstInfinitySearch(keyword, hasTitle, hasContent, hasPublisher, category,size);
             return ApiResponse.of(new NewsInfinityScrollResponse(newsList));
@@ -156,9 +156,7 @@ public class ApiV1NewsController {
 
     @DeleteMapping("/{id}")
     public ApiResponse<String> deleteNews(@PathVariable Long id) {
-        News news = newsService.getNews(id);
-        news.removeReposts();
-        news.delete();
+        newsService.deleteNews(id);
 
         return ApiResponse.of(ReturnCode.SUCCESS);
     }

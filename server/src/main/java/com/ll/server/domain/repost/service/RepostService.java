@@ -4,13 +4,12 @@ import com.ll.server.domain.comment.dto.CommentDTO;
 import com.ll.server.domain.comment.dto.CommentWriteRequest;
 import com.ll.server.domain.comment.entity.Comment;
 import com.ll.server.domain.comment.repository.CommentRepository;
+import com.ll.server.domain.elasticsearch.repost.service.RepostDocService;
 import com.ll.server.domain.like.dto.LikeDTO;
 import com.ll.server.domain.like.entity.Like;
 import com.ll.server.domain.member.entity.Member;
-import com.ll.server.domain.member.repository.MemberRepository;
 import com.ll.server.domain.member.service.MemberService;
 import com.ll.server.domain.news.news.entity.News;
-import com.ll.server.domain.news.news.repository.NewsRepository;
 import com.ll.server.domain.news.news.service.NewsService;
 import com.ll.server.domain.notification.Notify;
 import com.ll.server.domain.repost.dto.RepostDTO;
@@ -41,12 +40,11 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class RepostService {
     private final RepostRepository repostRepository;
-    private final MemberRepository memberRepository;
-    private final NewsRepository newsRepository;
     private final CommentRepository commentRepository;
     private final MemberService memberService;
     private final NewsService newsService;
     private final S3Service s3Service;
+    private final RepostDocService repostDocService;
 
     @Transactional
     @Notify
@@ -157,6 +155,7 @@ public class RepostService {
     @Transactional
     public void deleteRepost(Long postId){
         Repost repost = getRepost(postId);
+
         repost.delete();
 
     }
@@ -261,12 +260,16 @@ public class RepostService {
         //아무것도 찾지 못한 경우나 이미 지워진 경우
         if(pinned==null || pinned.getDeletedAt()!=null){
             repost.setPinned(true);
+            repost.setModifyDate(LocalDateTime.now());
             return;
         }
 
         //뭔가 있는 경우 대체
         pinned.setPinned(false);
         repost.setPinned(true);
+
+        pinned.setModifyDate(LocalDateTime.now());
+        repost.setModifyDate(LocalDateTime.now());
     }
 
     @Transactional
@@ -274,6 +277,7 @@ public class RepostService {
         Repost repost=getRepost(repostId);
 
         repost.setPinned(false);
+        repost.setModifyDate(LocalDateTime.now());
     }
 
     public Page<RepostUnderNews> getNewsRepost(Long newsId, Pageable pageable){

@@ -6,3 +6,9 @@
 
 - pipeline.id: log_pipeline
   path.config: "/usr/share/logstash/pipeline/logpipeline.conf"
+
+- pipeline.id: news_update_pipeline
+  path.config: "/usr/share/logstash/pipeline/newsupdatepipeline.conf"
+
+- pipeline.id: repost_update_pipeline
+  path.config: "/usr/share/logstash/pipeline/repostupdatepipeline.conf"
