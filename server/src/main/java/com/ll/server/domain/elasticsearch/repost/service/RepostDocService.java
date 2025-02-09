@@ -2,12 +2,10 @@ package com.ll.server.domain.elasticsearch.repost.service;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.FieldValue;
-import co.elastic.clients.elasticsearch._types.Refresh;
 import co.elastic.clients.elasticsearch._types.SortOptions;
 import co.elastic.clients.elasticsearch._types.SortOrder;
 import co.elastic.clients.elasticsearch.core.SearchRequest;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
-import co.elastic.clients.elasticsearch.core.UpdateRequest;
 import com.ll.server.domain.elasticsearch.repost.doc.RepostDoc;
 import com.ll.server.domain.repost.dto.RepostOnly;
 import com.ll.server.domain.repost.entity.Repost;
@@ -138,16 +136,6 @@ public class RepostDocService {
                 .map(RepostOnly::new)
                 .collect(Collectors.toList());
 
-    }
-
-    public void deleteRepost(Long repostId){
-        ElasticsearchClient client=new ElasticSearchClientConfig().createElasticsearchClient();
-
-        UpdateRequest request=UpdateRequest.of(
-                ud->ud.refresh(Refresh.True)
-                        .doc(repostId)
-                        .index("repost")
-        );
     }
 
 }
