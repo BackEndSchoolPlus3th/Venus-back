@@ -150,7 +150,4 @@ public class RepostDocService {
         );
     }
 
-    public void deleteReposts(List<Long> ids){
-
-    }
 }
