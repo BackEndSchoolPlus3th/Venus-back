@@ -11,13 +11,13 @@ import java.util.List;
 
 public interface CommentRepository extends JpaRepository<Comment,Long> {
 
-    List<Comment> findCommentsByMember_Id(Long userId);
+    List<Comment> findCommentsByMember_IdAndDeletedAtIsNull(Long userId);
 
-    Page<Comment> findCommentsByRepost_Id(Long repostId, Pageable pageable);
+    Page<Comment> findCommentsByRepost_IdAndDeletedAtIsNull(Long repostId, Pageable pageable);
 
-    List<Comment> findCommentsByRepost_Id(Long repostId);
+    List<Comment> findCommentsByRepost_IdAndDeletedAtIsNull(Long repostId);
 
-    List<Comment> findCommentsByRepost_IdOrderByCreateDateAscIdAsc(Long repostId, Limit limit);
+    List<Comment> findCommentsByRepost_IdAndDeletedAtIsNullOrderByCreateDateAscIdAsc(Long repostId, Limit limit);
 
-    List<Comment> findCommentsByRepost_IdAndIdGreaterThanAndCreateDateAfterOrderByCreateDateAscIdAsc(Long postId, Long lastCommentId, LocalDateTime lastTime, Limit limit);
+    List<Comment> findCommentsByRepost_IdAndIdGreaterThanAndCreateDateAfterAndDeletedAtIsNullOrderByCreateDateAscIdAsc(Long postId, Long lastCommentId, LocalDateTime lastTime, Limit limit);
 }

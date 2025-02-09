@@ -60,9 +60,9 @@ public class RepostDocService {
         List<Long> ids=response.hits().hits().stream().map(hit-> Objects.requireNonNull(hit.source()).getId()).toList();
         long totalElements= response.hits().hits().size();
 
-        List<Repost> realResult=repostRepository.findAllByIdInOrderByCreateDateDescIdDesc(ids);
+        List<Repost> realResult=repostRepository.findAllByIdInAndDeletedAtIsNullOrderByCreateDateDescIdDesc(ids);
         return new PageImpl<>(
-                realResult.stream().filter(repost -> repost.getDeletedAt()==null)
+                realResult.stream()
                 .map(RepostOnly::new)
                         .collect(Collectors.toList()),
                 pageable,
@@ -96,8 +96,8 @@ public class RepostDocService {
 
         List<Long> ids=response.hits().hits().stream().map(hit-> Objects.requireNonNull(hit.source()).getId()).toList();
 
-        return repostRepository.findAllByIdInOrderByCreateDateDescIdDesc(ids)
-                .stream().filter(repost -> repost.getDeletedAt()==null)
+        return repostRepository.findAllByIdInAndDeletedAtIsNullOrderByCreateDateDescIdDesc(ids)
+                .stream()
                 .map(RepostOnly::new)
                 .collect(Collectors.toList());
     }
@@ -131,8 +131,8 @@ public class RepostDocService {
 
         List<Long> ids=response.hits().hits().stream().map(hit-> Objects.requireNonNull(hit.source()).getId()).toList();
 
-        return repostRepository.findAllByIdInOrderByCreateDateDescIdDesc(ids)
-                .stream().filter(repost -> repost.getDeletedAt()==null)
+        return repostRepository.findAllByIdInAndDeletedAtIsNullOrderByCreateDateDescIdDesc(ids)
+                .stream()
                 .map(RepostOnly::new)
                 .collect(Collectors.toList());
 

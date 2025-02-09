@@ -147,23 +147,23 @@ public class MemberService {
         MemberDto memberDto=new MemberDto(member);
 
         RepostOnlyResponse repostWritten=new RepostOnlyResponse(
-                repostRepository.findRepostsByMember_Id(memberId)
-                        .stream().filter(repost -> repost.getDeletedAt()==null)
+                repostRepository.findRepostsByMember_IdAndDeletedAtIsNull(memberId)
+                        .stream()
                         .map(RepostOnly::new)
                         .collect(Collectors.toList())
         );
 
         RepostOnlyResponse repostLiked=new RepostOnlyResponse(
-                likeRepository.findLikesByMember_Id(memberId)
-                        .stream().filter(like -> like.getRepost().getDeletedAt()==null)
+                likeRepository.findLikesByMember_IdAndDeletedIsFalse(memberId)
+                        .stream()
                         .map(like -> new RepostOnly(like.getRepost()))
                         .collect(Collectors.toList())
         );
 
 
         CommentResponse commentWritten=new CommentResponse(
-            commentRepository.findCommentsByMember_Id(memberId)
-                    .stream().filter(comment -> comment.getDeletedAt()==null)
+            commentRepository.findCommentsByMember_IdAndDeletedAtIsNull(memberId)
+                    .stream()
                     .map(CommentDTO::new)
                     .collect(Collectors.toList())
         );
@@ -178,8 +178,8 @@ public class MemberService {
 
         if(member.getRole().equals(MemberRole.PUBLISHER)){
             NewsOnlyResponse newsWritten= new NewsOnlyResponse(
-                            newsRepository.findNewsByPublisher(member.getNickname())
-                                    .stream().filter(news->news.getDeletedAt()==null)
+                            newsRepository.findNewsByPublisherAndDeletedAtIsNull(member.getNickname())
+                                    .stream()
                                     .map(NewsOnly::new)
                                     .collect(Collectors.toList())
                     );

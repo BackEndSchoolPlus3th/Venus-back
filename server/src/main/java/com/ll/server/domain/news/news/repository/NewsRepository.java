@@ -12,11 +12,16 @@ import java.util.List;
 
 @Repository
 public interface NewsRepository extends JpaRepository<News, Long> {
-    List<News> findNewsByPublisher(String publisher);
 
-    Page<News> findAllByOrderByPublishedAtDescIdDesc(Pageable pageable);
+    //퍼블리셔 이름으로 삭제 안 된 기사를 찾음
+    List<News> findNewsByPublisherAndDeletedAtIsNull(String publisher);
 
-    List<News> findAllByOrderByPublishedAtDescIdDesc(Limit limit);
+    //삭제 안된 기사를 페이지 단위로 찾는다. 정렬 기준은 최신 기사순, 최신 아이디순
+    Page<News> findAllByDeletedAtIsNullOrderByPublishedAtDescIdDesc(Pageable pageable);
 
-    List<News> findAllByPublishedAtBeforeOrderByPublishedAtDescIdDesc(LocalDateTime lastTime, Limit limit);
+    //삭제 안된 기사를 몇 개 가져온다. 정렬 기준은 최신 기사순, 낮은 아이디순. 왜냐면 기사 출판일과 아이디는 관련이 없기 때문
+    List<News> findAllByDeletedAtIsNullOrderByPublishedAtDescIdDesc(Limit limit);
+
+    //삭제 안된 기사를 lastTime 기준으로 몇 개 가져온다. 정렬 기준은 최신 기사순, 낮은 아이디순. 왜냐면 기사 출판일과 아이디는 관련이 없기 때문
+    List<News> findAllByPublishedAtIsBeforeAndDeletedAtIsNullOrderByPublishedAtDescIdDesc(LocalDateTime lastTime, Limit limit);
 }

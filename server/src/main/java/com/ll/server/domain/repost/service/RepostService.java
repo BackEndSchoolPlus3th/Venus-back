@@ -83,9 +83,8 @@ public class RepostService {
     }
 
     public List<RepostDTO> findByUserNickname(String nickname) {
-        return repostRepository.findRepostsByMember_Nickname(nickname)
+        return repostRepository.findRepostsByMember_NicknameAndDeletedAtIsNull(nickname)
                 .stream()
-                .filter(repost -> repost.getDeletedAt() == null)
                 .map(RepostDTO::new)
                 .collect(Collectors.toList());
     }
@@ -104,13 +103,13 @@ public class RepostService {
     }
 
     public List<RepostOnly> firstGetAll(int size){
-        return repostRepository.findAllByOrderByCreateDateDescIdDesc(Limit.of(size))
+        return repostRepository.findAllByDeletedAtIsNullOrderByCreateDateDescIdDesc(Limit.of(size))
                 .stream().filter(repost -> repost.getDeletedAt()==null)
                 .map(RepostOnly::new).collect(Collectors.toList());
     }
 
     public List<RepostOnly> afterGetAll(int size,LocalDateTime lastTime, Long lastId){
-        return repostRepository.findAllByCreateDateBeforeAndIdLessThanOrderByCreateDateDescIdDesc(lastTime,lastId,Limit.of(size))
+        return repostRepository.findAllByDeletedAtIsNullAndCreateDateBeforeAndIdLessThanOrderByCreateDateDescIdDesc(lastTime,lastId,Limit.of(size))
                 .stream().filter(repost -> repost.getDeletedAt()==null)
                 .map(RepostOnly::new).collect(Collectors.toList());
     }
@@ -118,7 +117,7 @@ public class RepostService {
     public Page<CommentDTO> getCommentPage(Long postId,Pageable pageable){
         Repost repost=getRepost(postId);
 
-        Page<Comment> comments = commentRepository.findCommentsByRepost_Id(postId,pageable);
+        Page<Comment> comments = commentRepository.findCommentsByRepost_IdAndDeletedAtIsNull(postId,pageable);
 
         return new PageImpl<>(
                 comments.getContent().stream().filter(comment -> comment.getDeletedAt()==null)
@@ -131,7 +130,7 @@ public class RepostService {
     public List<CommentDTO> firstGetComment(Long postId, int size) {
         Repost repost = getRepost(postId);
 
-        return commentRepository.findCommentsByRepost_IdOrderByCreateDateAscIdAsc(postId,Limit.of(size))
+        return commentRepository.findCommentsByRepost_IdAndDeletedAtIsNullOrderByCreateDateAscIdAsc(postId,Limit.of(size))
                 .stream().filter(comment -> comment.getDeletedAt()==null)
                 .map(CommentDTO::new).collect(Collectors.toList());
     }
@@ -139,7 +138,7 @@ public class RepostService {
     public List<CommentDTO> afterGetComment(Long postId, int size,LocalDateTime lastTime ,long lastId){
         Repost repost = getRepost(postId);
 
-        return commentRepository.findCommentsByRepost_IdAndIdGreaterThanAndCreateDateAfterOrderByCreateDateAscIdAsc(postId,lastId,lastTime,Limit.of(size))
+        return commentRepository.findCommentsByRepost_IdAndIdGreaterThanAndCreateDateAfterAndDeletedAtIsNullOrderByCreateDateAscIdAsc(postId,lastId,lastTime,Limit.of(size))
                 .stream().filter(comment -> comment.getDeletedAt()==null)
                 .map(CommentDTO::new).collect(Collectors.toList());
     }
@@ -147,7 +146,7 @@ public class RepostService {
     public List<CommentDTO> getAllComment(Long postId) {
         Repost repost = getRepost(postId);
 
-        return commentRepository.findCommentsByRepost_Id(postId)
+        return commentRepository.findCommentsByRepost_IdAndDeletedAtIsNull(postId)
                 .stream().filter(comment -> comment.getDeletedAt()==null)
                 .map(CommentDTO::new).collect(Collectors.toList());
     }
@@ -256,9 +255,9 @@ public class RepostService {
         Repost repost=getRepost(repostId);
         News news=repost.getNews();
 
-        Repost pinned=repostRepository.findRepostByNewsIdAndPinnedTrue(news.getId());
+        Repost pinned=repostRepository.findRepostByNewsIdAndPinnedIsTrueAndDeletedAtIsNull(news.getId());
         //아무것도 찾지 못한 경우나 이미 지워진 경우
-        if(pinned==null || pinned.getDeletedAt()!=null){
+        if(pinned==null){
             repost.setPinned(true);
             repost.setModifyDate(LocalDateTime.now());
             return;

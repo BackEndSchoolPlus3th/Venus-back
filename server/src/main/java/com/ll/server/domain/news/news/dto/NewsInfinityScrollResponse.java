@@ -8,18 +8,18 @@ import java.util.List;
 @Getter
 public class NewsInfinityScrollResponse {
     List<NewsOnly> newsList;
-    long lastId;
     LocalDateTime lastTime;
+    long lastId;
 
     public NewsInfinityScrollResponse(List<NewsOnly> newsList){
         if(newsList==null || newsList.isEmpty()){
             this.newsList=null;
-            lastId=-1;
             lastTime=null;
+            lastId=-1;
         }else{
             this.newsList=newsList;
-            lastId=newsList.getLast().getId();
             lastTime=newsList.getLast().getPublishedAt();
+            lastId=newsList.getLast().getId();
         }
     }
 

@@ -129,7 +129,7 @@ public class NewsDocService {
     }
 
     @SneakyThrows
-    public List<NewsOnly> afterInfinitySearch(String keyword, boolean hasTitle, boolean hasContent, boolean hasPublisher, String category, int size, LocalDateTime lastTime, long lastId){
+    public List<NewsOnly> afterInfinitySearch(String keyword, boolean hasTitle, boolean hasContent, boolean hasPublisher, String category, int size, LocalDateTime lastTime,Long lastId){
         ElasticsearchClient client = new ElasticSearchClientConfig().createElasticsearchClient();
         BoolQuery boolQuery = createBoolQuery(keyword, hasTitle, hasContent, hasPublisher, category);
 
@@ -151,6 +151,7 @@ public class NewsDocService {
                         .searchAfter(FieldValue.of(formattedDate),FieldValue.of(lastId))
         );
 
+        log.info(sq.toString());
         SearchResponse<NewsDoc> result= client.search(
             sq,NewsDoc.class
         );

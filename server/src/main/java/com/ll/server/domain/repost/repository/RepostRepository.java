@@ -14,12 +14,16 @@ import java.util.List;
 
 @Repository
 public interface RepostRepository extends JpaRepository<Repost, Long> {
-    List<Repost> findRepostsByMember_Nickname(String nickname);
-    List<Repost> findRepostsByMember_Id(Long memberId);
+
+    //멤버의 닉네임을 기반으로 repost 검색
+    List<Repost> findRepostsByMember_NicknameAndDeletedAtIsNull(String nickname);
+
+    //멤버의 ID를 기반으로 repost 검색
+    List<Repost> findRepostsByMember_IdAndDeletedAtIsNull(Long memberId);
 
     @Query("""
             SELECT r FROM Repost r\s
-            WHERE r.news.id = :newsId
+            WHERE r.news.id = :newsId AND r.news.deletedAt IS NULL
             ORDER BY\s
             r.pinned DESC,\s
             r.createDate DESC,\s
@@ -30,7 +34,7 @@ public interface RepostRepository extends JpaRepository<Repost, Long> {
 
     @Query("""
             SELECT r FROM Repost r\s
-            WHERE r.news.id = :newsId AND r.createDate < :lastTime AND r.id < :lastId AND r.pinned = false
+            WHERE r.news.id = :newsId AND r.createDate < :lastTime AND r.id < :lastId AND r.pinned = false AND r.news.deletedAt IS NULL
             ORDER BY\s
             r.createDate DESC,\s
             r.id DESC
@@ -43,7 +47,7 @@ public interface RepostRepository extends JpaRepository<Repost, Long> {
 
     @Query("""
             SELECT r FROM Repost r\s
-            WHERE r.news.id = :newsId
+            WHERE r.news.id = :newsId AND r.news.deletedAt IS NULL\s
             ORDER BY\s
             r.pinned DESC ,\s
             r.createDate DESC,\s
@@ -52,12 +56,12 @@ public interface RepostRepository extends JpaRepository<Repost, Long> {
     Page<Repost> getNewsReposts(@Param("newsId") Long newsId, Pageable pageable);
 
 
-    List<Repost> findAllByOrderByCreateDateDescIdDesc(Limit limit);
+    List<Repost> findAllByDeletedAtIsNullOrderByCreateDateDescIdDesc(Limit limit);
 
-    List<Repost> findAllByCreateDateBeforeAndIdLessThanOrderByCreateDateDescIdDesc(LocalDateTime lastTime,Long lastId, Limit limit);
+    List<Repost> findAllByDeletedAtIsNullAndCreateDateBeforeAndIdLessThanOrderByCreateDateDescIdDesc(LocalDateTime lastTime,Long lastId, Limit limit);
 
-    List<Repost> findAllByIdInOrderByCreateDateDescIdDesc(List<Long> ids);
+    List<Repost> findAllByIdInAndDeletedAtIsNullOrderByCreateDateDescIdDesc(List<Long> ids);
 
-    Repost findRepostByNewsIdAndPinnedTrue(Long newsId);
+    Repost findRepostByNewsIdAndPinnedIsTrueAndDeletedAtIsNull(Long newsId);
 
 }

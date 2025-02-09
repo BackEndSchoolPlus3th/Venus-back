@@ -33,10 +33,9 @@ public class NewsService {
 
     public Page<NewsDTO> getAll(Pageable pageable) {
 
-        Page<News> result = newsRepository.findAllByOrderByPublishedAtDescIdDesc(pageable);
+        Page<News> result = newsRepository.findAllByDeletedAtIsNullOrderByPublishedAtDescIdDesc(pageable);
         return new PageImpl<>(
                 result.getContent().stream()
-                        .filter(news -> news.getDeletedAt() == null)
                         .map(NewsDTO::new)
                         .collect(Collectors.toList())
                 , result.getPageable()
@@ -45,15 +44,15 @@ public class NewsService {
     }
 
     public List<NewsOnly> firstInfinityGetAll(int size){
-        List<News> result=newsRepository.findAllByOrderByPublishedAtDescIdDesc(Limit.of(size));
-        return result.stream().filter(news->news.getDeletedAt()==null)
+        List<News> result=newsRepository.findAllByDeletedAtIsNullOrderByPublishedAtDescIdDesc(Limit.of(size));
+        return result.stream()
                 .map(NewsOnly::new)
                 .collect(Collectors.toList());
     }
 
     public List<NewsOnly> afterInfinityGetAll(int size, LocalDateTime lastTime){
-        List<News> result=newsRepository.findAllByPublishedAtBeforeOrderByPublishedAtDescIdDesc(lastTime,Limit.of(size));
-        return result.stream().filter(news->news.getDeletedAt()==null)
+        List<News> result=newsRepository.findAllByPublishedAtIsBeforeAndDeletedAtIsNullOrderByPublishedAtDescIdDesc(lastTime, Limit.of(size));
+        return result.stream()
                 .map(NewsOnly::new)
                 .collect(Collectors.toList());
     }
@@ -118,8 +117,7 @@ public class NewsService {
     }
 
     public List<NewsDTO> getByPublisher(String publisher) {
-        return newsRepository.findNewsByPublisher(publisher).stream()
-                .filter(news -> news.getDeletedAt() == null)
+        return newsRepository.findNewsByPublisherAndDeletedAtIsNull(publisher).stream()
                 .map(NewsDTO::new).collect(Collectors.toList());
     }
 

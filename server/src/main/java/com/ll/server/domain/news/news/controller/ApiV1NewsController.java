@@ -85,14 +85,14 @@ public class ApiV1NewsController {
                                          @RequestParam(value="publisher",defaultValue="false") boolean hasPublisher,
                                          @RequestParam(value="category",defaultValue = "") String category,
                                          @RequestParam(value="lastTime",required = false) LocalDateTime lastTime,
-                                         @RequestParam(value ="lastId",required = false) Long lastId,
+                                         @RequestParam(value="lastId",required = false) Long lastId,
                                          @RequestParam(value="size",defaultValue = "20") int size){
 
         List<NewsOnly> newsList=null;
 
         //검색이 아니라 그냥 무지성으로 쭉쭉 내릴 때
         if(keyword.isBlank() && category.isBlank()){
-            //최초 검색
+            //최초 전체 조회
             if(lastTime==null){
                 newsList=newsService.firstInfinityGetAll(size);
                 return ApiResponse.of(new NewsInfinityScrollResponse(newsList));
@@ -108,7 +108,7 @@ public class ApiV1NewsController {
         if(!keyword.isBlank()&&!hasContent && !hasTitle && !hasPublisher) hasTitle = true;
 
         //최초 검색
-        if(lastTime==null || lastId == null) {
+        if(lastTime==null || lastId==null) {
             //그냥 검색만 하면 제목 기준으로 검색하도록
             newsList=newsDocService.firstInfinitySearch(keyword, hasTitle, hasContent, hasPublisher, category,size);
             return ApiResponse.of(new NewsInfinityScrollResponse(newsList));
