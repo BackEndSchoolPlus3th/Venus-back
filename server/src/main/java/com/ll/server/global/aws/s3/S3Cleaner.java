@@ -12,7 +12,7 @@ import javax.annotation.PreDestroy;
 public class S3Cleaner {
 
     private final S3Client s3Client;
-    private final String bucketName = "dev-bucket-yoon2000-1";  // 여기에 실제 버킷 이름을 넣어주세요.
+    private final String bucketName = "dev-bucket-yoon20000201-1";  // 여기에 실제 버킷 이름을 넣어주세요.
 
     public S3Cleaner(S3Client s3Client) {
         this.s3Client = s3Client;
