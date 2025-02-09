@@ -3,10 +3,8 @@ package com.ll.server.global.jpa;
 import com.ll.server.domain.comment.dto.CommentWriteRequest;
 import com.ll.server.domain.comment.repository.CommentRepository;
 import com.ll.server.domain.follow.controller.ApiV1FollowController;
-import com.ll.server.domain.member.dto.MemberRequest;
+import com.ll.server.domain.member.auth.dto.SignupRequestDto;
 import com.ll.server.domain.member.entity.Member;
-import com.ll.server.domain.member.enums.MemberRole;
-import com.ll.server.domain.member.enums.Provider;
 import com.ll.server.domain.member.repository.MemberRepository;
 import com.ll.server.domain.member.service.MemberService;
 import com.ll.server.domain.news.news.dto.NewsDTO;
@@ -36,14 +34,14 @@ import java.util.stream.Collectors;
 public class DataLoader implements CommandLineRunner {
     private final NewsRepository newsRepository;
     private final NewsService newsService;
-    private final NewsFetchService newsFetchService;
     private final MemberService memberService;
     private final ApiV1FollowController followController;
     private final ApiV1RepostController repostController;
     private final RepostRepository repostRepository;
+    private final NewsFetchService newsFetchService;
     private final MemberRepository memberRepository;
-    private final CommentRepository commentRepository;
     private final RepostService repostService;
+    private final CommentRepository commentRepository;
 //    private final RepostDocRepository repostDocRepository;
 //    private final NewsDocRepository newsDocRepository;
 
@@ -53,6 +51,7 @@ public class DataLoader implements CommandLineRunner {
 
 //        repostDocRepository.deleteAll();
 //        newsDocRepository.deleteAll();
+
         Faker faker=new Faker(Locale.KOREA);
 
         NewsResponse newsResponse=null;
@@ -63,16 +62,13 @@ public class DataLoader implements CommandLineRunner {
         };
 
 
-        if(memberRepository.findByEmail("1@example.com").isEmpty()){
-            MemberRequest signupRequest=MemberRequest.builder()
+        if(memberRepository.findMemberByEmail("1@example.com").isEmpty()){
+            SignupRequestDto signupRequest= SignupRequestDto.builder()
                     .email("1@example.com")
                     .nickname("user1")
                     .password("1234")
-                    .role(MemberRole.USER)
-                    .provider(Provider.LOCAL)
-                    .providerId("1234")
                     .build();
-            memberService.join(signupRequest);
+            memberService.signup(signupRequest);
         }
 
 
@@ -83,7 +79,7 @@ public class DataLoader implements CommandLineRunner {
                 newsResponse=new NewsResponse(newsDTO);
                 targetId = newsDTO.get(0).getId();
             }
-            Member member=memberService.getMemberByEmail("1@example.com");
+            Member member=memberRepository.findMemberByEmail("1@example.com").get();
             for(int i=0;i<newsResponse.getCount()/2;i++) {
 
                 if(i<5){
@@ -110,7 +106,7 @@ public class DataLoader implements CommandLineRunner {
 
         if(commentRepository.findAll().isEmpty()){
             Repost repost = repostRepository.findAll().getFirst();
-            Member member=memberService.getMemberByEmail("1@example.com");
+            Member member=memberRepository.findMemberByEmail("1@example.com").get();
             for(int i=0;i<100;i++){
                 CommentWriteRequest req = CommentWriteRequest.builder()
                         .content(faker.famousLastWords().lastWords())
@@ -122,7 +118,6 @@ public class DataLoader implements CommandLineRunner {
 
 
         /*
-
         MemberRequest publisherSignup=MemberRequest.builder()
                 .email("publisher@example.com")
                 .nickname("Test Publisher")
@@ -138,7 +133,7 @@ public class DataLoader implements CommandLineRunner {
                     .email((i+1)+"@example.com")
                     .nickname("user"+(i+1))
                     .password("1234")
-                    .role(MemberRole.USER)
+                    .role(MemberRole.MEMBER)
                     .providerId("1234")
                     .build();
             users.add(memberService.join(signupRequest));
@@ -284,8 +279,6 @@ public class DataLoader implements CommandLineRunner {
         repostController.markLike(repostDTO3.getRepostId(),user1.getId());
         //23개
 
-
          */
-
     }
 }
