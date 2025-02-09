@@ -15,6 +15,7 @@ import com.ll.server.domain.news.news.repository.NewsRepository;
 import com.ll.server.domain.news.news.service.NewsFetchService;
 import com.ll.server.domain.news.news.service.NewsService;
 import com.ll.server.domain.repost.controller.ApiV1RepostController;
+import com.ll.server.domain.repost.dto.RepostDTO;
 import com.ll.server.domain.repost.dto.RepostWriteRequest;
 import com.ll.server.domain.repost.entity.Repost;
 import com.ll.server.domain.repost.repository.RepostRepository;
@@ -87,13 +88,13 @@ public class DataLoader implements CommandLineRunner {
 
                 if(i<5){
                     RepostWriteRequest repostRequest = RepostWriteRequest.builder()
-                            .content(String.join("\n", faker.lorem().sentences(3)))
+                            .content(String.join("\r\n", faker.lorem().sentences(3)))
                             .mentions(member.getNickname() + "," + member.getNickname())
                             .newsId(targetId)
                             .writerId(member.getId())
-                            .pinned(true)
                             .build();
-                    repostController.write(repostRequest,null);
+                    RepostDTO repostDTO = repostService.save(repostRequest,null);
+                    repostService.putPin(repostDTO.getRepostId());
                     continue;
                 }
 
@@ -102,7 +103,6 @@ public class DataLoader implements CommandLineRunner {
                         .mentions(member.getNickname() + "," + member.getNickname())
                         .newsId(targetId)
                         .writerId(member.getId())
-                        .pinned(false)
                         .build();
                 repostController.write(repostRequest, null);
             }

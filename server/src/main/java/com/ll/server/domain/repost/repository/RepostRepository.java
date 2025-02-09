@@ -21,7 +21,7 @@ public interface RepostRepository extends JpaRepository<Repost, Long> {
             SELECT r FROM Repost r\s
             WHERE r.news.id = :newsId
             ORDER BY\s
-            CASE WHEN r.pinned = true THEN 0 ELSE 1 END,\s
+            r.pinned DESC,\s
             r.createDate DESC,\s
             r.id DESC\s
             """)
@@ -45,7 +45,7 @@ public interface RepostRepository extends JpaRepository<Repost, Long> {
             SELECT r FROM Repost r\s
             WHERE r.news.id = :newsId
             ORDER BY\s
-            CASE WHEN r.pinned = true THEN 0 ELSE 1 END,\s
+            r.pinned DESC ,\s
             r.createDate DESC,\s
             r.id DESC
             """)
@@ -57,5 +57,7 @@ public interface RepostRepository extends JpaRepository<Repost, Long> {
     List<Repost> findAllByCreateDateBeforeAndIdLessThanOrderByCreateDateDescIdDesc(LocalDateTime lastTime,Long lastId, Limit limit);
 
     List<Repost> findAllByIdInOrderByCreateDateDescIdDesc(List<Long> ids);
+
+    Repost findRepostByNewsIdAndPinnedTrue(Long newsId);
 
 }

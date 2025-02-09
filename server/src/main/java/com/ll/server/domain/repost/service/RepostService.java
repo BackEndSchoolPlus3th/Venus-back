@@ -69,7 +69,6 @@ public class RepostService {
                         .news(news)
                         .content(request.getContent())
                         .imageUrl(imageUrl)
-                        .pinned(request.isPinned())
                         .build();
 
         repostRepository.save(repost);
@@ -256,7 +255,17 @@ public class RepostService {
     @Transactional
     public void putPin(Long repostId){
         Repost repost=getRepost(repostId);
+        News news=repost.getNews();
 
+        Repost pinned=repostRepository.findRepostByNewsIdAndPinnedTrue(news.getId());
+        //아무것도 찾지 못한 경우나 이미 지워진 경우
+        if(pinned==null || pinned.getDeletedAt()!=null){
+            repost.setPinned(true);
+            return;
+        }
+
+        //뭔가 있는 경우 대체
+        pinned.setPinned(false);
         repost.setPinned(true);
     }
 
