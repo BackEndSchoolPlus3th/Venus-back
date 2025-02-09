@@ -1,18 +1,18 @@
 package com.ll.server.domain.member.dto;
 
 import com.ll.server.domain.member.entity.Member;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class MemberDto {
-    private String nickname;
     private String email;
-    private String providerId;
-
-    public MemberDto(Member member) {
-        this.nickname = member.getNickname();
-        this.email = member.getEmail();
-        this.providerId = member.getProviderId();
-
-    }
+    private String nickname;
+    private String profileUrl;
+    private String role;
 }
