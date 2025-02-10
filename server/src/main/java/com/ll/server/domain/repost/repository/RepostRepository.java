@@ -21,9 +21,11 @@ public interface RepostRepository extends JpaRepository<Repost, Long> {
     //멤버의 ID를 기반으로 repost 검색
     List<Repost> findRepostsByMember_IdAndDeletedAtIsNull(Long memberId);
 
+    Page<Repost> findAllByDeletedAtIsNull(Pageable pageable);
+
     @Query("""
             SELECT r FROM Repost r\s
-            WHERE r.news.id = :newsId AND r.news.deletedAt IS NULL
+            WHERE r.news.id = :newsId AND r.news.deletedAt IS NULL AND r.deletedAt IS NULL\s
             ORDER BY\s
             r.pinned DESC,\s
             r.createDate DESC,\s
@@ -34,7 +36,7 @@ public interface RepostRepository extends JpaRepository<Repost, Long> {
 
     @Query("""
             SELECT r FROM Repost r\s
-            WHERE r.news.id = :newsId AND r.createDate < :lastTime AND r.id < :lastId AND r.pinned = false AND r.news.deletedAt IS NULL
+            WHERE r.news.id = :newsId AND r.createDate < :lastTime AND r.id < :lastId AND r.pinned = false AND r.news.deletedAt IS NULL AND r.deletedAt IS NULL\s
             ORDER BY\s
             r.createDate DESC,\s
             r.id DESC
@@ -47,7 +49,7 @@ public interface RepostRepository extends JpaRepository<Repost, Long> {
 
     @Query("""
             SELECT r FROM Repost r\s
-            WHERE r.news.id = :newsId AND r.news.deletedAt IS NULL\s
+            WHERE r.news.id = :newsId AND r.news.deletedAt IS NULL AND r.deletedAt IS NULL\s
             ORDER BY\s
             r.pinned DESC ,\s
             r.createDate DESC,\s

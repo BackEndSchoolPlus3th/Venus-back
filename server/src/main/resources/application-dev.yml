@@ -15,7 +15,7 @@ spring:
 #    console:
 #      enabled: true
   datasource:
-    url: jdbc:mysql://localhost:3306/venus_prac
+    url: jdbc:mysql://mysql.tmdgjsdl1.site:3306/venus_prac
     username: root
     password: 1234
     driver-class-name: com.mysql.cj.jdbc.Driver

@@ -130,7 +130,7 @@ public class ApiV1NewsController {
         Pageable pageable = PageRequest.of(page, size);
 
         News news = newsService.getNews(newsId);
-        CustomPage<RepostUnderNews> repostPage = CustomPage.of(repostService.getNewsRepost(newsId,pageable));
+        CustomPage<RepostUnderNews> repostPage = CustomPage.of(repostService.getNewsRepostCursorPagination(newsId,pageable));
         NewsPageDetail newsPageDetail = new NewsPageDetail(news,repostPage);
 
         return ApiResponse.of(newsPageDetail);

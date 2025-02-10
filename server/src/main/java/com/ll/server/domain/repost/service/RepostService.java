@@ -90,11 +90,10 @@ public class RepostService {
     }
 
     public Page<RepostOnly> findAll(Pageable pageable){
-        Page<Repost> result= repostRepository.findAll(pageable);
+        Page<Repost> result= repostRepository.findAllByDeletedAtIsNull(pageable);
 
         return new PageImpl<>(
             result.getContent().stream()
-                    .filter(repost -> repost.getDeletedAt()==null)
                     .map(RepostOnly::new)
                     .collect(Collectors.toList()),
             result.getPageable(),
@@ -104,13 +103,13 @@ public class RepostService {
 
     public List<RepostOnly> firstGetAll(int size){
         return repostRepository.findAllByDeletedAtIsNullOrderByCreateDateDescIdDesc(Limit.of(size))
-                .stream().filter(repost -> repost.getDeletedAt()==null)
+                .stream()
                 .map(RepostOnly::new).collect(Collectors.toList());
     }
 
     public List<RepostOnly> afterGetAll(int size,LocalDateTime lastTime, Long lastId){
         return repostRepository.findAllByDeletedAtIsNullAndCreateDateBeforeAndIdLessThanOrderByCreateDateDescIdDesc(lastTime,lastId,Limit.of(size))
-                .stream().filter(repost -> repost.getDeletedAt()==null)
+                .stream()
                 .map(RepostOnly::new).collect(Collectors.toList());
     }
 
@@ -120,7 +119,7 @@ public class RepostService {
         Page<Comment> comments = commentRepository.findCommentsByRepost_IdAndDeletedAtIsNull(postId,pageable);
 
         return new PageImpl<>(
-                comments.getContent().stream().filter(comment -> comment.getDeletedAt()==null)
+                comments.getContent().stream()
                         .map(CommentDTO::new).collect(Collectors.toList()),
                 comments.getPageable(),
                 comments.getTotalElements()
@@ -131,7 +130,7 @@ public class RepostService {
         Repost repost = getRepost(postId);
 
         return commentRepository.findCommentsByRepost_IdAndDeletedAtIsNullOrderByCreateDateAscIdAsc(postId,Limit.of(size))
-                .stream().filter(comment -> comment.getDeletedAt()==null)
+                .stream()
                 .map(CommentDTO::new).collect(Collectors.toList());
     }
 
@@ -139,7 +138,7 @@ public class RepostService {
         Repost repost = getRepost(postId);
 
         return commentRepository.findCommentsByRepost_IdAndIdGreaterThanAndCreateDateAfterAndDeletedAtIsNullOrderByCreateDateAscIdAsc(postId,lastId,lastTime,Limit.of(size))
-                .stream().filter(comment -> comment.getDeletedAt()==null)
+                .stream()
                 .map(CommentDTO::new).collect(Collectors.toList());
     }
 
@@ -147,7 +146,7 @@ public class RepostService {
         Repost repost = getRepost(postId);
 
         return commentRepository.findCommentsByRepost_IdAndDeletedAtIsNull(postId)
-                .stream().filter(comment -> comment.getDeletedAt()==null)
+                .stream()
                 .map(CommentDTO::new).collect(Collectors.toList());
     }
 
@@ -279,10 +278,10 @@ public class RepostService {
         repost.setModifyDate(LocalDateTime.now());
     }
 
-    public Page<RepostUnderNews> getNewsRepost(Long newsId, Pageable pageable){
+    public Page<RepostUnderNews> getNewsRepostCursorPagination(Long newsId, Pageable pageable){
         Page<Repost> reposts=repostRepository.getNewsReposts(newsId,pageable);
         return new PageImpl<>(
-                reposts.getContent().stream().filter(repost -> repost.getDeletedAt()==null)
+                reposts.getContent().stream()
                         .map(RepostUnderNews::new)
                         .collect(Collectors.toList()),
                 reposts.getPageable(),
@@ -292,26 +291,15 @@ public class RepostService {
 
     public List<RepostUnderNews> firstGetNewsRepost(Long newsId, int size){
         List<Repost> reposts = repostRepository.firstGetNewsReposts(newsId, Limit.of(size));
-        return reposts.stream().filter(repost -> repost.getDeletedAt()==null)
+        return reposts.stream()
                 .map(RepostUnderNews::new)
                 .collect(Collectors.toList());
     }
 
     public List<RepostUnderNews> afterGetNewsRepost(Long newsId, int size, LocalDateTime lastTime, Long lastId){
         List<Repost> reposts = repostRepository.afterGetNewsReposts(newsId, lastTime, lastId,Limit.of(size));
-        return reposts.stream().filter(repost -> repost.getDeletedAt()==null)
+        return reposts.stream()
                 .map(RepostUnderNews::new)
                 .collect(Collectors.toList());
-    }
-
-    public Page<RepostUnderNews> getNewsRepostAfter(Long newsId, Pageable pageable) {
-        Page<Repost> reposts=repostRepository.getNewsReposts(newsId,pageable);
-        return new PageImpl<>(
-                reposts.getContent().stream().filter(repost -> repost.getDeletedAt()==null)
-                        .map(RepostUnderNews::new)
-                        .collect(Collectors.toList()),
-                reposts.getPageable(),
-                reposts.getTotalElements()
-        );
     }
 }

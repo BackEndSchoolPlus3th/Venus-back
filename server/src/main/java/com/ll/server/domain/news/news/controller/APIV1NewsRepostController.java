@@ -31,7 +31,7 @@ public class APIV1NewsRepostController {
         PageLimitSizeValidator.validateSize(page, size, MyConstant.PAGELIMITATION);
         Pageable pageable = PageRequest.of(page, size);
 
-        CustomPage<RepostUnderNews> repostPage=CustomPage.of(repostService.getNewsRepostAfter(newsId,pageable));
+        CustomPage<RepostUnderNews> repostPage=CustomPage.of(repostService.getNewsRepostCursorPagination(newsId,pageable));
 
         return ApiResponse.of(repostPage);
     }
