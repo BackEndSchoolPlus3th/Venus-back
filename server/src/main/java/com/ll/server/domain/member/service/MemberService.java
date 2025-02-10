@@ -3,6 +3,7 @@ package com.ll.server.domain.member.service;
 import com.ll.server.domain.member.auth.dto.SignupRequestDto;
 import com.ll.server.domain.member.enums.MemberRole;
 import com.ll.server.domain.member.entity.Member;
+import com.ll.server.domain.member.enums.MemberRole;
 import com.ll.server.domain.member.enums.Provider;
 import com.ll.server.domain.member.repository.MemberRepository;
 import com.ll.server.global.response.enums.ReturnCode;
@@ -13,7 +14,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
+import java.util.List;
 
 @Slf4j(topic = "MemberService")
 @Service
@@ -37,7 +38,9 @@ public class MemberService {
                 .provider(Provider.LOCAL)
                 .build();
 
-        return memberRepository.save(member);
+        memberRepository.save(member);
+
+        return member;
     }
 
     public Member findByEmail (String email) {
@@ -46,10 +49,11 @@ public class MemberService {
     }
 
     public Member getMemberById(Long writerId) {
-        return memberRepository.findById(writerId).orElseThrow(() -> new CustomRequestException(ReturnCode.NOT_FOUND_ENTITY));
+        return memberRepository.findById(writerId)
+                .orElseThrow(() -> new CustomRequestException(ReturnCode.NOT_FOUND_ENTITY));
     }
 
     public List<Member> getMembersByNickName(List<String> mentionedNames) {
-        return memberRepository.findMembersByNicknameIn(mentionedNames);
+        return memberRepository.findAllByNicknameIn(mentionedNames);
     }
 }

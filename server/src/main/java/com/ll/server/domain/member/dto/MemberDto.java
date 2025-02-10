@@ -16,10 +16,10 @@ public class MemberDto {
     private String profileUrl;
     private String role;
 
-    public MemberDto(Member follower) {
-        this.email = follower.getEmail();
-        this.nickname = follower.getNickname();
-        this.profileUrl = follower.getProfileUrl();
-        this.role = String.valueOf(follower.getRole());
+    public MemberDto(Member followee) {
+        this.email = followee.getEmail();
+        this.nickname = followee.getNickname();
+        this.profileUrl = followee.getProfileUrl();
+        this.role = followee.getRole().name();
     }
 }

@@ -4,7 +4,6 @@ import com.ll.server.domain.comment.dto.CommentWriteRequest;
 import com.ll.server.domain.follow.controller.ApiV1FollowController;
 import com.ll.server.domain.follow.dto.FollowRequest;
 import com.ll.server.domain.member.auth.dto.SignupRequestDto;
-import com.ll.server.domain.member.enums.MemberRole;
 import com.ll.server.domain.member.entity.Member;
 import com.ll.server.domain.member.service.MemberService;
 import com.ll.server.domain.news.news.entity.News;
@@ -46,26 +45,33 @@ public class DataLoader implements CommandLineRunner {
 //        repostDocRepository.deleteAll();
 //        newsDocRepository.deleteAll();
 
+        SignupRequestDto publisherSignup=SignupRequestDto.builder()
+                .email("publisher@example.com")
+                .nickname("Test Publisher")
+                .password("1234")
+                .build();
+        Member publisherUser=memberService.signup(publisherSignup);
+
         List<Member> users=new ArrayList<>();
         for(int i=0;i<3;i++){
-            SignupRequestDto signupRequestDto = new SignupRequestDto();
-            signupRequestDto.setEmail("publisher"+(i)+"@example.com");
-            signupRequestDto.setPassword("1234");
-            signupRequestDto.setNickname("user"+ (i+1));
-
-            users.add(memberService.signup(signupRequestDto));
+            SignupRequestDto signupRequest=SignupRequestDto.builder()
+                    .email((i+1)+"@example.com")
+                    .nickname("user"+(i+1))
+                    .password("1234")
+                    .build();
+            users.add(memberService.signup(signupRequest));
         }
 
         Member user1=users.getFirst();
         Member user2=users.get(1);
         Member user3=users.get(2);
 
-//        FollowRequest followPublisher= FollowRequest.builder()
-//                .followerId(publisherUser.getId())
-//                .followeeId(user1.getId())
-//                .build();
-//        followController.follow(followPublisher);
-//        //user1이 테스트 언론사를 구독. 알림 1개째
+        FollowRequest followPublisher= FollowRequest.builder()
+                .followerId(publisherUser.getId())
+                .followeeId(user1.getId())
+                .build();
+        followController.follow(followPublisher);
+        //user1이 테스트 언론사를 구독. 알림 1개째
 
         FollowRequest followRequest1= FollowRequest.builder()
                 .followerId(user1.getId())
