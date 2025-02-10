@@ -54,6 +54,7 @@ public class ApiV1MemberController {
 
         //  2. SecurityContextHolder에 인증 정보 저장
         SecurityContextHolder.getContext().setAuthentication(authentication);
+//        System.out.println(authentication.getPrincipal());
 
         // 3. JWT 토큰 생성 및 쿠키 저장
         Member member = memberService.getMember(memberLogin.getEmail());
