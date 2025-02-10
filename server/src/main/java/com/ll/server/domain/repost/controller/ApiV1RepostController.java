@@ -127,7 +127,7 @@ public class ApiV1RepostController {
 
 
     // 작성
-    @PreAuthorize("isAuthenticated()")
+
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/{repostId}/comments")
     public CommentDTO addComment(@PathVariable("repostId") Long postId,
