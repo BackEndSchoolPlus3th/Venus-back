@@ -12,6 +12,7 @@ import com.ll.server.domain.repost.service.RepostService;
 import com.ll.server.global.response.enums.ReturnCode;
 import com.ll.server.global.response.response.ApiResponse;
 import com.ll.server.global.response.response.CustomPage;
+import com.ll.server.global.security.util.AuthUtil;
 import com.ll.server.global.utils.MyConstant;
 import com.ll.server.global.validation.PageLimitSizeValidator;
 import lombok.Data;
@@ -120,9 +121,9 @@ public class ApiV1RepostController {
 
     @DeleteMapping("/{repostId}")
     public ApiResponse<String> deletePost(@PathVariable("repostId") Long id) {
-        repostService.deleteRepost(id);
+        ReturnCode returnCode=repostService.deleteRepost(id);
 
-        return ApiResponse.of(ReturnCode.SUCCESS);
+        return ApiResponse.of(returnCode);
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -161,8 +162,8 @@ public class ApiV1RepostController {
     @DeleteMapping("/{repostId}/comments/{commentId}")
     public ApiResponse<String> deleteComment(@PathVariable("repostId") Long postId,
                                              @PathVariable("commentId") Long commentId) {
-        repostService.deleteComment(postId, commentId);
-        return ApiResponse.of(ReturnCode.SUCCESS);
+        ReturnCode returnCode = repostService.deleteComment(postId, commentId);
+        return ApiResponse.of(returnCode);
     }
 
     @PatchMapping("/{repostId}/comments/{commentId}")
@@ -185,18 +186,16 @@ public class ApiV1RepostController {
         return ApiResponse.of(new LikeResponse(likes));
     }
 
-    @DeleteMapping("/{repostId}/likes/{userId}")
-    public ApiResponse<String> deleteLike(@PathVariable("repostId") Long repostId,
-                                          @PathVariable("userId") Long userId) {
+    @DeleteMapping("/{repostId}/likes")
+    public ApiResponse<String> deleteLike(@PathVariable("repostId") Long repostId) {
 
-        repostService.deleteLike(repostId, userId);
-        return ApiResponse.of(ReturnCode.SUCCESS);
+        ReturnCode returnCode=repostService.deleteLike(repostId, AuthUtil.getCurrentMemberId());
+        return ApiResponse.of(returnCode);
     }
 
-    @PostMapping("/{repostId}/likes/{userId}")
-    public ApiResponse<LikeDTO> markLike(@PathVariable("repostId") Long repostId,
-                                         @PathVariable("userId") Long userId) {
-        return ApiResponse.of(repostService.markLike(repostId, userId));
+    @PostMapping("/{repostId}/likes")
+    public ApiResponse<LikeDTO> markLike(@PathVariable("repostId") Long repostId) {
+        return ApiResponse.of(repostService.markLike(repostId, AuthUtil.getCurrentMemberId()));
     }
 
 

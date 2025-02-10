@@ -156,9 +156,9 @@ public class ApiV1NewsController {
 
     @DeleteMapping("/{id}")
     public ApiResponse<String> deleteNews(@PathVariable Long id) {
-        newsService.deleteNews(id);
+        ReturnCode returnCode=newsService.deleteNews(id);
 
-        return ApiResponse.of(ReturnCode.SUCCESS);
+        return ApiResponse.of(returnCode);
     }
 
 }

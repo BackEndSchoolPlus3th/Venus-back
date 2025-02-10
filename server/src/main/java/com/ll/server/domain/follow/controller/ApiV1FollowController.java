@@ -5,6 +5,7 @@ import com.ll.server.domain.follow.dto.FollowRequest;
 import com.ll.server.domain.follow.service.FollowService;
 import com.ll.server.global.response.response.ApiResponse;
 import com.ll.server.global.response.response.CustomPage;
+import com.ll.server.global.security.util.AuthUtil;
 import com.ll.server.global.utils.MyConstant;
 import com.ll.server.global.validation.PageLimitSizeValidator;
 import lombok.Data;
@@ -28,21 +29,25 @@ public class ApiV1FollowController {
 
     @PostMapping
     public ApiResponse<FollowDTO> follow(@RequestBody FollowRequest request){
-        return ApiResponse.of(followService.save(request.getFollowerId(),request.getFolloweeId()));
+        return ApiResponse.of(followService.save(request.getFollowerId(), AuthUtil.getCurrentMemberId()));
     }
 
     @GetMapping("/followers")
-    public ApiResponse<?> followerList(@RequestParam("nickname") String nickname, @RequestBody FollowPageRequest request){
-        PageLimitSizeValidator.validateSize(request.getPage(),request.getLimit(), MyConstant.PAGELIMITATION);
-        Pageable pageable= PageRequest.of(request.getPage(),request.getLimit());
+    public ApiResponse<?> followerList(@RequestParam("nickname") String nickname,
+                                       @RequestParam(value = "page",defaultValue = "0")int page,
+                                       @RequestParam(value = "size",defaultValue = "20")int size){
+        PageLimitSizeValidator.validateSize(page,size, MyConstant.PAGELIMITATION);
+        Pageable pageable= PageRequest.of(page,size);
         Page<FollowDTO> result= followService.findFollowers(nickname,pageable);
         return ApiResponse.of(CustomPage.of(result));
     }
 
     @GetMapping("/followees")
-    public ApiResponse<?> followeeList(@RequestParam("nickname") String nickname, @RequestBody FollowPageRequest request){
-        PageLimitSizeValidator.validateSize(request.getPage(),request.getLimit(), MyConstant.PAGELIMITATION);
-        Pageable pageable= PageRequest.of(request.getPage(),request.getLimit());
+    public ApiResponse<?> followeeList(@RequestParam("nickname") String nickname,
+                                       @RequestParam(value = "page",defaultValue = "0")int page,
+                                       @RequestParam(value = "size",defaultValue = "20")int size){
+        PageLimitSizeValidator.validateSize(page,size, MyConstant.PAGELIMITATION);
+        Pageable pageable= PageRequest.of(page,size);
         Page<FollowDTO> result= followService.findFollowees(nickname,pageable);
         return ApiResponse.of(CustomPage.of(result));
     }

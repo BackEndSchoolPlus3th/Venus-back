@@ -31,8 +31,8 @@ public class FollowService {
         Member follower=memberRepository.findById(followerId).get();
         Member followee=memberRepository.findById(followeeId).get();
 
-        Follow mockFollow= followRepository.findByFollower_IdAndFollowee_Id(followerId,followeeId);
-        if(mockFollow!=null) return null;
+        Follow find= followRepository.findByFollower_IdAndFollowee_Id(followerId,followeeId);
+        if(find!=null) return null;
 
         Follow follow= Follow.builder()
                 .follower(follower)

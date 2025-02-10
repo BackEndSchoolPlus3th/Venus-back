@@ -63,6 +63,8 @@ public class SecurityConfig {
                 .successHandler(oAuth2SuccessHandler)
                 .authorizationEndpoint(auth->auth.baseUri("/oauth2/authorization")) // 이 URL을 통해 OAuth2 제공자에 연결
                         .redirectionEndpoint(red->red.baseUri("/oauth2/callback/kakao"))// 콜백 URL을 여기에 설정
+//                        .redirectionEndpoint(red -> red
+//                            .baseUri("/oauth2/callback/naver"))
         );
 
         http    // JWT Filter 추가

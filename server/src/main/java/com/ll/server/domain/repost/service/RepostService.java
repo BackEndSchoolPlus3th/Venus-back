@@ -21,6 +21,7 @@ import com.ll.server.domain.repost.repository.RepostRepository;
 import com.ll.server.global.aws.s3.S3Service;
 import com.ll.server.global.response.enums.ReturnCode;
 import com.ll.server.global.response.exception.CustomRequestException;
+import com.ll.server.global.security.util.AuthUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Limit;
 import org.springframework.data.domain.Page;
@@ -33,6 +34,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -49,7 +51,7 @@ public class RepostService {
     @Transactional
     @Notify
     public RepostDTO save(RepostWriteRequest request, MultipartFile imageFile) throws IOException {
-        Member user = memberService.getMemberById(request.getWriterId());
+        Member user = memberService.getMemberById(AuthUtil.getCurrentMemberId());
 
         News news = newsService.getNews(request.getNewsId());
 
@@ -117,7 +119,7 @@ public class RepostService {
         Repost repost=getRepost(postId);
 
         Page<Comment> comments = commentRepository.findCommentsByRepost_IdAndDeletedAtIsNull(postId,pageable);
-
+        System.out.println("추울력:"+comments.getContent());
         return new PageImpl<>(
                 comments.getContent().stream()
                         .map(CommentDTO::new).collect(Collectors.toList()),
@@ -151,20 +153,31 @@ public class RepostService {
     }
 
     @Transactional
-    public void deleteRepost(Long postId){
+    public ReturnCode deleteRepost(Long postId){
         Repost repost = getRepost(postId);
 
+        Long currentMemberId=AuthUtil.getCurrentMemberId();
+        Long targetMemberId=repost.getMember().getId();
+        if(!targetMemberId.equals(currentMemberId)) return ReturnCode.NOT_AUTHORIZED;
+
         repost.delete();
+        return ReturnCode.SUCCESS;
 
     }
 
     @Transactional
-    public void deleteComment(Long postId, Long commentId) {
+    public ReturnCode deleteComment(Long postId, Long commentId) {
         Repost repost = getRepost(postId);
 
         Comment target = getComment(commentId, repost);
 
+        Long currentMemberId=AuthUtil.getCurrentMemberId();
+        Long targetMemberId=target.getMember().getId();
+        if(!targetMemberId.equals(currentMemberId)) return ReturnCode.NOT_AUTHORIZED;
+
         target.delete();
+
+        return ReturnCode.SUCCESS;
     }
 
     @Transactional
@@ -172,6 +185,10 @@ public class RepostService {
         Repost repost = getRepost(postId);
 
         Comment target = getComment(commentId, repost);
+
+        Long currentMemberId=AuthUtil.getCurrentMemberId();
+        Long targetMemberId=target.getMember().getId();
+        if(!targetMemberId.equals(currentMemberId)) return null;
 
         target.setContent(content);
         target.setModifyDate(LocalDateTime.now());
@@ -182,7 +199,9 @@ public class RepostService {
     private Comment getComment(Long commentId, Repost repost) {
         Comment getComment = repost.getComments().stream()
                 .filter(comment -> comment.getId().equals(commentId) && comment.getDeletedAt() == null)
-                .findFirst().orElseThrow(() -> new CustomRequestException(ReturnCode.NOT_FOUND_ENTITY));
+                .findFirst()
+                .orElseThrow(() -> new CustomRequestException(ReturnCode.NOT_FOUND_ENTITY));
+
         return getComment;
     }
 
@@ -191,7 +210,7 @@ public class RepostService {
     public CommentDTO addComment(Long postId, CommentWriteRequest request) {
         Repost repost = getRepost(postId);
 
-        Member member = memberService.getMemberById(request.getWriterId());
+        Member member = memberService.getMemberById(AuthUtil.getCurrentMemberId());
 
         List<Member> mentionedMembers = memberService.getMembersByNickName(request.getMentionedNames());
 
@@ -201,7 +220,8 @@ public class RepostService {
     }
 
     public Repost getRepost(Long postId) {
-        return repostRepository.findById(postId).orElseThrow(() -> new CustomRequestException(ReturnCode.NOT_FOUND_ENTITY));
+        return repostRepository.findById(postId)
+                .orElseThrow(() -> new CustomRequestException(ReturnCode.NOT_FOUND_ENTITY));
     }
 
     public RepostDTO getRepostDTOById(Long postId){
@@ -226,17 +246,20 @@ public class RepostService {
     }
 
     @Transactional
-    public void deleteLike(Long repostId, Long userId) {
+    public ReturnCode deleteLike(Long repostId, Long userId) {
         Repost repost = getRepost(repostId);
 
         List<Like> likes = repost.getLikes();
 
-        Like memberLike = likes.stream()
+        Optional<Like> memberLike = likes.stream()
                 .filter(like -> !like.getDeleted() && like.getMember().getId().equals(userId))
-                .findFirst()
-                .orElseThrow(() -> new CustomRequestException(ReturnCode.NOT_FOUND_ENTITY));
+                .findFirst();
+                //.orElseThrow(() -> new CustomRequestException(ReturnCode.NOT_FOUND_ENTITY));
 
-        memberLike.setDeleted(true);
+        if(memberLike.isEmpty()) return ReturnCode.NOT_FOUND_ENTITY;
+
+        memberLike.get().setDeleted(true);
+        return ReturnCode.SUCCESS;
     }
 
     @Transactional
@@ -268,6 +291,7 @@ public class RepostService {
 
         pinned.setModifyDate(LocalDateTime.now());
         repost.setModifyDate(LocalDateTime.now());
+        return;
     }
 
     @Transactional

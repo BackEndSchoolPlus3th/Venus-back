@@ -11,6 +11,7 @@ import com.ll.server.domain.notification.Notify;
 import com.ll.server.domain.repost.dto.RepostUnderNews;
 import com.ll.server.global.response.enums.ReturnCode;
 import com.ll.server.global.response.exception.CustomRequestException;
+import com.ll.server.global.security.util.AuthUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Limit;
 import org.springframework.data.domain.Page;
@@ -60,9 +61,6 @@ public class NewsService {
 
     public NewsDTO getById(Long id) {
         News news=getNews(id);
-        if(news==null){
-            return null;
-        }
 
         return new NewsDTO(news);
     }
@@ -88,24 +86,30 @@ public class NewsService {
     public NewsDTO updateNews(Long id, NewsUpdateRequest request) {
         News news = getNews(id);
 
+        String name = news.getPublisher();
+        String currentUserNickname = AuthUtil.getCurrentMemberNickname();
+        if(!name.equals(currentUserNickname)) return null;
+
         news.setContent(request.getContent());
         news.setTitle(request.getTitle());
         news.setModifyDate(LocalDateTime.now());
         return new NewsDTO(news);
     }
 
+
     @Transactional
-    public String deleteNews(Long id) {
+    public ReturnCode deleteNews(Long id) {
         News news=getNews(id);
-        if(news==null){
-            return "삭제 실패";
-        }
+
+        String name = news.getPublisher();
+        String currentUserNickname = AuthUtil.getCurrentMemberNickname();
+        if(!name.equals(currentUserNickname)) return ReturnCode.NOT_AUTHORIZED;
 
         news.removeReposts();
         news.setDeletedAt(LocalDateTime.now());
         news.setModifyDate(LocalDateTime.now());
 
-        return "삭제 성공";
+        return ReturnCode.SUCCESS;
 
     }
 
