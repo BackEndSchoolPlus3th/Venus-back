@@ -53,7 +53,7 @@ public class RepostService {
     @Transactional
     @Notify
     public RepostDTO save(RepostWriteRequest request, MultipartFile imageFile) throws IOException {
-        Member user = memberService.getMemberById(AuthUtil.getCurrentMemberId());
+        Member user = memberService.getMemberById(request.getWriterId());//AuthUtil.getCurrentMemberId()
 
         News news = newsService.getNews(request.getNewsId());
 
@@ -209,7 +209,7 @@ public class RepostService {
     public CommentDTO addComment(Long postId, CommentWriteRequest request) {
         Repost repost = getRepost(postId);
 
-        Member member = memberService.getMemberById(AuthUtil.getCurrentMemberId());
+        Member member = memberService.getMemberById(request.getWriterId());//AuthUtil.getCurrentMemberId());
 
         List<Member> mentionedMembers = memberService.getMembersByNickName(request.getMentionedNames());
 

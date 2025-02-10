@@ -3,32 +3,33 @@ package com.ll.server.global.jpa;
 import com.ll.server.domain.comment.dto.CommentWriteRequest;
 import com.ll.server.domain.comment.repository.CommentRepository;
 import com.ll.server.domain.follow.controller.ApiV1FollowController;
+import com.ll.server.domain.follow.dto.FollowRequest;
 import com.ll.server.domain.follow.service.FollowService;
 import com.ll.server.domain.member.auth.dto.SignupRequestDto;
 import com.ll.server.domain.member.entity.Member;
 import com.ll.server.domain.member.repository.MemberRepository;
 import com.ll.server.domain.member.service.MemberService;
-import com.ll.server.domain.news.news.dto.NewsDTO;
-import com.ll.server.domain.news.news.dto.NewsResponse;
+import com.ll.server.domain.news.news.entity.News;
+import com.ll.server.domain.news.news.enums.NewsCategory;
 import com.ll.server.domain.news.news.repository.NewsRepository;
 import com.ll.server.domain.news.news.service.NewsFetchService;
 import com.ll.server.domain.news.news.service.NewsService;
 import com.ll.server.domain.repost.controller.ApiV1RepostController;
 import com.ll.server.domain.repost.dto.RepostDTO;
 import com.ll.server.domain.repost.dto.RepostWriteRequest;
-import com.ll.server.domain.repost.entity.Repost;
 import com.ll.server.domain.repost.repository.RepostRepository;
 import com.ll.server.domain.repost.service.RepostService;
 import lombok.RequiredArgsConstructor;
-import net.datafaker.Faker;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -54,6 +55,7 @@ public class DataLoader implements CommandLineRunner {
 //        repostDocRepository.deleteAll();
 //        newsDocRepository.deleteAll();
 
+        /*
         Faker faker=new Faker(Locale.KOREA);
 
         NewsResponse newsResponse=null;
@@ -117,8 +119,8 @@ public class DataLoader implements CommandLineRunner {
                 repostService.addComment(repost.getId(), req);
             }
         }
+*/
 
-/*
 
         SignupRequestDto publisherSignup=SignupRequestDto.builder()
                 .email("publisher@example.com")
@@ -126,8 +128,6 @@ public class DataLoader implements CommandLineRunner {
                 .password("1234")
                 .build();
         Member publisherUser=memberService.signup(publisherSignup);
-        memberService.signup(publisherSignup);
-        Member publisherUser = memberRepository.findMemberByEmail("publisher@example.com").get();
 
         List<Member> users=new ArrayList<>();
         for(int i=0;i<3;i++){
@@ -137,10 +137,6 @@ public class DataLoader implements CommandLineRunner {
                     .password("1234")
                     .build();
             users.add(memberService.signup(signupRequest));
-            memberService.signup(signupRequest);
-            users.add(
-                    memberRepository.findMemberByEmail((i+1)+"@example.com").get()
-            );
         }
 
         Member user1=users.getFirst();
@@ -151,7 +147,7 @@ public class DataLoader implements CommandLineRunner {
                 .followerId(publisherUser.getId())
                 .followeeId(user1.getId())
                 .build();
-        followController.follow(followPublisher);
+        followService.save(followPublisher.getFollowerId(),followPublisher.getFollowerId());
         //user1이 테스트 언론사를 구독. 알림 1개째
 
         FollowRequest followRequest1= FollowRequest.builder()
@@ -163,10 +159,10 @@ public class DataLoader implements CommandLineRunner {
                 .followerId(user1.getId())
                 .followeeId(user3.getId())
                 .build();
-        followController.follow(followRequest1);
+        followService.save(followRequest1.getFollowerId(),followRequest1.getFolloweeId());
         //user2가 user1을 구독. 알림 2개째
 
-        followController.follow(followRequest2);
+        followService.save(followRequest2.getFollowerId(),followRequest2.getFolloweeId());
         //user3가 user1을 구독. 알림 3개째
 
 
@@ -283,6 +279,5 @@ public class DataLoader implements CommandLineRunner {
         repostService.markLike(repostDTO3.getRepostId(),user1.getId());
         //23개
 
-        */
     }
 }
