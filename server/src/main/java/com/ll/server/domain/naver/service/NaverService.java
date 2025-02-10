@@ -96,7 +96,6 @@ public class NaverService {
                 .orElseThrow(() -> new RuntimeException("존재하지 않는 회원입니다."));
 
         member.setRefreshToken(jwtToken);
-        //memberRepository.save(member);
 
         return ;
 

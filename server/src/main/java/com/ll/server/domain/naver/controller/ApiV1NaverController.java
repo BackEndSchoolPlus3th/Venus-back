@@ -2,26 +2,16 @@ package com.ll.server.domain.naver.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ll.server.domain.member.dto.MemberDto;
-import com.ll.server.domain.member.dto.MemberLogin;
-import com.ll.server.domain.member.dto.MemberRequest;
-import com.ll.server.domain.member.entity.Member;
-import com.ll.server.domain.member.repository.MemberRepository;
 import com.ll.server.domain.member.service.MemberService;
 import com.ll.server.domain.naver.service.NaverService;
-import com.ll.server.global.jwt.JwtProvider;
-import com.ll.server.global.rsData.RsData;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.io.IOException;
-import java.util.Map;
 
 @RequiredArgsConstructor
 @Controller
@@ -55,7 +45,7 @@ public class ApiV1NaverController {
         String token = naverService.askToken(token_url);
         System.out.println("token: " + token);
 
-        // json 객체 변환 >> 이후에 Resttemplate 활용 예정
+        // json 객체 변환
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode jsonNode = objectMapper.readTree(token);
 
@@ -67,7 +57,7 @@ public class ApiV1NaverController {
         String userInfo = naverService.askUserInfo(accessToken);
         System.out.println("User Info: " + userInfo);
 
-        // json 객체 변환 >> 이후에 Resttemplate 활용 예정
+        // json 객체 변환
         ObjectMapper objectMapper_u = new ObjectMapper();
         JsonNode jsonNode_u = objectMapper_u.readTree(userInfo);
         JsonNode jsonNode_r = jsonNode_u.get("response");

@@ -2,11 +2,11 @@ spring:
   # 로그인 및 인증
   oauth2:
     kakao:
-      url:
-        auth: "${spring.security.kakao.url.auth}"
-        api: "${spring.security.kakao.url.api}"
-        redirect-uri: http://localhost:8080/kakao/callback
       client-id: "${spring.security.kakao.client-id}"
+      client-secret: "${spring.security.kakao.client-secret}"
+      url:
+        redirect-uri: "${spring.security.kakao.url.redirect-uri}"
+
     naver:
       url:
         auth: "${spring.security.naver.url.auth}"
