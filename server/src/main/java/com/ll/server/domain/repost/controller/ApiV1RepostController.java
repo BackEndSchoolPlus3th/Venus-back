@@ -12,9 +12,11 @@ import com.ll.server.domain.repost.repository.RepostRepository;
 import com.ll.server.domain.repost.service.RepostService;
 import com.ll.server.global.jwt.AccessTokenFromCookie;
 import com.ll.server.global.jwt.JwtProvider;
-import jakarta.servlet.http.HttpServletRequest;
+import com.ll.server.global.security.SecurityUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,7 +31,10 @@ public class ApiV1RepostController {
     private final AccessTokenFromCookie accessTokenFromCookie;
     private final JwtProvider jwtProvider;
 
-    //repost 영역
+
+    /*
+        repost 영역
+    */
 
     // 목록 조회
     @GetMapping
@@ -45,14 +50,18 @@ public class ApiV1RepostController {
 
     // 삭제
     @DeleteMapping("/{id}")
-    public String deletePost(@PathVariable("id") Long repostId, HttpServletRequest request){
-        // 토큰 확인
-        String accessToken = accessTokenFromCookie.getAccessTokenFromCookie(request);
-        // 토큰에서 id 추출
-        Long userId=jwtProvider.getUserIdFromToken(accessToken);
-        return repostService.checkDelete_R(repostId, userId);
-    };
+    public String deletePost(@PathVariable("id") Long repostId) {
+        // auth 확인
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication.getPrincipal() instanceof SecurityUser) {
+            SecurityUser user = (SecurityUser) authentication.getPrincipal();
+            Long userId = user.getId(); // email 가져오기
 
+            return repostService.checkDelete_R(repostId, userId);
+        } else {
+            throw new RuntimeException("인증 실패");
+        }
+    }
 
     // 생성
     @PreAuthorize("isAuthenticated()")
@@ -63,7 +72,10 @@ public class ApiV1RepostController {
 
 
 
-    //comment 영역
+    /*
+        comment 영역
+    */
+
     @GetMapping("/{repostId}/comments")
     public CommentResponse getAllComment(@PathVariable("repostId") Long postId){
         return new CommentResponse(repostService.getAllComment(postId));
@@ -74,28 +86,39 @@ public class ApiV1RepostController {
     // 삭제
     @DeleteMapping("/{repostId}/comments/{commentId}")
     public String deleteComment(@PathVariable("repostId")Long postId,
-                                @PathVariable("commentId")Long commentId,
-                                HttpServletRequest request){
-        // 토큰 확인
-        String accessToken = accessTokenFromCookie.getAccessTokenFromCookie(request);
-        // 토큰에서 id 추출
-        Long userId=jwtProvider.getUserIdFromToken(accessToken);
-        return repostService.checkDelete_C(postId, commentId, userId);
+                                @PathVariable("commentId")Long commentId
+                                ){
+        // auth 확인
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication.getPrincipal() instanceof SecurityUser) {
+            SecurityUser user = (SecurityUser) authentication.getPrincipal();
+            Long userId = user.getId(); // email 가져오기
 
+            return repostService.checkDelete_C(postId,commentId, userId);
+        } else {
+            throw new RuntimeException("인증 실패");
+        }
     }
+
 
     // 수정
     @PatchMapping("/{repostId}/comments/{commentId}")
-    public CommentDTO modifyComment(@PathVariable("repostId")Long postId,
-                                    @PathVariable("commentId")Long commentId,
-                                    @RequestBody CommentModifyRequest requestBody,
-                                    HttpServletRequest request) {
-        // 토큰 확인
-        String accessToken = accessTokenFromCookie.getAccessTokenFromCookie(request);
-        // 토큰에서 id 추출
-        Long userId=jwtProvider.getUserIdFromToken(accessToken);
-        return repostService.modify_C(postId, commentId, requestBody.getContent(), userId);
+    public CommentDTO modifyComment(@PathVariable("repostId") Long postId,
+                                    @PathVariable("commentId") Long commentId,
+                                    @RequestBody CommentModifyRequest requestBody
+                                    ) {
+        // auth 확인
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication.getPrincipal() instanceof SecurityUser) {
+            SecurityUser user = (SecurityUser) authentication.getPrincipal();
+            Long userId = user.getId(); //
+            return repostService.modify_C(postId, commentId, requestBody.getContent(), userId);
+
+        } else {
+            throw new RuntimeException("인증 실패");
+        }
     }
+
 
     // 작성
     @PreAuthorize("isAuthenticated()")
@@ -105,7 +128,10 @@ public class ApiV1RepostController {
         return repostService.addComment(postId, request);
     }
 
-    //like 영역
+    /*
+        like 영역
+    */
+
     @GetMapping("/{repostId}/likes")
     public LikeResponse getLikes(@PathVariable("repostId") Long repostId){
         List<LikeDTO> likes=repostService.getAllLike(repostId);
