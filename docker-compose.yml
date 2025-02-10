@@ -1,51 +1,47 @@
-version: "3"
+version: "3.8"
+
+networks:
+  app-network:
+    driver: bridge
+
 services:
   db:
     build:
       context: ./mysql
       dockerfile: Dockerfile
     ports:
-      - 3306:3306
+      - "3306:3306"
     volumes:
       - ./mysql/store:/var/lib/mysql
-    deploy:
-      resources:
-        limits:
-          cpus: "0.2"
-          memory: "256M"
-        reservations:
-          cpus: "0.1"
-          memory: "128M"
-    environment:
-      MYSQL_MAX_CONNECTIONS: 10
-      MYSQL_INNODB_BUFFER_POOL_SIZE: 67108864 # 64MB
-      MYSQL_PERFORMANCE_SCHEMA: "OFF"
-      MYSQL_THREAD_CACHE_SIZE: 5
     networks:
-      - network
+      - app-network
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - app-network
+
   server:
     build:
       context: ./server
       dockerfile: Dockerfile
     restart: always
     ports:
-      - 8080:8080
+      - "8080:8080"
     depends_on:
       - db
-    deploy:
-      resources:
-        limits:
-          cpus: "0.4"
-          memory: "512M"
-        reservations:
-          cpus: "0.2"
-          memory: "256M"
+      - redis
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/metadb?useSSL=false&serverTimezone=UTC&useLegacyDatetimeCode=false&allowPublicKeyRetrieval=true
       SPRING_DATASOURCE_DRIVER: com.mysql.cj.jdbc.Driver
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root1234
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_REDIS_HOST: redis
+      SPRING_REDIS_PORT: 6379
       JAVA_OPTS: >
         -XX:+UseContainerSupport
         -XX:MaxRAMPercentage=75.0
@@ -55,7 +51,10 @@ services:
         -XX:+UseStringDeduplication
         -Djava.security.egd=file:/dev/./urandom
     networks:
-      - network
+      - app-network
+    command: ["sh", "-c", "sleep 10 && java -jar app.jar"]
 
-networks:
-  network:
+volumes:
+  db_data:
+  redis_data:
+

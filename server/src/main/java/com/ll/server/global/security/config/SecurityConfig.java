@@ -16,6 +16,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -46,6 +47,14 @@ public class SecurityConfig {
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
+        http
+                .csrf(csrf -> csrf
+                        .ignoringRequestMatchers("/h2-console/**") // H2 콘솔 CSRF 비활성화
+                )
+                .headers(headers -> headers
+                        .frameOptions(frame -> frame.sameOrigin()) // X-Frame-Options 설정 변경
+                );
 
         http.authorizeHttpRequests(auth -> auth     // 인가 (Authorization) 설정
                 .requestMatchers("/api/member/signup", "/api/member/login", "/oauth2/**").permitAll()

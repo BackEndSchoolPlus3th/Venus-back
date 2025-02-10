@@ -125,6 +125,7 @@ public class DataLoader implements CommandLineRunner {
                 .nickname("Test Publisher")
                 .password("1234")
                 .build();
+        Member publisherUser=memberService.signup(publisherSignup);
         memberService.signup(publisherSignup);
         Member publisherUser = memberRepository.findMemberByEmail("publisher@example.com").get();
 
@@ -135,6 +136,7 @@ public class DataLoader implements CommandLineRunner {
                     .nickname("user"+(i+1))
                     .password("1234")
                     .build();
+            users.add(memberService.signup(signupRequest));
             memberService.signup(signupRequest);
             users.add(
                     memberRepository.findMemberByEmail((i+1)+"@example.com").get()

@@ -5,6 +5,8 @@ import com.ll.server.domain.member.entity.Member;
 import com.ll.server.domain.member.enums.MemberRole;
 import com.ll.server.domain.member.enums.Provider;
 import com.ll.server.domain.member.repository.MemberRepository;
+import com.ll.server.global.response.enums.ReturnCode;
+import com.ll.server.global.response.exception.CustomRequestException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -22,7 +24,7 @@ public class MemberService {
     private final BCryptPasswordEncoder passwordEncoder;
 
     @Transactional
-    public void signup (SignupRequestDto requestDto) {
+    public Member signup (SignupRequestDto requestDto) {
         if (memberRepository.existsByEmail(requestDto.getEmail())) {
             throw new IllegalArgumentException("이미 가입된 이메일입니다.");
         }
@@ -36,6 +38,8 @@ public class MemberService {
                 .build();
 
         memberRepository.save(member);
+
+        return member;
     }
 
     public Member findByEmail (String email) {
@@ -44,10 +48,11 @@ public class MemberService {
     }
 
     public Member getMemberById(Long writerId) {
-        return memberRepository.findById(writerId).orElseThrow(()->new IllegalArgumentException("존재하지 않는 회원입니다."));
+        return memberRepository.findById(writerId)
+                .orElseThrow(() -> new CustomRequestException(ReturnCode.NOT_FOUND_ENTITY));
     }
 
     public List<Member> getMembersByNickName(List<String> mentionedNames) {
-        return memberRepository.findMembersByNicknameIn(mentionedNames);
+        return memberRepository.findAllByNicknameIn(mentionedNames);
     }
 }
