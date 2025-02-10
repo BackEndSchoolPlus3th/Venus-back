@@ -42,7 +42,6 @@ services:
       SPRING_DATASOURCE_PASSWORD: root1234
       SPRING_REDIS_HOST: redis
       SPRING_REDIS_PORT: 6379
-      JWT_SECRET: c2VjcmV0LWtleS1mb3Itand0LXNpZ25pbmctYW5kLXZlcmlmeWluZw== # Base64 인코딩된 JWT 비밀키
       JAVA_OPTS: >
         -XX:+UseContainerSupport
         -XX:MaxRAMPercentage=75.0
