@@ -1,7 +1,5 @@
 package com.ll.server.global.security.custom;
 
-import com.ll.server.domain.member.auth.interfaces.KakaoUserInfo;
-import com.ll.server.domain.member.auth.interfaces.NaverUserInfo;
 import com.ll.server.domain.member.auth.interfaces.OAuth2UserInfo;
 import com.ll.server.domain.member.entity.Member;
 import com.ll.server.domain.member.enums.MemberRole;
@@ -17,7 +15,6 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -26,8 +23,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
-    private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
+    private final MemberRepository memberRepository;
 
     @Override
     public OAuth2User loadUser (OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -53,6 +50,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     @Transactional
     protected Member createMember (OAuth2UserInfo oAuth2UserInfo, String provider) {
+        // 소셜 로그인 사용자는 어차피 비밀번호로 로그인하지 않으므로, UUID를 비밀번호로
         String randomPassword = UUID.randomUUID().toString();
         String realPassword = passwordEncoder.encode(randomPassword);
         Member member = Member.builder()

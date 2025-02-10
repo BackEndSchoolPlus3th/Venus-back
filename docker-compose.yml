@@ -5,37 +5,14 @@ networks:
     driver: bridge
 
 services:
-  app:
-    build: ./server
-    ports:
-      - "8080:8080"
-    volumes:
-      - ~/.aws:/root/.aws  # 호스트의 AWS 자격 증명 파일을 컨테이너에 마운트
-    depends_on:
-      - db
-      - redis
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/mydb?useSSL=false&serverTimezone=UTC&useLegacyDatetimeCode=false&allowPublicKeyRetrieval=true
-      SPRING_DATASOURCE_USERNAME: springuser
-      SPRING_DATASOURCE_PASSWORD: springpass
-      SPRING_REDIS_HOST: redis
-      SPRING_REDIS_PORT: 6379
-      JWT_SECRET: c2VjcmV0LWtleS1mb3Itand0LXNpZ25pbmctYW5kLXZlcmlmeWluZw== # Base64 인코딩된 JWT 비밀키
-    networks:
-      - app-network
-    command: ["sh", "-c", "sleep 10 && java -jar app.jar"]
-
   db:
-    image: mysql:latest
-    environment:
-      MYSQL_ROOT_PASSWORD: root1234
-      MYSQL_USER: springuser
-      MYSQL_PASSWORD: springpass
-      MYSQL_DATABASE: mydb
+    build:
+      context: ./mysql
+      dockerfile: Dockerfile
     ports:
       - "3306:3306"
     volumes:
-      - db_data:/var/lib/mysql
+      - ./mysql/store:/var/lib/mysql
     networks:
       - app-network
 
@@ -48,6 +25,37 @@ services:
     networks:
       - app-network
 
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+      - redis
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/metadb?useSSL=false&serverTimezone=UTC&useLegacyDatetimeCode=false&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_DRIVER: com.mysql.cj.jdbc.Driver
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root1234
+      SPRING_REDIS_HOST: redis
+      SPRING_REDIS_PORT: 6379
+      JWT_SECRET: c2VjcmV0LWtleS1mb3Itand0LXNpZ25pbmctYW5kLXZlcmlmeWluZw== # Base64 인코딩된 JWT 비밀키
+      JAVA_OPTS: >
+        -XX:+UseContainerSupport
+        -XX:MaxRAMPercentage=75.0
+        -Xms128m
+        -Xmx384m
+        -XX:+UseSerialGC
+        -XX:+UseStringDeduplication
+        -Djava.security.egd=file:/dev/./urandom
+    networks:
+      - app-network
+    command: ["sh", "-c", "sleep 10 && java -jar app.jar"]
+
 volumes:
   db_data:
   redis_data:
+

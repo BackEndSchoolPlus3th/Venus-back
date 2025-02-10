@@ -23,19 +23,19 @@ public class JwtUtil {
     public static final String AUTHORIZATION_HEADER = "Authorization";
     private static final String BEARER_PREFIX = "Bearer ";
 
-    @Value("${spring.security.jwt.secret}")
+    @Value("${jwt.secret}")
     private String secretKey;
 
-    @Value("${spring.security.jwt.access-token-expiration}")
+    @Value("${jwt.access-token-expiration}")
     private Long ACCESS_TOKEN_EXPIRATION_TIME;
 
-    @Value("${spring.security.jwt.refresh-token-expiration}")
+    @Value("${jwt.refresh-token-expiration}")
     private Long REFRESH_TOKEN_EXPIRATION_TIME;
 
     private final SecretKey key;
 
     // Bean 등록 시 SecretKey 초기화
-    public JwtUtil (@Value("${spring.security.jwt.secret}") String secretKey) {
+    public JwtUtil (@Value("${jwt.secret}") String secretKey) {
         this.secretKey = secretKey;
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);

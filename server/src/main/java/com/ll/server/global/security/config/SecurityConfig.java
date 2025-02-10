@@ -16,7 +16,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -48,6 +47,14 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
+        http
+                .csrf(csrf -> csrf
+                        .ignoringRequestMatchers("/h2-console/**") // H2 콘솔 CSRF 비활성화
+                )
+                .headers(headers -> headers
+                        .frameOptions(frame -> frame.sameOrigin()) // X-Frame-Options 설정 변경
+                );
+
         http.authorizeHttpRequests(auth -> auth     // 인가 (Authorization) 설정
                 .requestMatchers("/api/member/signup", "/api/member/login", "/oauth2/**").permitAll()
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
@@ -67,14 +74,6 @@ public class SecurityConfig {
                 .redirectionEndpoint(red->red.baseUri("/oauth2/callback/kakao"))// 콜백 URL을 여기에 설정
         );
 
-        http
-                .csrf(csrf -> csrf
-                        .ignoringRequestMatchers("/h2-console/**") // H2 콘솔 CSRF 비활성화
-                )
-                .headers(headers -> headers
-                        .frameOptions(frame -> frame.sameOrigin()) // X-Frame-Options 설정 변경
-                );
-
         http    // JWT Filter 추가
                 .addFilterBefore(jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthenticationFilter(), JwtAuthorizationFilter.class);
@@ -82,6 +81,11 @@ public class SecurityConfig {
         return http.build();
 
     }
+
+//    @Bean
+//    public BCryptPasswordEncoder passwordEncoder() {
+//        return new BCryptPasswordEncoder();
+//    }
 
     @Bean
     public AuthenticationManager authenticationManager (AuthenticationConfiguration configuration) throws Exception {
