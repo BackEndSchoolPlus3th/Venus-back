@@ -121,7 +121,7 @@ public class MemberController {
 
         String newAccessToken = jwtUtil.generateAccessToken(memberDto);
         jwtUtil.addJwtToCookie(newAccessToken, response, "accessToken");
-        return new ResponseEntity<>("AccessToken 갱싱 성공", HttpStatus.OK);
+        return new ResponseEntity<>("AccessToken 갱신 성공", HttpStatus.OK);
 
 
 //        if (refreshToken != null) {

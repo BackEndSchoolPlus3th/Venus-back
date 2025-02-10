@@ -6,6 +6,8 @@ import com.ll.server.domain.follow.repository.FollowRepository;
 import com.ll.server.domain.member.entity.Member;
 import com.ll.server.domain.member.repository.MemberRepository;
 import com.ll.server.domain.notification.Notify;
+import com.ll.server.global.response.enums.ReturnCode;
+import com.ll.server.global.response.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -13,7 +15,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -88,14 +89,11 @@ public class FollowService {
     }
 
     @Transactional
-    public String delete(Long id){
-        Optional<Follow> target= followRepository.findById(id);
-        if(target.isPresent()){
-            followRepository.deleteById(id);
-            return "팔로우 삭제 성공";
-        }
+    public void delete(Long id){
+        Follow target= followRepository.findById(id)
+                .orElseThrow(()->new CustomException(ReturnCode.NOT_FOUND_ENTITY));
 
-        return "팔로우 삭제 실패";
+        followRepository.deleteById(id);
     }
 
 }

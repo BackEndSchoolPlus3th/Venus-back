@@ -10,6 +10,7 @@ import com.ll.server.domain.news.news.repository.NewsRepository;
 import com.ll.server.domain.notification.Notify;
 import com.ll.server.domain.repost.dto.RepostUnderNews;
 import com.ll.server.global.response.enums.ReturnCode;
+import com.ll.server.global.response.exception.CustomException;
 import com.ll.server.global.response.exception.CustomRequestException;
 import com.ll.server.global.security.util.AuthUtil;
 import lombok.RequiredArgsConstructor;
@@ -88,7 +89,7 @@ public class NewsService {
 
         String name = news.getPublisher();
         String currentUserNickname = AuthUtil.getCurrentMemberNickname();
-        if(!name.equals(currentUserNickname)) return null;
+        if(!name.equals(currentUserNickname)) throw new CustomException(ReturnCode.NOT_AUTHORIZED);
 
         news.setContent(request.getContent());
         news.setTitle(request.getTitle());
@@ -98,18 +99,18 @@ public class NewsService {
 
 
     @Transactional
-    public ReturnCode deleteNews(Long id) {
+    public void deleteNews(Long id) {
         News news=getNews(id);
 
         String name = news.getPublisher();
         String currentUserNickname = AuthUtil.getCurrentMemberNickname();
-        if(!name.equals(currentUserNickname)) return ReturnCode.NOT_AUTHORIZED;
+        if(!name.equals(currentUserNickname)) throw new CustomException(ReturnCode.NOT_AUTHORIZED);
 
         news.removeReposts();
         news.setDeletedAt(LocalDateTime.now());
         news.setModifyDate(LocalDateTime.now());
 
-        return ReturnCode.SUCCESS;
+        return;
 
     }
 

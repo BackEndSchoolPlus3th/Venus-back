@@ -20,6 +20,7 @@ import com.ll.server.domain.repost.entity.Repost;
 import com.ll.server.domain.repost.repository.RepostRepository;
 import com.ll.server.global.aws.s3.S3Service;
 import com.ll.server.global.response.enums.ReturnCode;
+import com.ll.server.global.response.exception.CustomException;
 import com.ll.server.global.response.exception.CustomRequestException;
 import com.ll.server.global.security.util.AuthUtil;
 import lombok.RequiredArgsConstructor;
@@ -34,7 +35,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -153,31 +153,28 @@ public class RepostService {
     }
 
     @Transactional
-    public ReturnCode deleteRepost(Long postId){
+    public void deleteRepost(Long postId){
         Repost repost = getRepost(postId);
 
         Long currentMemberId=AuthUtil.getCurrentMemberId();
         Long targetMemberId=repost.getMember().getId();
-        if(!targetMemberId.equals(currentMemberId)) return ReturnCode.NOT_AUTHORIZED;
+        if(!targetMemberId.equals(currentMemberId)) throw new CustomException(ReturnCode.NOT_AUTHORIZED);
 
         repost.delete();
-        return ReturnCode.SUCCESS;
 
     }
 
     @Transactional
-    public ReturnCode deleteComment(Long postId, Long commentId) {
+    public void deleteComment(Long postId, Long commentId) {
         Repost repost = getRepost(postId);
 
         Comment target = getComment(commentId, repost);
 
         Long currentMemberId=AuthUtil.getCurrentMemberId();
         Long targetMemberId=target.getMember().getId();
-        if(!targetMemberId.equals(currentMemberId)) return ReturnCode.NOT_AUTHORIZED;
+        if(!targetMemberId.equals(currentMemberId)) throw new CustomException(ReturnCode.NOT_AUTHORIZED);
 
         target.delete();
-
-        return ReturnCode.SUCCESS;
     }
 
     @Transactional
@@ -246,20 +243,18 @@ public class RepostService {
     }
 
     @Transactional
-    public ReturnCode deleteLike(Long repostId, Long userId) {
+    public void deleteLike(Long repostId, Long userId) {
         Repost repost = getRepost(repostId);
 
         List<Like> likes = repost.getLikes();
 
-        Optional<Like> memberLike = likes.stream()
+        Like memberLike = likes.stream()
                 .filter(like -> !like.getDeleted() && like.getMember().getId().equals(userId))
-                .findFirst();
-                //.orElseThrow(() -> new CustomRequestException(ReturnCode.NOT_FOUND_ENTITY));
+                .findFirst()
+                .orElseThrow(() -> new CustomRequestException(ReturnCode.NOT_FOUND_ENTITY));
 
-        if(memberLike.isEmpty()) return ReturnCode.NOT_FOUND_ENTITY;
 
-        memberLike.get().setDeleted(true);
-        return ReturnCode.SUCCESS;
+        memberLike.setDeleted(true);
     }
 
     @Transactional
@@ -291,7 +286,6 @@ public class RepostService {
 
         pinned.setModifyDate(LocalDateTime.now());
         repost.setModifyDate(LocalDateTime.now());
-        return;
     }
 
     @Transactional

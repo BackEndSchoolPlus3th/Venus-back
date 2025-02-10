@@ -121,9 +121,9 @@ public class ApiV1RepostController {
 
     @DeleteMapping("/{repostId}")
     public ApiResponse<String> deletePost(@PathVariable("repostId") Long id) {
-        ReturnCode returnCode=repostService.deleteRepost(id);
+        repostService.deleteRepost(id);
 
-        return ApiResponse.of(returnCode);
+        return ApiResponse.of(ReturnCode.SUCCESS);
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -162,8 +162,8 @@ public class ApiV1RepostController {
     @DeleteMapping("/{repostId}/comments/{commentId}")
     public ApiResponse<String> deleteComment(@PathVariable("repostId") Long postId,
                                              @PathVariable("commentId") Long commentId) {
-        ReturnCode returnCode = repostService.deleteComment(postId, commentId);
-        return ApiResponse.of(returnCode);
+        repostService.deleteComment(postId, commentId);
+        return ApiResponse.of(ReturnCode.SUCCESS);
     }
 
     @PatchMapping("/{repostId}/comments/{commentId}")
@@ -189,8 +189,8 @@ public class ApiV1RepostController {
     @DeleteMapping("/{repostId}/likes")
     public ApiResponse<String> deleteLike(@PathVariable("repostId") Long repostId) {
 
-        ReturnCode returnCode=repostService.deleteLike(repostId, AuthUtil.getCurrentMemberId());
-        return ApiResponse.of(returnCode);
+        repostService.deleteLike(repostId, AuthUtil.getCurrentMemberId());
+        return ApiResponse.of(ReturnCode.SUCCESS);
     }
 
     @PostMapping("/{repostId}/likes")

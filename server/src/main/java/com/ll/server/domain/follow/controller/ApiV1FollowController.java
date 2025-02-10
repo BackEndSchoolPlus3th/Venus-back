@@ -3,6 +3,7 @@ package com.ll.server.domain.follow.controller;
 import com.ll.server.domain.follow.dto.FollowDTO;
 import com.ll.server.domain.follow.dto.FollowRequest;
 import com.ll.server.domain.follow.service.FollowService;
+import com.ll.server.global.response.enums.ReturnCode;
 import com.ll.server.global.response.response.ApiResponse;
 import com.ll.server.global.response.response.CustomPage;
 import com.ll.server.global.security.util.AuthUtil;
@@ -54,7 +55,8 @@ public class ApiV1FollowController {
 
     @DeleteMapping("/{id}")
     public ApiResponse<String> unfollow(@PathVariable Long id){
-        return ApiResponse.of(followService.delete(id));
+        followService.delete(id);
+        return ApiResponse.of(ReturnCode.SUCCESS);
     }
 
 }
