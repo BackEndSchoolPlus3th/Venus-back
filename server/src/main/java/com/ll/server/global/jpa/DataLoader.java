@@ -3,6 +3,7 @@ package com.ll.server.global.jpa;
 import com.ll.server.domain.comment.dto.CommentWriteRequest;
 import com.ll.server.domain.comment.repository.CommentRepository;
 import com.ll.server.domain.follow.controller.ApiV1FollowController;
+import com.ll.server.domain.follow.service.FollowService;
 import com.ll.server.domain.member.auth.dto.SignupRequestDto;
 import com.ll.server.domain.member.entity.Member;
 import com.ll.server.domain.member.repository.MemberRepository;
@@ -42,6 +43,7 @@ public class DataLoader implements CommandLineRunner {
     private final MemberRepository memberRepository;
     private final RepostService repostService;
     private final CommentRepository commentRepository;
+    private final FollowService followService;
 //    private final RepostDocRepository repostDocRepository;
 //    private final NewsDocRepository newsDocRepository;
 
@@ -116,27 +118,27 @@ public class DataLoader implements CommandLineRunner {
             }
         }
 
+/*
 
-        /*
-        MemberRequest publisherSignup=MemberRequest.builder()
+        SignupRequestDto publisherSignup=SignupRequestDto.builder()
                 .email("publisher@example.com")
                 .nickname("Test Publisher")
                 .password("1234")
-                .role(MemberRole.PUBLISHER)
-                .providerId("1234")
                 .build();
-        Member publisherUser=memberService.join(publisherSignup);
+        memberService.signup(publisherSignup);
+        Member publisherUser = memberRepository.findMemberByEmail("publisher@example.com").get();
 
         List<Member> users=new ArrayList<>();
         for(int i=0;i<3;i++){
-            MemberRequest signupRequest=MemberRequest.builder()
+            SignupRequestDto signupRequest=SignupRequestDto.builder()
                     .email((i+1)+"@example.com")
                     .nickname("user"+(i+1))
                     .password("1234")
-                    .role(MemberRole.MEMBER)
-                    .providerId("1234")
                     .build();
-            users.add(memberService.join(signupRequest));
+            memberService.signup(signupRequest);
+            users.add(
+                    memberRepository.findMemberByEmail((i+1)+"@example.com").get()
+            );
         }
 
         Member user1=users.getFirst();
@@ -199,7 +201,7 @@ public class DataLoader implements CommandLineRunner {
         MultipartFile imageFile1 = new MockMultipartFile("file", "test_img_1.jpg", "image/jpeg", imageBytes1);
 
         // 📤 저장
-        RepostDTO repostDTO1 = repostController.write(repostRequest1, imageFile1);
+        RepostDTO repostDTO1 = repostService.save(repostRequest1, imageFile1);
         //user1이 작성한 글이므로 user2/3에게 알림이 가고, 멘션을 2와 3에게 했으므로 알림이 감. 알림 8개째.
 
         RepostWriteRequest repostRequest2=RepostWriteRequest.builder()
@@ -220,7 +222,7 @@ public class DataLoader implements CommandLineRunner {
         MultipartFile imageFile2 = new MockMultipartFile("file", "test_img_2.jpg", "image/jpeg", imageBytes2);
 
         // 📤 저장
-        RepostDTO repostDTO2 = repostController.write(repostRequest2, imageFile2);
+        RepostDTO repostDTO2 = repostService.save(repostRequest2, imageFile2);
 
         RepostWriteRequest repostRequest3=RepostWriteRequest.builder()
                 .content("대부분의 경우 Elasticsearch + DB 하이브리드 접근 방식이 효율적입니다.")
@@ -239,7 +241,7 @@ public class DataLoader implements CommandLineRunner {
         MultipartFile imageFile3 = new MockMultipartFile("file", "test_img_3.png", "image/png", imageBytes3);
 
         // 📤 저장
-        RepostDTO repostDTO3 = repostController.write(repostRequest3, imageFile3);
+        RepostDTO repostDTO3 = repostService.save(repostRequest3, imageFile3);
 
         for(int i=0;i<3;i++){
             CommentWriteRequest commentWriteRequest=
@@ -248,7 +250,7 @@ public class DataLoader implements CommandLineRunner {
                             .writerId(users.get(i).getId())
                             .mentions("user3")
                             .build();
-            repostController.addComment(repostDTO1.getRepostId(),commentWriteRequest);
+            repostService.addComment(repostDTO1.getRepostId(),commentWriteRequest);
         }
         //user2, user3가 user1의 리포스트에 댓글. user1, user2가 멘션. 알림 12개.
 
@@ -259,7 +261,7 @@ public class DataLoader implements CommandLineRunner {
                             .writerId(users.get(i).getId())
                             .mentions("user1")
                             .build();
-            repostController.addComment(repostDTO2.getRepostId(),commentWriteRequest);
+            repostService.addComment(repostDTO2.getRepostId(),commentWriteRequest);
         }
         //16개
 
@@ -270,15 +272,15 @@ public class DataLoader implements CommandLineRunner {
                             .writerId(users.get(i).getId())
                             .mentions("user2")
                             .build();
-            repostController.addComment(repostDTO3.getRepostId(),commentWriteRequest);
+            repostService.addComment(repostDTO3.getRepostId(),commentWriteRequest);
         }
         //20개
 
-        repostController.markLike(repostDTO1.getRepostId(),user2.getId());
-        repostController.markLike(repostDTO2.getRepostId(),user3.getId());
-        repostController.markLike(repostDTO3.getRepostId(),user1.getId());
+        repostService.markLike(repostDTO1.getRepostId(),user2.getId());
+        repostService.markLike(repostDTO2.getRepostId(),user3.getId());
+        repostService.markLike(repostDTO3.getRepostId(),user1.getId());
         //23개
 
-         */
+        */
     }
 }

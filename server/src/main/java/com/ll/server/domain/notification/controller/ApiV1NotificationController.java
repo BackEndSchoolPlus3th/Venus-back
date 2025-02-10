@@ -10,7 +10,6 @@ import com.ll.server.global.security.util.AuthUtil;
 import com.ll.server.global.sse.EmitterManager;
 import com.ll.server.global.utils.MyConstant;
 import com.ll.server.global.validation.PageLimitSizeValidator;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,8 +42,7 @@ public class ApiV1NotificationController {
 
     //알림탭을 클릭
     @GetMapping
-    public ApiResponse<List<NotificationDTO>> getAll(HttpServletRequest request){
-//        Long memberId = AccessTokenParser.getMemberIdByCookie(jwtProvider,request);
+    public ApiResponse<List<NotificationDTO>> getAll(){
         Long memberId = AuthUtil.getCurrentMemberId();
 
         Pageable pageable= PageRequest.of(0,10, Sort.by("id").descending());
@@ -58,8 +56,8 @@ public class ApiV1NotificationController {
     //알림 상세탭에 들어간 경우. (유저 엔티티 ID로 찾음)
     @GetMapping("/details")
     public ApiResponse<?> getNotificationsById(@RequestParam(value = "page",defaultValue = "0") int page,
-                                               @RequestParam(value = "size",defaultValue = "20") int size,
-                                               HttpServletRequest httpServletRequest){
+                                               @RequestParam(value = "size",defaultValue = "20") int size
+                                               ){
         PageLimitSizeValidator.validateSize(page,size, MyConstant.PAGELIMITATION);
         Pageable pageable= PageRequest.of(page,size,Sort.by("id").descending());
 
@@ -77,7 +75,7 @@ public class ApiV1NotificationController {
 
     //모두 읽음 버튼
     @PostMapping()
-    public ApiResponse<List<NotificationDTO>> pressAllReadButton(HttpServletRequest request){
+    public ApiResponse<List<NotificationDTO>> pressAllReadButton(){
         Long memberId=AuthUtil.getCurrentMemberId();
 
         List<Notification> notifications=notificationService.findUnreadNotificationsById(memberId);
@@ -96,7 +94,7 @@ public class ApiV1NotificationController {
 
     //SSE 연결과 동시에 안 보낸 알림이 있으면 와바박 보냄
     @GetMapping("/connect")
-    public void connect(HttpServletRequest request){
+    public void connect(){
 
 
         //방법1. 접속한 유저의 accessToken을 이용해 유저 정보를 알아내기

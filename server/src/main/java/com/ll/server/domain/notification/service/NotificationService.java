@@ -5,6 +5,9 @@ import com.ll.server.domain.member.entity.Member;
 import com.ll.server.domain.notification.dto.NotificationDTO;
 import com.ll.server.domain.notification.entity.Notification;
 import com.ll.server.domain.notification.repository.NotificationRepository;
+import com.ll.server.global.response.enums.ReturnCode;
+import com.ll.server.global.response.exception.CustomException;
+import com.ll.server.global.security.util.AuthUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -65,6 +68,7 @@ public class NotificationService {
 
 
     public List<Notification> findUnreadNotificationsById(Long userId){
+        checkUser(userId);
         return notificationRepository.findNotificationsByMember_IdAndHasSentIsTrueAndHasReadIsFalseOrderById(userId);
     }
 
@@ -101,12 +105,19 @@ public class NotificationService {
     @Transactional
     public Notification readNotification(Long notifyId) {
         Optional<Notification> findOptional = notificationRepository.findByIdAndHasReadIsFalse(notifyId);
-        if(findOptional.isEmpty()) return null;
+        if(findOptional.isEmpty()) throw new CustomException(ReturnCode.NOT_FOUND_ENTITY);
 
-        Notification find=findOptional.get();
+        Notification find = findOptional.get();
+        checkUser(find.getMember().getId());
+
         find.setReadTrue();
 
         return find;
+    }
+
+    private void checkUser(Long find) {
+        Long readingMemberId= AuthUtil.getCurrentMemberId();
+        if(!find.equals(readingMemberId)) throw new CustomException(ReturnCode.NOT_AUTHORIZED);
     }
 
     //이 ID는 알림 엔티티의 ID 집합으로, "모두 읽음으로 처리"를 할 때 효율적으로 쿼리를 쏘기 위해.
@@ -118,6 +129,7 @@ public class NotificationService {
         }
 
         for(Notification notification : notifications){
+            checkUser(notification.getMember().getId());
             notification.setReadTrue();
         }
 
