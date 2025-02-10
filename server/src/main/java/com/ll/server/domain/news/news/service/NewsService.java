@@ -18,10 +18,12 @@ import org.springframework.data.domain.Limit;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -87,9 +89,7 @@ public class NewsService {
     public NewsDTO updateNews(Long id, NewsUpdateRequest request) {
         News news = getNews(id);
 
-        String name = news.getPublisher();
-        String currentUserNickname = AuthUtil.getCurrentMemberNickname();
-        if(!name.equals(currentUserNickname)) throw new CustomException(ReturnCode.NOT_AUTHORIZED);
+        checkAdmin();
 
         news.setContent(request.getContent());
         news.setTitle(request.getTitle());
@@ -102,15 +102,11 @@ public class NewsService {
     public void deleteNews(Long id) {
         News news=getNews(id);
 
-        String name = news.getPublisher();
-        String currentUserNickname = AuthUtil.getCurrentMemberNickname();
-        if(!name.equals(currentUserNickname)) throw new CustomException(ReturnCode.NOT_AUTHORIZED);
+        checkAdmin();
 
         news.removeReposts();
         news.setDeletedAt(LocalDateTime.now());
         news.setModifyDate(LocalDateTime.now());
-
-        return;
 
     }
 
@@ -128,5 +124,13 @@ public class NewsService {
 
     public News getNews(Long newsId) {
         return newsRepository.findById(newsId).orElseThrow(() -> new CustomRequestException(ReturnCode.NOT_FOUND_ENTITY));
+    }
+
+    private void checkAdmin() {
+        Collection<? extends GrantedAuthority> authorizations=AuthUtil.getAuth();
+
+        if(authorizations ==null || !authorizations.contains("ADMIN")){
+            throw new CustomException(ReturnCode.NOT_AUTHORIZED);
+        }
     }
 }

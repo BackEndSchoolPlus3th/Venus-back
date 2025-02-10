@@ -28,12 +28,14 @@ import org.springframework.data.domain.Limit;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -154,13 +156,11 @@ public class RepostService {
 
     @Transactional
     public void deleteRepost(Long postId){
-        Repost repost = getRepost(postId);
+        Repost target = getRepost(postId);
 
-        Long currentMemberId=AuthUtil.getCurrentMemberId();
-        Long targetMemberId=repost.getMember().getId();
-        if(!targetMemberId.equals(currentMemberId)) throw new CustomException(ReturnCode.NOT_AUTHORIZED);
+        checkWriter(target.getMember());
 
-        repost.delete();
+        target.delete();
 
     }
 
@@ -170,9 +170,7 @@ public class RepostService {
 
         Comment target = getComment(commentId, repost);
 
-        Long currentMemberId=AuthUtil.getCurrentMemberId();
-        Long targetMemberId=target.getMember().getId();
-        if(!targetMemberId.equals(currentMemberId)) throw new CustomException(ReturnCode.NOT_AUTHORIZED);
+        checkWriter(target.getMember());
 
         target.delete();
     }
@@ -183,14 +181,18 @@ public class RepostService {
 
         Comment target = getComment(commentId, repost);
 
-        Long currentMemberId=AuthUtil.getCurrentMemberId();
-        Long targetMemberId=target.getMember().getId();
-        if(!targetMemberId.equals(currentMemberId)) return null;
+        checkWriter(target.getMember());
 
         target.setContent(content);
         target.setModifyDate(LocalDateTime.now());
 
         return new CommentDTO(target);
+    }
+
+    private void checkWriter(Member target) {
+        Long currentMemberId = AuthUtil.getCurrentMemberId();
+        Long targetMemberId = target.getId();
+        if (!targetMemberId.equals(currentMemberId)) throw new CustomException(ReturnCode.NOT_AUTHORIZED);
     }
 
     private Comment getComment(Long commentId, Repost repost) {
@@ -222,13 +224,7 @@ public class RepostService {
     }
 
     public RepostDTO getRepostDTOById(Long postId){
-        Repost repost=null;
-
-        try {
-            repost = getRepost(postId);
-        }catch (Exception e){
-            return null;
-        }
+        Repost repost=getRepost(postId);
 
         return new RepostDTO(repost);
     }
@@ -272,6 +268,8 @@ public class RepostService {
         Repost repost=getRepost(repostId);
         News news=repost.getNews();
 
+        checkPublisher(news);
+
         Repost pinned=repostRepository.findRepostByNewsIdAndPinnedIsTrueAndDeletedAtIsNull(news.getId());
         //아무것도 찾지 못한 경우나 이미 지워진 경우
         if(pinned==null){
@@ -288,9 +286,21 @@ public class RepostService {
         repost.setModifyDate(LocalDateTime.now());
     }
 
+    private void checkPublisher(News news) {
+        String currentUserNickname=AuthUtil.getCurrentMemberNickname();
+        Collection<? extends GrantedAuthority> authorizations=AuthUtil.getAuth();
+
+        if(!news.getPublisher().equals(currentUserNickname) || authorizations ==null || !authorizations.contains("PUBLISHER")){
+            throw new CustomException(ReturnCode.NOT_AUTHORIZED);
+        }
+    }
+
     @Transactional
     public void pullPin(Long repostId){
         Repost repost=getRepost(repostId);
+        News news=repost.getNews();
+
+        checkPublisher(news);
 
         repost.setPinned(false);
         repost.setModifyDate(LocalDateTime.now());

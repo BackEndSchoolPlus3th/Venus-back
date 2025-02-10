@@ -1,7 +1,10 @@
 package com.ll.server.global.security.util;
 
 import com.ll.server.global.security.custom.CustomUserDetails;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+
+import java.util.Collection;
 
 public class AuthUtil {
 
@@ -11,6 +14,10 @@ public class AuthUtil {
 
     public static String getCurrentMemberNickname(){
         return getUserDetails()!=null?getUserDetails().getMember().getNickname():null;
+    }
+
+    public static Collection<? extends GrantedAuthority> getAuth(){
+        return getUserDetails()!=null?getUserDetails().getAuthorities():null;
     }
 
     public static Long getCurrentMemberId(){

@@ -10,6 +10,7 @@ import com.ll.server.domain.like.dto.LikeResponse;
 import com.ll.server.domain.repost.dto.*;
 import com.ll.server.domain.repost.service.RepostService;
 import com.ll.server.global.response.enums.ReturnCode;
+import com.ll.server.global.response.exception.CustomException;
 import com.ll.server.global.response.response.ApiResponse;
 import com.ll.server.global.response.response.CustomPage;
 import com.ll.server.global.security.util.AuthUtil;
@@ -52,6 +53,7 @@ public class ApiV1RepostController {
                                        @RequestParam(value = "size",defaultValue = "20")int size){
         PageLimitSizeValidator.validateSize(page,size, MyConstant.PAGELIMITATION);
         Pageable pageable=PageRequest.of(page,size, Sort.by("createDate","id").descending());
+
 
         if(keyword.isBlank()){
             Page<RepostOnly> result=repostService.findAll(pageable);
@@ -196,6 +198,21 @@ public class ApiV1RepostController {
     @PostMapping("/{repostId}/likes")
     public ApiResponse<LikeDTO> markLike(@PathVariable("repostId") Long repostId) {
         return ApiResponse.of(repostService.markLike(repostId, AuthUtil.getCurrentMemberId()));
+    }
+
+    @PatchMapping("/{repostId}")
+    public ApiResponse<?> setPinned(@PathVariable("repostId")Long repostId,
+                                    @RequestBody RepostPinRequest request){
+        if(request==null) throw new CustomException(ReturnCode.WRONG_PARAMETER);
+
+        if(request.isPinned()){
+            repostService.putPin(repostId);
+        }else{
+            repostService.pullPin(repostId);
+        }
+
+        return ApiResponse.of(ReturnCode.SUCCESS);
+
     }
 
 
