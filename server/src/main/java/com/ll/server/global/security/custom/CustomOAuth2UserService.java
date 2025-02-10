@@ -9,6 +9,7 @@ import com.ll.server.domain.member.enums.Provider;
 import com.ll.server.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
@@ -18,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 @Slf4j(topic = "CustomOAuth2UserService")
 @Service
@@ -25,6 +27,7 @@ import java.util.Optional;
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private final MemberRepository memberRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public OAuth2User loadUser (OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -50,9 +53,12 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     @Transactional
     protected Member createMember (OAuth2UserInfo oAuth2UserInfo, String provider) {
+        String randomPassword = UUID.randomUUID().toString();
+        String realPassword = passwordEncoder.encode(randomPassword);
         Member member = Member.builder()
                 .email(oAuth2UserInfo.getEmail())
                 .nickname(oAuth2UserInfo.getName())
+                .password(realPassword)
                 .provider(Provider.valueOf(provider.toUpperCase()))
                 .providerId(oAuth2UserInfo.getId())
                 .role(MemberRole.USER)

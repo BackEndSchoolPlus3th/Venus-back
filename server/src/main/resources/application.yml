@@ -1,37 +1,25 @@
+server:
+  port: 8080
+
 spring:
-  # 로그인 및 인증
-  oauth2:
-    kakao:
-      url:
-        auth: "${spring.security.kakao.url.auth}"
-        api: "${spring.security.kakao.url.api}"
-        redirect-uri: http://localhost:8080/kakao/callback
-      client-id: "${spring.security.kakao.client-id}"
-    naver:
-      url:
-        auth: "${spring.security.naver.url.auth}"
-        api: "${spring.security.naver.url.api}"
-        redirect-uri: "${spring.security.naver.url.redirect-uri}"
-      client-id: "${spring.security.naver.client-id}"
-      client-secret: "${spring.security.naver.client-secret}"
-
-    jwt:
-      secret-key: "${spring.security.jwt.secret-key}"
-
-    accessToken:
-      expirationSeconds: "${spring.security.accessToken.expirationSeconds}"
+  profiles:
+    active:
+      - local
+    include:
+      - secret
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: true
+        show_sql: true
+  data:
+    redis:
+      host: redis
+      port: 6379
   security:
     user:
       name: admin
       password: 1234
-  profiles:
-    active:
-      - dev
-    include:
-      - secret
-    jpa:
-      show-sql: true
-      properties:
-        hibernate:
-          format_sql: true
-          use_sql_comments: true

@@ -52,6 +52,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/member/signup", "/api/member/login", "/oauth2/**").permitAll()
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/publisher/**").hasAnyRole("PUBLISHER", "ADMIN")
+                .requestMatchers("/h2-console/**").permitAll() // H2 콘솔 허용
                 .anyRequest().authenticated());
 
         http.logout(logout -> logout
@@ -62,7 +63,17 @@ public class SecurityConfig {
         http.oauth2Login(oauth2 -> oauth2           // OAuth2 로그인 설정
                 .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
                 .successHandler(oAuth2SuccessHandler)
+                .authorizationEndpoint(auth->auth.baseUri("/oauth2/authorization")) // 이 URL을 통해 OAuth2 제공자에 연결
+                .redirectionEndpoint(red->red.baseUri("/oauth2/callback/kakao"))// 콜백 URL을 여기에 설정
         );
+
+        http
+                .csrf(csrf -> csrf
+                        .ignoringRequestMatchers("/h2-console/**") // H2 콘솔 CSRF 비활성화
+                )
+                .headers(headers -> headers
+                        .frameOptions(frame -> frame.sameOrigin()) // X-Frame-Options 설정 변경
+                );
 
         http    // JWT Filter 추가
                 .addFilterBefore(jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class)
@@ -70,11 +81,6 @@ public class SecurityConfig {
 
         return http.build();
 
-    }
-
-    @Bean
-    public BCryptPasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
     }
 
     @Bean

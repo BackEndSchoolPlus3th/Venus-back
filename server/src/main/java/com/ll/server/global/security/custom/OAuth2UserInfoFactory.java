@@ -9,9 +9,9 @@ import java.util.Map;
 public class OAuth2UserInfoFactory {
 
     public static OAuth2UserInfo getOAuth2UserInfo(String provider, Map<String, Object> attributes) {
-        if (provider.equals("KAKAO")) {
+        if (provider.equals("kakao")) {
             return new KakaoUserInfo(attributes);
-        } else if (provider.equals("NAVER")) {
+        } else if (provider.equals("naver")) {
             return new NaverUserInfo(attributes);
         } else {
             throw new IllegalArgumentException("Invalid OAuth2 Provider: " + provider);

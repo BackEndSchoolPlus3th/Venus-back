@@ -15,4 +15,11 @@ public class MemberDto {
     private String nickname;
     private String profileUrl;
     private String role;
+
+    public MemberDto(Member follower) {
+        this.email = follower.getEmail();
+        this.nickname = follower.getNickname();
+        this.profileUrl = follower.getProfileUrl();
+        this.role = String.valueOf(follower.getRole());
+    }
 }
