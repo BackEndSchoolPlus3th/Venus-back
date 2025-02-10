@@ -37,18 +37,21 @@ public class ApiV1RepostController {
     */
 
     // 목록 조회
+    @PreAuthorize("isAuthenticated()")
     @GetMapping
     public List<RepostDTO> getAllRepost(){
         return repostService.findAll();
     }
 
     // 단건 조회
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/{id}")
     public RepostDTO getRepost(@PathVariable("id") Long id){
         return repostService.findById(id);
     }
 
     // 삭제
+    @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{id}")
     public String deletePost(@PathVariable("id") Long repostId) {
         // auth 확인
@@ -76,6 +79,7 @@ public class ApiV1RepostController {
         comment 영역
     */
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/{repostId}/comments")
     public CommentResponse getAllComment(@PathVariable("repostId") Long postId){
         return new CommentResponse(repostService.getAllComment(postId));
@@ -84,6 +88,7 @@ public class ApiV1RepostController {
 
 
     // 삭제
+    @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{repostId}/comments/{commentId}")
     public String deleteComment(@PathVariable("repostId")Long postId,
                                 @PathVariable("commentId")Long commentId
@@ -102,6 +107,7 @@ public class ApiV1RepostController {
 
 
     // 수정
+    @PreAuthorize("isAuthenticated()")
     @PatchMapping("/{repostId}/comments/{commentId}")
     public CommentDTO modifyComment(@PathVariable("repostId") Long postId,
                                     @PathVariable("commentId") Long commentId,
@@ -122,6 +128,7 @@ public class ApiV1RepostController {
 
     // 작성
     @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/{repostId}/comments")
     public CommentDTO addComment(@PathVariable("repostId") Long postId,
                                      @RequestBody CommentWriteRequest request){
@@ -132,18 +139,20 @@ public class ApiV1RepostController {
         like 영역
     */
 
+
     @GetMapping("/{repostId}/likes")
     public LikeResponse getLikes(@PathVariable("repostId") Long repostId){
         List<LikeDTO> likes=repostService.getAllLike(repostId);
         return new LikeResponse(likes);
     }
-
+    @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{repostId}/likes/{userId}")
     public String deleteLike(@PathVariable("repostId") Long repostId,
                              @PathVariable("userId") Long userId){
         return repostService.deleteLike(repostId, userId);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/{repostId}/likes/{userId}")
     public LikeDTO markLike(@PathVariable("repostId") Long repostId,
                            @PathVariable("userId") Long userId){
