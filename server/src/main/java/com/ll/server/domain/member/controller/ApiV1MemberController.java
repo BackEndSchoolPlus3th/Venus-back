@@ -7,8 +7,8 @@ import com.ll.server.domain.member.entity.Member;
 import com.ll.server.domain.member.service.MemberService;
 import com.ll.server.global.jwt.JwtProvider;
 import com.ll.server.global.rsData.RsData;
+import com.ll.server.global.security.SecurityUser;
 import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,8 +19,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
 
 @Slf4j
 @RestController
@@ -103,24 +101,21 @@ public class ApiV1MemberController {
     // 마이페이지
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/me")
-    public RsData<MemberDto> me(HttpServletRequest request) {
-        Cookie[] cookies = request.getCookies();
-        String accessToken = "";
-        for (Cookie cookie : cookies) {
-            if (cookie.getName().equals("accessToken")) {
-                accessToken = cookie.getValue();
-            }
+    public RsData<MemberDto> me() {
+        // 현재 인증된 사용자 정보 가져오기
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        // authentication.getPrincipal()이 UserDetails 또는 CustomUserDetails 객체라면 캐스팅
+        if (authentication.getPrincipal() instanceof SecurityUser) {
+            SecurityUser user = (SecurityUser) authentication.getPrincipal();
+            String email = user.getUsername(); // email 가져오기
+
+            // 회원 정보 조회
+            Member member = memberService.getMember(email);
+            return new RsData<>("200", "회원정보 조회 성공", new MemberDto(member));
+        } else {
+            return new RsData<>("401", "인증되지 않은 사용자입니다.");
         }
-        Map<String, Object> claims = jwtProvider.getClaims(accessToken);
-        System.out.println(claims);
-        String email = (String) claims.get("email");
-        System.out.println(email);
-
-
-
-        Member member = this.memberService.getMember(email);
-
-        return new RsData("200", "회원정보 조회 성공",
-                new MemberDto(member));
     }
 }
+
