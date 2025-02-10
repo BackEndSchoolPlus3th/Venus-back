@@ -22,6 +22,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     };
 
     protected ResponseEntity<Object> handleExceptionInternal(ReturnCode errorCode) {
+        if(errorCode.equals(ReturnCode.INTERNAL_ERROR)){
+            return ResponseEntity.internalServerError().body(ApiResponse.of(errorCode));
+        }
+
         return ResponseEntity.badRequest().body(ApiResponse.of(errorCode));
     }
 
