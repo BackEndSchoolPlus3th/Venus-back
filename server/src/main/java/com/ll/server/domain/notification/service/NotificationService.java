@@ -77,6 +77,7 @@ public class NotificationService {
     //특정 유저의 모든 알림을 user의 ID로 찾음. 알림 목록이라는 것이 있다면 종류 불문 띄울 수 있도록.
     public Page<NotificationDTO> findAllNotificationsById(Long userId,Pageable pageable){
         Page<Notification> result= notificationRepository.findNotificationsByMember_IdOrderByIdDesc(userId,pageable);
+
         return new PageImpl<>(
                 result.getContent().stream().map(NotificationDTO::new).collect(Collectors.toList()),
                 result.getPageable(),
@@ -86,12 +87,14 @@ public class NotificationService {
 
     public NotificationInfinityScroll firstGetAllNotifications(Long userId, int size){
         List<Notification> notifications = notificationRepository.findNotificationsByMember_IdOrderByIdDesc(userId, Limit.of(size));
+
         List<NotificationDTO> dtos=notifications.stream().map(NotificationDTO::new).toList();
         return new NotificationInfinityScroll(dtos);
     }
 
     public NotificationInfinityScroll afterGetAllNotifications(Long userId, int size, Long lastId){
         List<Notification> notifications = notificationRepository.findNotificationsByMember_IdAndIdLessThanOrderByIdDesc(userId,lastId,Limit.of(size));
+
         List<NotificationDTO> dtos=notifications.stream().map(NotificationDTO::new).toList();
         return new NotificationInfinityScroll(dtos);
     }
@@ -118,10 +121,7 @@ public class NotificationService {
     //이 ID는 알림 엔티티의 ID로, 해당 알림을 읽었음을 나타냄. 알림창 탭의 특정 알림을 클릭한 상태라면 이 상태.
     @Transactional
     public Notification readNotification(Long notifyId) {
-        Optional<Notification> findOptional = notificationRepository.findByIdAndHasReadIsFalse(notifyId);
-        if(findOptional.isEmpty()) throw new CustomException(ReturnCode.NOT_FOUND_ENTITY);
-
-        Notification find = findOptional.get();
+        Notification find = notificationRepository.findByIdAndHasReadIsFalse(notifyId).orElseThrow(()->new CustomException(ReturnCode.NOT_FOUND_ENTITY));
         checkUser(find.getMember().getId());
 
         find.setReadTrue();
@@ -139,8 +139,9 @@ public class NotificationService {
     public List<Notification> readNotifications(List<Long> notifyIds){
         List<Notification> notifications = notificationRepository.findNotificationsByIdInAndHasReadIsFalse(notifyIds);
         if(notifications.isEmpty()){
-            return null;
+            throw new CustomException(ReturnCode.NOT_FOUND_ENTITY);
         }
+
 
         for(Notification notification : notifications){
             checkUser(notification.getMember().getId());
@@ -161,7 +162,7 @@ public class NotificationService {
         find.setSentTrue();
     }
 
-    //이 ID들은 알림 엔티티의 ID로, 효율적인 쿼리를 위해 사용
+    //이 ID들은 알림 엔티티의 ID로, 효율적인 쿼리를 위해 사용 (알림 보내기)
     @Transactional
     public void sendNotifications(List<Long> notifyIds) {
         List<Notification> notifications = notificationRepository.findNotificationsByIdInAndHasSentIsFalse(notifyIds);

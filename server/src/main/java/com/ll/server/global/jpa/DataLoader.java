@@ -55,7 +55,7 @@ public class DataLoader implements CommandLineRunner {
 //        repostDocRepository.deleteAll();
 //        newsDocRepository.deleteAll();
 
-        /*
+/*
         Faker faker=new Faker(Locale.KOREA);
 
         NewsResponse newsResponse=null;
@@ -73,6 +73,27 @@ public class DataLoader implements CommandLineRunner {
                     .password("1234")
                     .build();
             memberService.signup(signupRequest);
+        }
+
+        if(memberRepository.findAll().size()<3){
+            Member first=memberRepository.findAll().getFirst();
+            Member celebrity = memberRepository.findAll().get(1);
+
+            List<Member> members=new ArrayList<>();
+            for(int i=0;i<50;i++) {
+                SignupRequestDto signupReq = SignupRequestDto.builder()
+                        .email("a"+(i+1)+"@example.com")
+                        .nickname("exam"+(i+1))
+                        .password("1234")
+                        .build();
+                members.add(memberService.signup(signupReq));
+            }
+
+            for(Member member : members){
+                followService.save(celebrity.getId(), member.getId());
+                followService.save(member.getId(),celebrity.getId());
+            }
+
         }
 
 
@@ -119,7 +140,9 @@ public class DataLoader implements CommandLineRunner {
                 repostService.addComment(repost.getId(), req);
             }
         }
-*/
+
+        */
+
 
 
         SignupRequestDto publisherSignup=SignupRequestDto.builder()
@@ -278,6 +301,8 @@ public class DataLoader implements CommandLineRunner {
         repostService.markLike(repostDTO2.getRepostId(),user3.getId());
         repostService.markLike(repostDTO3.getRepostId(),user1.getId());
         //23개
+
+
 
     }
 }

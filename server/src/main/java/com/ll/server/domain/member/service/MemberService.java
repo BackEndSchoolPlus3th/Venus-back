@@ -6,7 +6,7 @@ import com.ll.server.domain.member.enums.MemberRole;
 import com.ll.server.domain.member.enums.Provider;
 import com.ll.server.domain.member.repository.MemberRepository;
 import com.ll.server.global.response.enums.ReturnCode;
-import com.ll.server.global.response.exception.CustomRequestException;
+import com.ll.server.global.response.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -26,7 +26,7 @@ public class MemberService {
     @Transactional
     public Member signup (SignupRequestDto requestDto) {
         if (memberRepository.existsByEmail(requestDto.getEmail())) {
-            throw new IllegalArgumentException("이미 가입된 이메일입니다.");
+            throw new CustomException(ReturnCode.ALREADY_EXIST);
         }
 
         Member member = Member.builder()
@@ -44,12 +44,12 @@ public class MemberService {
 
     public Member findByEmail (String email) {
         return memberRepository.findMemberByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 이메일입니다."));
+                .orElseThrow(() -> new CustomException(ReturnCode.NOT_FOUND_ENTITY));
     }
 
     public Member getMemberById(Long writerId) {
         return memberRepository.findById(writerId)
-                .orElseThrow(() -> new CustomRequestException(ReturnCode.NOT_FOUND_ENTITY));
+                .orElseThrow(() -> new CustomException(ReturnCode.NOT_FOUND_ENTITY));
     }
 
     public List<Member> getMembersByNickName(List<String> mentionedNames) {

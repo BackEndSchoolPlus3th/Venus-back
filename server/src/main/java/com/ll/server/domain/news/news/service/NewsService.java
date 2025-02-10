@@ -36,8 +36,8 @@ public class NewsService {
     private final RepostDocService repostDocService;
 
     public Page<NewsDTO> getAll(Pageable pageable) {
-
         Page<News> result = newsRepository.findAllByDeletedAtIsNullOrderByPublishedAtDescIdDesc(pageable);
+
         return new PageImpl<>(
                 result.getContent().stream()
                         .map(NewsDTO::new)
@@ -49,6 +49,7 @@ public class NewsService {
 
     public List<NewsOnly> firstInfinityGetAll(int size){
         List<News> result=newsRepository.findAllByDeletedAtIsNullOrderByPublishedAtDescIdDesc(Limit.of(size));
+
         return result.stream()
                 .map(NewsOnly::new)
                 .collect(Collectors.toList());
@@ -56,6 +57,7 @@ public class NewsService {
 
     public List<NewsOnly> afterInfinityGetAll(int size, LocalDateTime lastTime){
         List<News> result=newsRepository.findAllByPublishedAtIsBeforeAndDeletedAtIsNullOrderByPublishedAtDescIdDesc(lastTime, Limit.of(size));
+
         return result.stream()
                 .map(NewsOnly::new)
                 .collect(Collectors.toList());

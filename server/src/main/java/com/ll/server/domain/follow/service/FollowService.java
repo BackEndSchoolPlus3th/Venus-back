@@ -36,7 +36,7 @@ public class FollowService {
         Member followee=memberRepository.findById(followeeId).get();
 
         Follow find= followRepository.findByFollower_IdAndFollowee_Id(followerId,followeeId);
-        if(find!=null) return null;
+        if(find!=null) throw new CustomException(ReturnCode.ALREADY_EXIST);
 
         Follow follow= Follow.builder()
                 .follower(follower)
@@ -66,6 +66,7 @@ public class FollowService {
 
     public Page<MemberDto>  findFollowees(String followerName, Pageable pageable){
         Page<Follow> result= followRepository.findFollowsByFollower_Nickname(followerName,pageable);
+
         return new PageImpl<>(result.getContent().stream().map(follow -> new MemberDto(follow.getFollowee())).collect(Collectors.toList()),
                 result.getPageable(),
                 result.getTotalElements()
@@ -77,9 +78,11 @@ public class FollowService {
         List<Follow> result= followRepository.findFollowsByFollower_Nickname(followerName, Limit.of(size));
         long totalSize=followRepository.countFollowsByFollower_Nickname(followerName);
 
+        long nextLastId = getNextLastId(result);
+
         FolloweeListResponse response = FolloweeListResponse.builder()
                 .followees(result.stream().map(follow -> new MemberDto(follow.getFollowee())).collect(Collectors.toList()))
-                .lastId(result.getLast().getId())
+                .lastId(nextLastId)
                 .totalCount(totalSize)
                 .build();
 
@@ -89,19 +92,30 @@ public class FollowService {
     public FolloweeInfinityScroll afterGetFolloweesInfinity(String followerName, int size, Long lastId){
         List<Follow> result= followRepository.findFollowsByFollower_NicknameAndIdGreaterThan(followerName, lastId,Limit.of(size));
 
+        long nextLastId = getNextLastId(result);
+
         FolloweeInfinityScroll response = FolloweeInfinityScroll.builder()
                 .followees(result.stream().map(follow -> new MemberDto(follow.getFollowee())).collect(Collectors.toList()))
-                .lastId(result.getLast().getId())
+                .lastId(nextLastId)
                 .build();
 
         return response;
     }
 
+    private long getNextLastId(List<Follow> result) {
+        long nextLastId;
+
+        if(result ==null || result.isEmpty()) nextLastId = -1L;
+        else nextLastId = result.getLast().getId();
+        return nextLastId;
+    }
+
 
     public Page<MemberDto>  findFollowers(String followeeName, Pageable pageable){
         Page<Follow> result= followRepository.findFollowsByFollowee_Nickname(followeeName,pageable);
+
         return new PageImpl<>(
-                result.getContent().stream().map(follow -> new MemberDto(follow.getFollowee())).collect(Collectors.toList()),
+                result.getContent().stream().map(follow -> new MemberDto(follow.getFollower())).collect(Collectors.toList()),
                 result.getPageable(),
                 result.getTotalElements()
         );
@@ -111,9 +125,11 @@ public class FollowService {
         List<Follow> result= followRepository.findFollowsByFollowee_Nickname(followeeName, Limit.of(size));
         long totalSize=followRepository.countFollowsByFollowee_Nickname(followeeName);
 
+        long nextLastId = getNextLastId(result);
+
         FollowerListResponse response = FollowerListResponse.builder()
                 .followers(result.stream().map(follow -> new MemberDto(follow.getFollower())).collect(Collectors.toList()))
-                .lastId(result.getLast().getId())
+                .lastId(nextLastId)
                 .totalCount(totalSize)
                 .build();
 
@@ -123,9 +139,11 @@ public class FollowService {
     public FollowerInfinityScroll afterGetFollowersInfinity(String followeeName, int size, Long lastId){
         List<Follow> result= followRepository.findFollowsByFollowee_NicknameAndIdGreaterThan(followeeName, lastId,Limit.of(size));
 
+        long nextLastId = getNextLastId(result);
+
         FollowerInfinityScroll response = FollowerInfinityScroll.builder()
                 .followers(result.stream().map(follow -> new MemberDto(follow.getFollower())).collect(Collectors.toList()))
-                .lastId(result.getLast().getId())
+                .lastId(nextLastId)
                 .build();
 
         return response;

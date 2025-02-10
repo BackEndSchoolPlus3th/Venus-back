@@ -2,6 +2,8 @@ package com.ll.server.global.security.custom;
 
 import com.ll.server.domain.member.entity.Member;
 import com.ll.server.domain.member.repository.MemberRepository;
+import com.ll.server.global.response.enums.ReturnCode;
+import com.ll.server.global.response.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -18,7 +20,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername (String email) throws UsernameNotFoundException {
         Member member = memberRepository.findMemberByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("해당 사용자를 찾을 수 없습니다."));
+                .orElseThrow(() -> new CustomException(ReturnCode.NOT_FOUND_ENTITY));
 
         return new CustomUserDetails(member);
     }

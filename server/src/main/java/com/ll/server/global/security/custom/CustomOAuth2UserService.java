@@ -5,6 +5,8 @@ import com.ll.server.domain.member.entity.Member;
 import com.ll.server.domain.member.enums.MemberRole;
 import com.ll.server.domain.member.enums.Provider;
 import com.ll.server.domain.member.repository.MemberRepository;
+import com.ll.server.global.response.enums.ReturnCode;
+import com.ll.server.global.response.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -67,7 +69,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         } catch (Exception e) {
             String errorMessage = String.format("회원 저장에 실패했습니다: %s", e.getMessage());
             log.error(errorMessage);
-            throw new OAuth2AuthenticationException(errorMessage);
+            throw new CustomException(ReturnCode.INTERNAL_ERROR);
         }
     }
 
@@ -82,7 +84,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         } catch (Exception e) {
             String errorMessage = String.format("OAuth2 Provider(%s) : 회원 정보 업데이트에 실패했습니다: %s", existingMember.getProvider(), e.getMessage());
             log.error(errorMessage);
-            throw new OAuth2AuthenticationException(errorMessage);
+            throw new CustomException(ReturnCode.INTERNAL_ERROR);
         }
     }
 }

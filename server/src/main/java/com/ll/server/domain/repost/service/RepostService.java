@@ -121,7 +121,7 @@ public class RepostService {
         Repost repost=getRepost(postId);
 
         Page<Comment> comments = commentRepository.findCommentsByRepost_IdAndDeletedAtIsNull(postId,pageable);
-        System.out.println("추울력:"+comments.getContent());
+
         return new PageImpl<>(
                 comments.getContent().stream()
                         .map(CommentDTO::new).collect(Collectors.toList()),
@@ -133,15 +133,16 @@ public class RepostService {
     public List<CommentDTO> firstGetComment(Long postId, int size) {
         Repost repost = getRepost(postId);
 
-        return commentRepository.findCommentsByRepost_IdAndDeletedAtIsNullOrderByCreateDateAscIdAsc(postId,Limit.of(size))
-                .stream()
-                .map(CommentDTO::new).collect(Collectors.toList());
+        List<Comment> result= commentRepository.findCommentsByRepost_IdAndDeletedAtIsNullOrderByCreateDateAscIdAsc(postId,Limit.of(size));
+
+        return result.stream().map(CommentDTO::new).collect(Collectors.toList());
     }
 
     public List<CommentDTO> afterGetComment(Long postId, int size,LocalDateTime lastTime ,long lastId){
         Repost repost = getRepost(postId);
+        List<Comment> result=commentRepository.findCommentsByRepost_IdAndIdGreaterThanAndCreateDateAfterAndDeletedAtIsNullOrderByCreateDateAscIdAsc(postId,lastId,lastTime,Limit.of(size));
 
-        return commentRepository.findCommentsByRepost_IdAndIdGreaterThanAndCreateDateAfterAndDeletedAtIsNullOrderByCreateDateAscIdAsc(postId,lastId,lastTime,Limit.of(size))
+        return result
                 .stream()
                 .map(CommentDTO::new).collect(Collectors.toList());
     }
@@ -149,7 +150,9 @@ public class RepostService {
     public List<CommentDTO> getAllComment(Long postId) {
         Repost repost = getRepost(postId);
 
-        return commentRepository.findCommentsByRepost_IdAndDeletedAtIsNull(postId)
+        List<Comment> result=commentRepository.findCommentsByRepost_IdAndDeletedAtIsNull(postId);
+
+        return  result
                 .stream()
                 .map(CommentDTO::new).collect(Collectors.toList());
     }

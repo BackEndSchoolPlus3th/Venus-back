@@ -3,6 +3,8 @@ package com.ll.server.global.security.custom;
 import com.ll.server.domain.member.auth.interfaces.KakaoUserInfo;
 import com.ll.server.domain.member.auth.interfaces.NaverUserInfo;
 import com.ll.server.domain.member.auth.interfaces.OAuth2UserInfo;
+import com.ll.server.global.response.enums.ReturnCode;
+import com.ll.server.global.response.exception.CustomException;
 
 import java.util.Map;
 
@@ -14,7 +16,7 @@ public class OAuth2UserInfoFactory {
         } else if (provider.equals("naver")) {
             return new NaverUserInfo(attributes);
         } else {
-            throw new IllegalArgumentException("Invalid OAuth2 Provider: " + provider);
+            throw new CustomException(ReturnCode.WRONG_PARAMETER);
         }
     }
 }

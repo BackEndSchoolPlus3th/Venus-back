@@ -1,6 +1,8 @@
 package com.ll.server.global.security.handler;
 
 import com.ll.server.domain.member.dto.MemberDto;
+import com.ll.server.global.response.enums.ReturnCode;
+import com.ll.server.global.response.exception.CustomException;
 import com.ll.server.global.security.custom.CustomOAuth2User;
 import com.ll.server.global.security.util.JwtUtil;
 import jakarta.servlet.ServletException;
@@ -42,7 +44,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
         } catch (Exception e) {
             log.error("OAuth2 인증 성공 후 처리 중 오류 발생: {}", e.getMessage(), e);
-            throw new ServletException("OAuth2 인증 성공 후 처리 중 오류 발생", e);
+            throw new CustomException(ReturnCode.INTERNAL_ERROR);
         }
     }
 }

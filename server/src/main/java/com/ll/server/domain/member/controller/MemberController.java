@@ -123,33 +123,5 @@ public class MemberController {
         jwtUtil.addJwtToCookie(newAccessToken, response, "accessToken");
         return new ResponseEntity<>("AccessToken 갱신 성공", HttpStatus.OK);
 
-
-//        if (refreshToken != null) {
-//            if (jwtUtil.validateToken(refreshToken)) {
-//                String email = jwtUtil.getMemberEmailFromToken(refreshToken);
-//                String savedRefreshToken = redisService.getRefreshToken(email);
-//
-//                if (savedRefreshToken != null && savedRefreshToken.equals(refreshToken)) {
-//                    Member member = memberService.findByEmail(email);
-//
-//                    MemberDto memberDto = new MemberDto(
-//                            member.getEmail(),
-//                            member.getNickname(),
-//                            member.getProfileUrl(),
-//                            member.getRole().name()
-//                    );
-//
-//                    String newAccessToken = jwtUtil.generateAccessToken(memberDto);
-//                    jwtUtil.addJwtToCookie(newAccessToken, response, "accessToken");
-//                    return new ResponseEntity<>("AccessToken 갱싱 성공", HttpStatus.OK);
-//                } else {
-//                    return new ResponseEntity<>("RefreshToken 이 일치하지 않습니다.", HttpStatus.BAD_REQUEST);
-//                }
-//            } else {
-//                return new ResponseEntity<>("유효하지 않은 RefreshToken 입니다.", HttpStatus.BAD_REQUEST);
-//            }
-//        } else {
-//            return new ResponseEntity<>("RefreshToken 이 존재하지 않습니다.", HttpStatus.BAD_REQUEST);
-//        }
     }
 }
