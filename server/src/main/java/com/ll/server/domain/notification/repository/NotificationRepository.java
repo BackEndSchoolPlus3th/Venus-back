@@ -1,6 +1,7 @@
 package com.ll.server.domain.notification.repository;
 
 import com.ll.server.domain.notification.entity.Notification;
+import org.springframework.data.domain.Limit;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -19,15 +20,21 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 
     List<Notification> findNotificationsByHasReadIsFalse();
 
-    Page<Notification> findNotificationsByMember_IdAndHasSentIsTrueAndHasReadIsFalse(Long memberId, Pageable pageable);
+    Page<Notification> findNotificationsByMember_IdAndHasSentIsTrueAndHasReadIsFalseOrderByIdDesc(Long memberId, Pageable pageable);
 
-    List<Notification> findNotificationsByMember_IdAndHasSentIsTrueAndHasReadIsFalseOrderById(Long memberId);
+    List<Notification> findNotificationsByMember_IdAndHasSentIsTrueAndHasReadIsFalseOrderByIdDesc(Long memberId);
 
     List<Notification> findNotificationsByMember_IdAndHasSentIsFalse(Long user_id);
 
     List<Notification> findNotificationsByHasSentIsFalse();
 
-    Page<Notification> findNotificationsByMember_Id(Long userId,Pageable pageable);
+    Page<Notification> findNotificationsByMember_IdOrderByIdDesc(Long userId,Pageable pageable);
+
+    //전체 알림 조회. 무한스크롤 첫번째 시도
+    List<Notification> findNotificationsByMember_IdOrderByIdDesc(Long userId, Limit limit);
+
+    //전체 알림 조회. 무한스크롤 이후 시도
+    List<Notification> findNotificationsByMember_IdAndIdLessThanOrderByIdDesc(Long userId, Long lastId, Limit limit);
 
     Page<Notification> findNotificationsByMember_Nickname(String nickname, Pageable pageable);
 

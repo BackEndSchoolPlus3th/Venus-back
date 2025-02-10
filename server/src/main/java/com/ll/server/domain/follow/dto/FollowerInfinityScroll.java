@@ -6,13 +6,10 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.util.List;
-
 @Getter
 @AllArgsConstructor
 @Builder
-public class FolloweeListResponse {
-    private List<MemberDto> followees;
-    private long totalCount;
+public class FollowerInfinityScroll {
+    private List<MemberDto> followers;
     private long lastId;
-
 }

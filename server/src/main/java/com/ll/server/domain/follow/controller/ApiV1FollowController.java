@@ -3,6 +3,7 @@ package com.ll.server.domain.follow.controller;
 import com.ll.server.domain.follow.dto.FollowDTO;
 import com.ll.server.domain.follow.dto.FollowRequest;
 import com.ll.server.domain.follow.service.FollowService;
+import com.ll.server.domain.member.dto.MemberDto;
 import com.ll.server.global.response.enums.ReturnCode;
 import com.ll.server.global.response.response.ApiResponse;
 import com.ll.server.global.response.response.CustomPage;
@@ -34,13 +35,24 @@ public class ApiV1FollowController {
     }
 
     @GetMapping("/followers")
-    public ApiResponse<?> followerList(@RequestParam("nickname") String nickname,
+    public ApiResponse<?> followerList(@RequestParam("nickname") String nickname, //프론트에서 뭘 넘기느냐에 따라 다름.
                                        @RequestParam(value = "page",defaultValue = "0")int page,
                                        @RequestParam(value = "size",defaultValue = "20")int size){
         PageLimitSizeValidator.validateSize(page,size, MyConstant.PAGELIMITATION);
         Pageable pageable= PageRequest.of(page,size);
-        Page<FollowDTO> result= followService.findFollowers(nickname,pageable);
+        Page<MemberDto> result= followService.findFollowers(nickname,pageable);
         return ApiResponse.of(CustomPage.of(result));
+    }
+
+    @GetMapping("/followers/infinityTest")
+    public ApiResponse<?> followerListInfinity(@RequestParam("nickname") String nickname,
+                                               @RequestParam(value = "lastId",required = false) Long lastId,
+                                               @RequestParam(value = "size",defaultValue = "20")int size){
+        if(lastId==null){
+            return ApiResponse.of(followService.firstGetFollowersInfinity(nickname,size));
+        }
+
+        return ApiResponse.of(followService.afterGetFollowersInfinity(nickname,size,lastId));
     }
 
     @GetMapping("/followees")
@@ -49,9 +61,21 @@ public class ApiV1FollowController {
                                        @RequestParam(value = "size",defaultValue = "20")int size){
         PageLimitSizeValidator.validateSize(page,size, MyConstant.PAGELIMITATION);
         Pageable pageable= PageRequest.of(page,size);
-        Page<FollowDTO> result= followService.findFollowees(nickname,pageable);
+        Page<MemberDto> result= followService.findFollowees(nickname,pageable);
         return ApiResponse.of(CustomPage.of(result));
     }
+
+    @GetMapping("/followees/infinityTest")
+    public ApiResponse<?> followeeListInfinity(@RequestParam("nickname") String nickname,
+                                       @RequestParam(value = "lastId",required = false) Long lastId,
+                                               @RequestParam(value = "size",defaultValue = "20")int size){
+        if(lastId==null){
+            return ApiResponse.of(followService.firstGetFolloweesInfinity(nickname,size));
+        }
+
+        return ApiResponse.of(followService.afterGetFolloweesInfinity(nickname,size,lastId));
+    }
+
 
     @DeleteMapping("/{id}")
     public ApiResponse<String> unfollow(@PathVariable Long id){

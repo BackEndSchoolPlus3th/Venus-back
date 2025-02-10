@@ -40,9 +40,9 @@ public class ApiV1NotificationController {
     }
 
 
-    //알림탭을 클릭
+    //메인에서 알림 탭 누르면 보이는 알림들
     @GetMapping
-    public ApiResponse<List<NotificationDTO>> getAll(){
+    public ApiResponse<List<NotificationDTO>> getSummary(){
         Long memberId = AuthUtil.getCurrentMemberId();
 
         Pageable pageable= PageRequest.of(0,10, Sort.by("id").descending());
@@ -51,11 +51,23 @@ public class ApiV1NotificationController {
         return ApiResponse.of(result.getContent());
     }
 
+    @GetMapping("/details/infinityTest")
+    public ApiResponse<?> getAllInfinity(
+            @RequestParam(value = "size",defaultValue = "20")int size,
+            @RequestParam(value = "lastId",required = false)Long lastId){
+        Long userId=AuthUtil.getCurrentMemberId();
+        if(lastId==null){
+            return ApiResponse.of(notificationService.firstGetAllNotifications(userId,size));
+        }
+
+        return ApiResponse.of(notificationService.afterGetAllNotifications(userId,size,lastId));
+    }
+
 
 
     //알림 상세탭에 들어간 경우. (유저 엔티티 ID로 찾음)
     @GetMapping("/details")
-    public ApiResponse<?> getNotificationsById(@RequestParam(value = "page",defaultValue = "0") int page,
+    public ApiResponse<?> getAllById(@RequestParam(value = "page",defaultValue = "0") int page,
                                                @RequestParam(value = "size",defaultValue = "20") int size
                                                ){
         PageLimitSizeValidator.validateSize(page,size, MyConstant.PAGELIMITATION);
