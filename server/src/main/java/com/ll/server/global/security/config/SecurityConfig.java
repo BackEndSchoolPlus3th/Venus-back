@@ -47,32 +47,33 @@ public class SecurityConfig {
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .headers(headers->headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-        http.authorizeHttpRequests(auth -> auth     // 인가 (Authorization) 설정
-                .requestMatchers("/api/v1/member/signup", "/api/v1/member/login", "/api/v1/oauth2/**","/api/v1/member/auth").permitAll()
+                .authorizeHttpRequests(auth -> auth     // 인가 (Authorization) 설정
+                .requestMatchers("/api/v1/member/signup", "/api/v1/member/login", "/oauth2/**","/api/v1/member/auth").permitAll()
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/publisher/**").hasAnyRole("PUBLISHER", "ADMIN")
-                .anyRequest().authenticated());
+                .anyRequest().authenticated()
+                )
 
-        http.logout(logout -> logout
-                .logoutRequestMatcher(new AntPathRequestMatcher("/api/v1/member/logout"))
-                .clearAuthentication(true) // 인증 정보 제거
-                .invalidateHttpSession(true) // 세션 무효화
-                .deleteCookies("accessToken", "refreshToken") // 쿠키 삭제
-                //.logoutSuccessUrl("http://localhost:5173/logout")
-                .permitAll());
+                .logout(logout -> logout
+                        .logoutRequestMatcher(new AntPathRequestMatcher("/api/v1/member/logout"))
+                        .clearAuthentication(true) // 인증 정보 제거
+                        .invalidateHttpSession(true) // 세션 무효화
+                        .deleteCookies("accessToken", "refreshToken") // 쿠키 삭제
+                        //.logoutSuccessUrl("http://localhost:5173/logout")
+                        .permitAll()
+                )
 
-        http.oauth2Login(oauth2 -> oauth2           // OAuth2 로그인 설정
+                .oauth2Login(oauth2 -> oauth2           // OAuth2 로그인 설정
                 .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
                 .successHandler(oAuth2SuccessHandler)
-                .authorizationEndpoint(auth->auth.baseUri("/api/v1/oauth2/authorization")) // 이 URL을 통해 OAuth2 제공자에 연결
-                        .redirectionEndpoint(red->red.baseUri("/api/v1/oauth2/callback/kakao"))// 콜백 URL을 여기에 설정
+                .authorizationEndpoint(auth->auth.baseUri("/oauth2/authorization")) // 이 URL을 통해 OAuth2 제공자에 연결
+                        .redirectionEndpoint(red->red.baseUri("/oauth2/callback/kakao"))// 콜백 URL을 여기에 설정
 //                        .redirectionEndpoint(red -> red
 //                            .baseUri("/api/v1/oauth2/callback/naver"))
-        );
-
-        http    // JWT Filter 추가
+                )
+                // JWT Filter 추가
                 .addFilterBefore(jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthenticationFilter(), JwtAuthorizationFilter.class);
 

@@ -106,7 +106,7 @@ public class ApiV1NotificationController {
 
     //SSE 연결과 동시에 안 보낸 알림이 있으면 와바박 보냄
     @GetMapping("/connect")
-    public void connect(){
+    public ApiResponse<?> connect(){
 
 
         //방법1. 접속한 유저의 accessToken을 이용해 유저 정보를 알아내기
@@ -122,7 +122,7 @@ public class ApiV1NotificationController {
         List<Notification> notifications=notificationService.findUnsentNotificationsById(userId);
 
         if(notifications==null || notifications.isEmpty()){
-            return;
+            return ApiResponse.of("비어있음");
         }
 
         List<Long> successToSend=new ArrayList<>();
@@ -134,9 +134,10 @@ public class ApiV1NotificationController {
             }
         }
 
-        if(successToSend.isEmpty()) return;
+        if(successToSend.isEmpty()) return ApiResponse.of("최신 알림이 없음");
 
         notificationService.sendNotifications(successToSend);
 
+        return ApiResponse.of("수행 성공");
     }
 }

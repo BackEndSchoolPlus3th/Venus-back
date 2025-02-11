@@ -2,6 +2,8 @@ package com.ll.server.domain.member.auth.controller;
 
 import com.ll.server.domain.member.dto.MemberDto;
 import com.ll.server.domain.member.service.MemberService;
+import com.ll.server.global.response.enums.ReturnCode;
+import com.ll.server.global.response.exception.CustomException;
 import com.ll.server.global.security.custom.CustomOAuth2User;
 import com.ll.server.global.security.util.JwtUtil;
 import jakarta.servlet.http.HttpServletResponse;
@@ -17,7 +19,7 @@ import java.io.IOException;
 @Slf4j(topic = "OAuth2Controller")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/oauth2")
+@RequestMapping("/oauth2")
 public class OAuth2Controller {
 
     private final MemberService memberService;
@@ -38,7 +40,7 @@ public class OAuth2Controller {
         if (authentication == null) {
             log.error("Authentication 객체가 null 입니다.");
             response.sendRedirect("/login?error=authentication_failed"); // 오류 페이지로 리다이렉트
-            return;
+            throw new CustomException(ReturnCode.NOT_AUTHORIZED);
         }
 
         CustomOAuth2User oAuth2User = (CustomOAuth2User) authentication.getPrincipal();
@@ -50,7 +52,6 @@ public class OAuth2Controller {
         jwtUtil.addJwtToCookie(accessToken, response, "accessToken");
         jwtUtil.addJwtToCookie(refreshToken, response, "refreshToken");
 
-        // Redirect url (front)
-        response.sendRedirect("http://localhost:8080/api-test");
+
     }
 }

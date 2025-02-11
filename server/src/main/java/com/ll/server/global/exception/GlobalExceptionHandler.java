@@ -29,8 +29,4 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.badRequest().body(ApiResponse.of(errorCode));
     }
 
-    // handleExceptionInternal() 메소드를 오버라이딩해 응답 커스터마이징
-//    private ApiResponse<?> handleExceptionInternal(ReturnCode errorCode) {
-//        return ApiResponse.of(errorCode);
-//    }
 }

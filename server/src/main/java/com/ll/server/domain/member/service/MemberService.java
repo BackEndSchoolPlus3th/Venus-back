@@ -37,7 +37,11 @@ public class MemberService {
                 .provider(Provider.LOCAL)
                 .build();
 
-        memberRepository.save(member);
+        try {
+            memberRepository.save(member);
+        }catch (Exception e){
+            throw new CustomException(ReturnCode.WRONG_PARAMETER);
+        }
 
         return member;
     }
