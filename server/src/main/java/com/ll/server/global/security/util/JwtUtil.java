@@ -126,6 +126,7 @@ public class JwtUtil {
 
     public String getJwtFromHeader (HttpServletRequest request) {
         String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
+        log.info("넘어온 authorizaiton:"+bearerToken);
         if (bearerToken != null && bearerToken.startsWith(BEARER_PREFIX)) {
             return bearerToken.substring(7);
         }

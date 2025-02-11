@@ -83,8 +83,8 @@ public class MemberController {
     }
 
     @GetMapping("/auth")
-    public ApiResponse<MemberDto> authorizeByCookie(HttpServletRequest request){
-        String accessToken = jwtUtil.resolveAccessToken(request);
+    public ApiResponse<MemberDto> authorize(HttpServletRequest request){
+        String accessToken = jwtUtil.getJwtFromHeader(request);
         if(accessToken==null) throw new CustomException(ReturnCode.NOT_AUTHORIZED);
 
         if(!jwtUtil.validateToken(accessToken)) throw new CustomException(ReturnCode.NOT_AUTHORIZED);

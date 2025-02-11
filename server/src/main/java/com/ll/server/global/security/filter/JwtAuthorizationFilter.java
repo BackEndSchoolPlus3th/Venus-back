@@ -29,8 +29,11 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal (HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String token = //jwtUtil.getJwtFromHeader(request);
-                        jwtUtil.resolveRefreshToken(request);
+        String token = jwtUtil.getJwtFromHeader(request);
+        if(token == null) {
+            log.error("Authorization 검증 실패");
+            token=jwtUtil.resolveRefreshToken(request);
+        }
 
         if (StringUtils.hasText(token)) {
             if (!jwtUtil.validateToken(token)) {
