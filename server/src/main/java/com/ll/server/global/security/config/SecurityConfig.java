@@ -50,23 +50,26 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         http.authorizeHttpRequests(auth -> auth     // 인가 (Authorization) 설정
-                .requestMatchers("/api/member/signup", "/api/member/login", "/oauth2/**").permitAll()
+                .requestMatchers("/api/v1/member/signup", "/api/v1/member/login", "/api/v1/oauth2/**","/api/v1/member/auth").permitAll()
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/publisher/**").hasAnyRole("PUBLISHER", "ADMIN")
                 .anyRequest().authenticated());
 
         http.logout(logout -> logout
-                .logoutRequestMatcher(new AntPathRequestMatcher("/api/member/logout"))
-                .logoutSuccessUrl("http://localhost:3000/logout")
+                .logoutRequestMatcher(new AntPathRequestMatcher("/api/v1/member/logout"))
+                .clearAuthentication(true) // 인증 정보 제거
+                .invalidateHttpSession(true) // 세션 무효화
+                .deleteCookies("accessToken", "refreshToken") // 쿠키 삭제
+                //.logoutSuccessUrl("http://localhost:5173/logout")
                 .permitAll());
 
         http.oauth2Login(oauth2 -> oauth2           // OAuth2 로그인 설정
                 .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
                 .successHandler(oAuth2SuccessHandler)
-                .authorizationEndpoint(auth->auth.baseUri("/oauth2/authorization")) // 이 URL을 통해 OAuth2 제공자에 연결
-                        .redirectionEndpoint(red->red.baseUri("/oauth2/callback/kakao"))// 콜백 URL을 여기에 설정
+                .authorizationEndpoint(auth->auth.baseUri("/api/v1/oauth2/authorization")) // 이 URL을 통해 OAuth2 제공자에 연결
+                        .redirectionEndpoint(red->red.baseUri("/api/v1/oauth2/callback/kakao"))// 콜백 URL을 여기에 설정
 //                        .redirectionEndpoint(red -> red
-//                            .baseUri("/oauth2/callback/naver"))
+//                            .baseUri("/api/v1/oauth2/callback/naver"))
         );
 
         http    // JWT Filter 추가
@@ -98,7 +101,7 @@ public class SecurityConfig {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://localhost:8080")); // 프론트 URL 허용
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000","http://localhost:5173", "http://localhost:8080")); // 프론트 URL 허용
         configuration.setAllowedMethods(Arrays.asList("HEAD", "POST", "GET", "DELETE", "PUT", "PATCH", "OPTION"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type"));
         configuration.setAllowCredentials(true); // 쿠키 허용

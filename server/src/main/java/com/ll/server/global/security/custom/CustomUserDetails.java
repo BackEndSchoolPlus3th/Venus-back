@@ -19,10 +19,7 @@ public class CustomUserDetails implements UserDetails {
     public CustomUserDetails(Member member) {
         this.member = member;
         this.memberDto = new MemberDto(
-                member.getEmail(),
-                member.getNickname(),
-                member.getProfileUrl(),
-                member.getRole().name()
+            member
         );
     }
 

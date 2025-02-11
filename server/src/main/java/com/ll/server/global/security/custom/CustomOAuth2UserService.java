@@ -17,6 +17,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -77,6 +78,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     protected Member updateMember(Member existingMember, OAuth2UserInfo oAuth2UserInfo) {
         // OAuth2 정보와 일치하도록 기존 회원 정보 업데이트
         existingMember.setNickname(oAuth2UserInfo.getName());
+        existingMember.setModifyDate(LocalDateTime.now());
         // 필요한 다른 정보들도 업데이트
 
         try {

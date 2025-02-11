@@ -187,7 +187,6 @@ public class RepostService {
         checkWriter(target.getMember());
 
         target.setContent(content);
-        target.setModifyDate(LocalDateTime.now());
 
         return new CommentDTO(target);
     }
@@ -277,7 +276,6 @@ public class RepostService {
         //아무것도 찾지 못한 경우나 이미 지워진 경우
         if(pinned==null){
             repost.setPinned(true);
-            repost.setModifyDate(LocalDateTime.now());
             return;
         }
 
@@ -285,8 +283,6 @@ public class RepostService {
         pinned.setPinned(false);
         repost.setPinned(true);
 
-        pinned.setModifyDate(LocalDateTime.now());
-        repost.setModifyDate(LocalDateTime.now());
     }
 
     private void checkPublisher(News news) {
@@ -306,7 +302,6 @@ public class RepostService {
         checkPublisher(news);
 
         repost.setPinned(false);
-        repost.setModifyDate(LocalDateTime.now());
     }
 
     public Page<RepostUnderNews> getNewsRepostCursorPagination(Long newsId, Pageable pageable){

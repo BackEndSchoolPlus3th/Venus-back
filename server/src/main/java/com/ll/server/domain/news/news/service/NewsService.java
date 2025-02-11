@@ -95,7 +95,6 @@ public class NewsService {
 
         news.setContent(request.getContent());
         news.setTitle(request.getTitle());
-        news.setModifyDate(LocalDateTime.now());
         return new NewsDTO(news);
     }
 
@@ -108,7 +107,6 @@ public class NewsService {
 
         news.removeReposts();
         news.setDeletedAt(LocalDateTime.now());
-        news.setModifyDate(LocalDateTime.now());
 
     }
 

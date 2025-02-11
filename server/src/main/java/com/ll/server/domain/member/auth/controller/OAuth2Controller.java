@@ -17,7 +17,7 @@ import java.io.IOException;
 @Slf4j(topic = "OAuth2Controller")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/oauth2")
+@RequestMapping("/api/v1/oauth2")
 public class OAuth2Controller {
 
     private final MemberService memberService;

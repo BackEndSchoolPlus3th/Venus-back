@@ -72,6 +72,7 @@ public class JwtUtil {
                 .claim(AUTHORIZATION_KEY, memberDto.getRole())
                 .claim("nickname", memberDto.getNickname())
                 .claim("profileUrl", memberDto.getProfileUrl())
+                .claim("id",memberDto.getId())
                 .issuedAt(now)
                 .expiration(expiryDate)
                 .signWith(key, Jwts.SIG.HS256)
@@ -101,7 +102,8 @@ public class JwtUtil {
                 claims.getSubject(),                                // 이메일
                 claims.get("nickname", String.class),               // 닉네임
                 claims.get("profileUrl", String.class),             // 프로필 이미지
-                claims.get(AUTHORIZATION_KEY, String.class)         // 권한
+                claims.get(AUTHORIZATION_KEY, String.class),         // 권한
+                claims.get("id",Long.class)
         );
     }
 
@@ -130,12 +132,25 @@ public class JwtUtil {
         return null;
     }
 
-    public String resolveToken (HttpServletRequest request) {
+    public String resolveRefreshToken (HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
         if(cookies == null || cookies.length ==0) return null;
 
         for (Cookie cookie : cookies) {
             if (cookie.getName().equals("refreshToken")) {
+                return cookie.getValue();
+            }
+        }
+
+        return null;
+    }
+
+    public String resolveAccessToken(HttpServletRequest request){
+        Cookie[] cookies = request.getCookies();
+        if(cookies == null || cookies.length ==0) return null;
+
+        for (Cookie cookie : cookies) {
+            if (cookie.getName().equals("accessToken")) {
                 return cookie.getValue();
             }
         }

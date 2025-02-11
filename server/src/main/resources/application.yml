@@ -10,7 +10,7 @@ spring:
       - secret
   data:
     redis:
-      host: mysql.tmdgjsdl1.site
+      host: db.tmdgjsdl1.site
       port: 6379
   jpa:
     show-sql: true

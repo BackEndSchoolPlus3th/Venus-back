@@ -6,6 +6,9 @@ import com.ll.server.domain.member.dto.MemberDto;
 import com.ll.server.domain.member.entity.Member;
 import com.ll.server.domain.member.service.MemberService;
 import com.ll.server.global.redis.RedisService;
+import com.ll.server.global.response.enums.ReturnCode;
+import com.ll.server.global.response.exception.CustomException;
+import com.ll.server.global.response.response.ApiResponse;
 import com.ll.server.global.security.util.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -21,7 +24,7 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j(topic = "MemberController")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/member")
+@RequestMapping("/api/v1/member")
 public class MemberController {
 
     private final MemberService memberService;
@@ -44,16 +47,11 @@ public class MemberController {
         try {
             Member member = memberService.findByEmail(requestDto.getEmail());
 
-            if (!passwordEncoder.matches(requestDto.getPassword(), member.getPassword())) {
-                return new ResponseEntity<>("비밀번호가 일치하지 않습니다.", HttpStatus.UNAUTHORIZED);
+            if (member == null || !passwordEncoder.matches(requestDto.getPassword(), member.getPassword())) {
+                return new ResponseEntity<>("비밀번호나 아이디가 다릅니다..", HttpStatus.UNAUTHORIZED);
             }
 
-            MemberDto memberDto = new MemberDto(
-                    member.getEmail(),
-                    member.getNickname(),
-                    member.getProfileUrl(),
-                    member.getRole().name()
-            );
+            MemberDto memberDto = new MemberDto(member);
 
             String accessToken = jwtUtil.generateAccessToken(memberDto);
             String refreshToken = jwtUtil.generateRefreshToken(memberDto.getEmail());
@@ -72,16 +70,17 @@ public class MemberController {
     @PostMapping("/logout")
     public ResponseEntity<String> logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
         // 1. Spring Security Context Logout 처리
-        if (authentication != null) {
-            new SecurityContextLogoutHandler().logout(request, response, authentication);
+        if (authentication == null) {
+            throw new CustomException(ReturnCode.INTERNAL_ERROR);
         }
 
+        new SecurityContextLogoutHandler().logout(request, response, authentication);
         // 2. JWT 쿠키 삭제
         jwtUtil.deleteJwtFromCookie(response, "accessToken");
         jwtUtil.deleteJwtFromCookie(response, "refreshToken");
 
         // 3. RefreshToken 삭제
-        String refreshToken = jwtUtil.resolveToken(request);
+        String refreshToken = jwtUtil.resolveRefreshToken(request);
 
         if (refreshToken != null) {
             String email = jwtUtil.getMemberEmailFromToken(refreshToken);
@@ -91,9 +90,21 @@ public class MemberController {
         return new ResponseEntity<>("로그아웃 성공", HttpStatus.OK);
     }
 
+    @GetMapping("/auth")
+    public ApiResponse<MemberDto> authorizeByCookie(HttpServletRequest request){
+        String accessToken = jwtUtil.resolveAccessToken(request);
+        if(accessToken==null) throw new CustomException(ReturnCode.NOT_AUTHORIZED);
+
+        if(!jwtUtil.validateToken(accessToken)) throw new CustomException(ReturnCode.NOT_AUTHORIZED);
+
+        MemberDto member = jwtUtil.getUserInfoFromToken(accessToken);
+
+        return ApiResponse.of(member);
+    }
+
     @GetMapping("/refresh")
     public ResponseEntity<String> refresh(HttpServletRequest request, HttpServletResponse response) {
-        String refreshToken = jwtUtil.resolveToken(request);
+        String refreshToken = jwtUtil.resolveRefreshToken(request);
 
         if(refreshToken==null){
             return new ResponseEntity<>("RefreshToken 이 존재하지 않습니다.", HttpStatus.BAD_REQUEST);
@@ -113,10 +124,7 @@ public class MemberController {
         Member member = memberService.findByEmail(email);
 
         MemberDto memberDto = new MemberDto(
-                member.getEmail(),
-                member.getNickname(),
-                member.getProfileUrl(),
-                member.getRole().name()
+             member
         );
 
         String newAccessToken = jwtUtil.generateAccessToken(memberDto);

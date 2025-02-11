@@ -1,35 +1,20 @@
 package com.ll.server.global.jpa;
 
-import com.ll.server.domain.comment.dto.CommentWriteRequest;
 import com.ll.server.domain.comment.repository.CommentRepository;
 import com.ll.server.domain.follow.controller.ApiV1FollowController;
-import com.ll.server.domain.follow.dto.FollowRequest;
 import com.ll.server.domain.follow.service.FollowService;
-import com.ll.server.domain.member.auth.dto.SignupRequestDto;
-import com.ll.server.domain.member.entity.Member;
 import com.ll.server.domain.member.repository.MemberRepository;
 import com.ll.server.domain.member.service.MemberService;
-import com.ll.server.domain.news.news.entity.News;
-import com.ll.server.domain.news.news.enums.NewsCategory;
 import com.ll.server.domain.news.news.repository.NewsRepository;
 import com.ll.server.domain.news.news.service.NewsFetchService;
 import com.ll.server.domain.news.news.service.NewsService;
 import com.ll.server.domain.repost.controller.ApiV1RepostController;
-import com.ll.server.domain.repost.dto.RepostDTO;
-import com.ll.server.domain.repost.dto.RepostWriteRequest;
 import com.ll.server.domain.repost.repository.RepostRepository;
 import com.ll.server.domain.repost.service.RepostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -143,7 +128,7 @@ public class DataLoader implements CommandLineRunner {
 
         */
 
-
+/*
 
         SignupRequestDto publisherSignup=SignupRequestDto.builder()
                 .email("publisher@example.com")
@@ -302,7 +287,7 @@ public class DataLoader implements CommandLineRunner {
         repostService.markLike(repostDTO3.getRepostId(),user1.getId());
         //23개
 
-
+*/
 
     }
 }

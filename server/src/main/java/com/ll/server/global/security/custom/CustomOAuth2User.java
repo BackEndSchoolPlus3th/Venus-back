@@ -21,7 +21,8 @@ public class CustomOAuth2User implements OAuth2User {
                 member.getEmail(),
                 member.getNickname(),
                 member.getProfileUrl(),
-                member.getRole().name()
+                member.getRole().name(),
+                member.getId()
         );
     }
 
