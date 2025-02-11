@@ -191,4 +191,11 @@ public class RepostService {
         return new LikeDTO(repost.addLike(user));
 
     }
+
+    public List<RepostDTO> searchContent(String keyword) {
+        List<Repost> reposts = repostRepository.findByContentContainingAndDeletedAtIsNull(keyword);
+        return reposts.stream()
+                .map(RepostDTO::new)
+                .collect(Collectors.toList());
+    }
 }
