@@ -7,7 +7,6 @@ import com.ll.server.domain.member.auth.interfaces.OAuth2UserInfo;
 import java.util.Map;
 
 public class OAuth2UserInfoFactory {
-
     public static OAuth2UserInfo getOAuth2UserInfo(String provider, Map<String, Object> attributes) {
         if (provider.equals("kakao")) {
             return new KakaoUserInfo(attributes);
@@ -18,3 +17,4 @@ public class OAuth2UserInfoFactory {
         }
     }
 }
+

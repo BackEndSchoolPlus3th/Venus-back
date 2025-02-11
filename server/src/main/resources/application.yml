@@ -39,3 +39,6 @@ spring:
     redis:
       host: redis
       port: 6379
+
+front:
+  redirect-url: "http://localhost:5173/"

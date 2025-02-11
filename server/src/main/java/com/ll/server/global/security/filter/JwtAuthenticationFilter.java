@@ -3,19 +3,25 @@ package com.ll.server.global.security.filter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ll.server.domain.member.auth.dto.LoginRequestDto;
 import com.ll.server.domain.member.dto.MemberDto;
+import com.ll.server.domain.member.entity.Member;
 import com.ll.server.global.security.custom.CustomUserDetails;
 import com.ll.server.global.security.util.JwtUtil;
 import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 
 // 일반 로그인 요청 (/api/member/login)을 처리하는 필터
@@ -24,9 +30,11 @@ import java.util.Collections;
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private final JwtUtil jwtUtil;
+    private final AuthenticationManager authenticationManager;
 
-    public JwtAuthenticationFilter(JwtUtil jwtUtil) {
+    public JwtAuthenticationFilter(JwtUtil jwtUtil, AuthenticationManager authenticationManager) {
         this.jwtUtil = jwtUtil;
+        this.authenticationManager = authenticationManager;
         setFilterProcessesUrl("/api/member/login"); // 로그인 요청 URL
     }
 
@@ -45,6 +53,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                     Collections.emptyList() // 권한 정보는 JWT 에서 관리하므로 빈 리스트 전달
             );
 
+            setAuthenticationManager(authenticationManager);
             return getAuthenticationManager().authenticate(authenticationToken);
         } catch (IOException e) {
             log.error("RequestBody 를 읽는 데 실패하였습니다.", e);
@@ -53,29 +62,28 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     }
 
     @Override
-    protected void successfulAuthentication (HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException {
-        String email = authResult.getName();
+    protected void successfulAuthentication (HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
+        SecurityContextHolder.getContext().setAuthentication(authResult);
         CustomUserDetails userDetails = (CustomUserDetails) authResult.getPrincipal();
-        MemberDto memberDto = userDetails.getMemberDto();
+        Member member = userDetails.getMember();
 
-        String accessToken = jwtUtil.generateAccessToken(memberDto);
-        String refreshToken = jwtUtil.generateRefreshToken(email);
+        String accessToken = jwtUtil.generateAccessToken(member.getEmail(), member.getRole().name());
+        String refreshToken = jwtUtil.generateRefreshToken(member.getEmail());
 
         jwtUtil.addJwtToCookie(accessToken, response, "accessToken");
         jwtUtil.addJwtToCookie(refreshToken, response, "refreshToken");
 
         response.setStatus(HttpServletResponse.SC_OK);
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.setCharacterEncoding(StandardCharsets.UTF_8.name());
         response.getWriter().write("{\"message\": \"로그인 성공\"}");
     }
 
     @Override
-    protected void unsuccessfulAuthentication (HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException {
+    protected void unsuccessfulAuthentication (HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.setCharacterEncoding(StandardCharsets.UTF_8.name());
         response.getWriter().write("{\"message\": \"로그인 실패\"}");
     }
 }
-

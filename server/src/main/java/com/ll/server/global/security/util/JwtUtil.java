@@ -21,7 +21,7 @@ public class JwtUtil {
 
     public static final String AUTHORIZATION_KEY = "auth";
     public static final String AUTHORIZATION_HEADER = "Authorization";
-    private static final String BEARER_PREFIX = "Bearer ";
+    public static final String BEARER_PREFIX = "Bearer ";
 
     @Value("${jwt.secret}")
     private String secretKey;
@@ -63,15 +63,13 @@ public class JwtUtil {
         }
     }
 
-    public String generateAccessToken (MemberDto memberDto) {
+    public String generateAccessToken (String email, String role) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + ACCESS_TOKEN_EXPIRATION_TIME);
 
         return Jwts.builder()
-                .subject(memberDto.getEmail())
-                .claim(AUTHORIZATION_KEY, memberDto.getRole())
-                .claim("nickname", memberDto.getNickname())
-                .claim("profileUrl", memberDto.getProfileUrl())
+                .subject(email)
+                .claim(AUTHORIZATION_KEY, role)
                 .issuedAt(now)
                 .expiration(expiryDate)
                 .signWith(key, Jwts.SIG.HS256)
@@ -88,21 +86,6 @@ public class JwtUtil {
                 .expiration(expiryDate)
                 .signWith(key, Jwts.SIG.HS256)
                 .compact();
-    }
-
-    public MemberDto getUserInfoFromToken (String token) {
-        Claims claims = Jwts.parser()
-                .verifyWith(key)
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
-
-        return new MemberDto(
-                claims.getSubject(),                                // 이메일
-                claims.get("nickname", String.class),               // 닉네임
-                claims.get("profileUrl", String.class),             // 프로필 이미지
-                claims.get(AUTHORIZATION_KEY, String.class)         // 권한
-        );
     }
 
     public void addJwtToCookie (String token, HttpServletResponse response, String cookieName) {
@@ -124,10 +107,15 @@ public class JwtUtil {
 
     public String getJwtFromHeader (HttpServletRequest request) {
         String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
+        log.debug("Authorization Header: {}", bearerToken);
         if (bearerToken != null && bearerToken.startsWith(BEARER_PREFIX)) {
-            return bearerToken.substring(7);
+            String token = bearerToken.substring(BEARER_PREFIX.length());
+            log.debug("Extracted JWT: {}", token);
+            return token;
+        } else {
+            log.warn("Authorization 헤더가 없거나, Bearer 스키마로 시작하지 않습니다.");
+            return null;
         }
-        return null;
     }
 
     public String resolveToken (HttpServletRequest request) {
@@ -142,4 +130,3 @@ public class JwtUtil {
         return null;
     }
 }
-

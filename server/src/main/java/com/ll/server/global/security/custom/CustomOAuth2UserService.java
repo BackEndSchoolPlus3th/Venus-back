@@ -7,6 +7,12 @@ import com.ll.server.domain.member.enums.Provider;
 import com.ll.server.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -15,6 +21,8 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -23,7 +31,6 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
-    private final PasswordEncoder passwordEncoder;
     private final MemberRepository memberRepository;
 
     @Override
@@ -40,23 +47,28 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         Optional<Member> memberOptional = memberRepository.findMemberByEmail(oAuth2UserInfo.getEmail());
 
         Member member = memberOptional.map(existingMember -> {
-                    //기존 member 가 있다면, update 로직을 실행합니다.
+                    // 기존 member 가 있다면, update 로직을 실행합니다.
                     return updateMember(existingMember, oAuth2UserInfo);
                 })
                 .orElseGet(() -> createMember(oAuth2UserInfo, provider));
 
-        return new CustomOAuth2User(oAuth2User, member);
+        List<GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority(member.getRole().name()));
+
+        CustomOAuth2User customOAuth2User = new CustomOAuth2User(oAuth2User, member, authorities);
+
+        Authentication authentication = new UsernamePasswordAuthenticationToken(customOAuth2User, null, customOAuth2User.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        return customOAuth2User;
     }
 
     @Transactional
     protected Member createMember (OAuth2UserInfo oAuth2UserInfo, String provider) {
-        // 소셜 로그인 사용자는 어차피 비밀번호로 로그인하지 않으므로, UUID를 비밀번호로
-        String randomPassword = UUID.randomUUID().toString();
-        String realPassword = passwordEncoder.encode(randomPassword);
+
         Member member = Member.builder()
                 .email(oAuth2UserInfo.getEmail())
+                .password("social_login")
                 .nickname(oAuth2UserInfo.getName())
-                .password(realPassword)
                 .provider(Provider.valueOf(provider.toUpperCase()))
                 .providerId(oAuth2UserInfo.getId())
                 .role(MemberRole.USER)
@@ -80,7 +92,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             return memberRepository.save(existingMember);
         } catch (Exception e) {
             String errorMessage = String.format("OAuth2 Provider(%s) : 회원 정보 업데이트에 실패했습니다: %s", existingMember.getProvider(), e.getMessage());
-            log.error(errorMessage);
+            log.error(errorMessage, e);
             throw new OAuth2AuthenticationException(errorMessage);
         }
     }

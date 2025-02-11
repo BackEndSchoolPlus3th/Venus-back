@@ -14,16 +14,9 @@ import java.util.Collections;
 public class CustomUserDetails implements UserDetails {
 
     private final Member member;
-    private final MemberDto memberDto;
 
-    public CustomUserDetails(Member member) {
+    public CustomUserDetails (Member member) {
         this.member = member;
-        this.memberDto = new MemberDto(
-                member.getEmail(),
-                member.getNickname(),
-                member.getProfileUrl(),
-                member.getRole().name()
-        );
     }
 
     @Override
@@ -61,4 +54,3 @@ public class CustomUserDetails implements UserDetails {
         return true;
     }
 }
-

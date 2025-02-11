@@ -20,7 +20,7 @@ public class KakaoUserInfo implements OAuth2UserInfo {
         Map<String, Object> properties = (Map<String, Object>) attributes.get("properties");
 
         if (properties == null) {
-            return null;
+            return "";
         }
 
         return (String) properties.get("nickname");
@@ -31,10 +31,9 @@ public class KakaoUserInfo implements OAuth2UserInfo {
         Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account");
 
         if (kakaoAccount == null) {
-            return null;
+            return "";
         }
 
         return (String) kakaoAccount.get("email");
     }
 }
-
