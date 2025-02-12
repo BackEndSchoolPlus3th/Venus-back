@@ -18,6 +18,7 @@ import org.springframework.data.domain.Limit;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,16 +48,16 @@ public class NewsService {
         );
     }
 
-    public List<NewsOnly> firstInfinityGetAll(int size){
-        List<News> result=newsRepository.findAllByDeletedAtIsNullOrderByPublishedAtDescIdDesc(Limit.of(size));
+    public List<NewsOnly> firstInfinityGetAll(int size) {
+        List<News> result = newsRepository.findAllByDeletedAtIsNullOrderByPublishedAtDescIdDesc(Limit.of(size));
 
         return result.stream()
                 .map(NewsOnly::new)
                 .collect(Collectors.toList());
     }
 
-    public List<NewsOnly> afterInfinityGetAll(int size, LocalDateTime lastTime){
-        List<News> result=newsRepository.findAllByPublishedAtIsBeforeAndDeletedAtIsNullOrderByPublishedAtDescIdDesc(lastTime, Limit.of(size));
+    public List<NewsOnly> afterInfinityGetAll(int size, LocalDateTime lastTime) {
+        List<News> result = newsRepository.findAllByPublishedAtIsBeforeAndDeletedAtIsNullOrderByPublishedAtDescIdDesc(lastTime, Limit.of(size));
 
         return result.stream()
                 .map(NewsOnly::new)
@@ -65,7 +66,7 @@ public class NewsService {
 
 
     public NewsDTO getById(Long id) {
-        News news=getNews(id);
+        News news = getNews(id);
 
         return new NewsDTO(news);
     }
@@ -101,7 +102,7 @@ public class NewsService {
 
     @Transactional
     public void deleteNews(Long id) {
-        News news=getNews(id);
+        News news = getNews(id);
 
         checkAdmin();
 
@@ -127,10 +128,29 @@ public class NewsService {
     }
 
     private void checkAdmin() {
-        Collection<? extends GrantedAuthority> authorizations=AuthUtil.getAuth();
+        Collection<? extends GrantedAuthority> authorizations = AuthUtil.getAuth();
 
-        if(authorizations ==null || !authorizations.contains("ADMIN")){
+        if (authorizations == null || !authorizations.contains("ADMIN")) {
             throw new CustomException(ReturnCode.NOT_AUTHORIZED);
         }
+    }
+
+    public Page<News> search(String keyword, boolean hasTitle, boolean hasContent, boolean hasPublisher, String category, Pageable pageable) {
+        Specification<News> spec = Specification.where(null);
+
+        if (hasTitle) {
+            spec = spec.and((root, query, criteriaBuilder) -> criteriaBuilder.like(root.get("title"), "%" + keyword + "%"));
+        }
+        if (hasContent) {
+            spec = spec.and((root, query, criteriaBuilder) -> criteriaBuilder.like(root.get("content"), "%" + keyword + "%"));
+        }
+        if (hasPublisher) {
+            spec = spec.and((root, query, criteriaBuilder) -> criteriaBuilder.like(root.get("publisher"), "%" + keyword + "%"));
+        }
+        if (!category.isEmpty()) {
+            spec = spec.and((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("category").get("category"), category));
+        }
+
+        return newsRepository.findAll(spec, pageable);
     }
 }

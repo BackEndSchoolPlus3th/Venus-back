@@ -7,6 +7,8 @@ import com.ll.server.domain.comment.dto.CommentWriteRequest;
 import com.ll.server.domain.elasticsearch.repost.service.RepostDocService;
 import com.ll.server.domain.like.dto.LikeDTO;
 import com.ll.server.domain.like.dto.LikeResponse;
+import com.ll.server.domain.member.entity.Member;
+import com.ll.server.domain.member.service.MemberService;
 import com.ll.server.domain.repost.dto.*;
 import com.ll.server.domain.repost.service.RepostService;
 import com.ll.server.global.response.enums.ReturnCode;
@@ -37,6 +39,7 @@ import java.util.List;
 public class ApiV1RepostController {
     private final RepostService repostService;
     private final RepostDocService repostDocService;
+    private final MemberService memberService;
 
 
     @Data
@@ -120,6 +123,17 @@ public class ApiV1RepostController {
         return ApiResponse.of(detail);
     }
 
+
+    @GetMapping("/member/{memberId}")
+    public ApiResponse<RepostDTO> getRepostById(@PathVariable("memberId") Long memberId, ClientPageRequest request) {
+        PageLimitSizeValidator.validateSize(request.getPage(), request.getLimit(), MyConstant.PAGELIMITATION);
+        Pageable pageable = PageRequest.of(request.getPage(), request.getLimit(), Sort.by("id").descending());
+
+        Member member = memberService.getMemberById(memberId);
+        Page<RepostDTO> repostsByMember = repostService.findByMember(member, pageable);
+
+        return ApiResponse.of(CustomPage.of(repostsByMember));
+    }
 
     @DeleteMapping("/{repostId}")
     public ApiResponse<String> deletePost(@PathVariable("repostId") Long id) {
@@ -215,5 +229,8 @@ public class ApiV1RepostController {
 
     }
 
-
+    @GetMapping("/search")
+    public List<RepostDTO> searchByContent(@RequestParam("keyword") String keyword){
+        return repostService.searchContent(keyword);
+    }
 }
