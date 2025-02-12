@@ -32,7 +32,7 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-web")				// spring web
 	implementation("org.springframework.boot:spring-boot-starter-security")			// spring security
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")			// jpa
-	implementation("javax.annotation:javax.annotation-api:1.3.2")					// javax annotation api
+	implementation("jakarta.annotation:jakarta.annotation-api")					// javax annotation api
 	compileOnly("org.projectlombok:lombok")											// lombok
 	annotationProcessor("org.projectlombok:lombok")
 	developmentOnly("org.springframework.boot:spring-boot-devtools")				// devtools

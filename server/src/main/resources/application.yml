@@ -39,7 +39,6 @@ spring:
       hibernate:
         format_sql: true
         use_sql_comments: true
-
 front:
   redirect-url: "http://localhost:5173"
 
