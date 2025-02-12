@@ -142,9 +142,9 @@ public class ApiV1RepostController {
         return ApiResponse.of(ReturnCode.SUCCESS);
     }
 
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE},produces = {MediaType.APPLICATION_JSON_VALUE})
     public ApiResponse<RepostDTO> write(
-            @RequestPart("request") RepostWriteRequest request, // JSON 데이터
+            @RequestPart("request") RepostWriteRequest request, // JSON 데이터,
             @RequestPart(value = "imageFile", required = false) MultipartFile imageFile // 이미지 파일 (선택 사항)
     ) throws IOException {
         return ApiResponse.of(repostService.save(request, imageFile));
