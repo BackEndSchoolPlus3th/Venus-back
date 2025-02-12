@@ -68,4 +68,7 @@ public interface RepostRepository extends JpaRepository<Repost, Long> {
     Repost findRepostByNewsIdAndPinnedIsTrueAndDeletedAtIsNull(Long newsId);
 
     List<Repost> findByContentContainingAndDeletedAtIsNull(String keyword);
+
+    @Query("SELECT r FROM Repost r INNER JOIN r.likes l WHERE r.createDate >= :startOfDay GROUP BY r.id ORDER BY COUNT(l) DESC")
+    List<Repost> findTodayshotReposts(@Param("startOfDay") LocalDateTime startOfDay);
 }

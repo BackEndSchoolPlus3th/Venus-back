@@ -347,4 +347,13 @@ public class RepostService {
                 .map(RepostDTO::new)
                 .collect(Collectors.toList());
     }
+
+    public List<RepostDTO> getHotTopics() {
+        LocalDateTime startOfDay = LocalDateTime.now().toLocalDate().atStartOfDay();
+        List<Repost> hotReposts = repostRepository.findTodayshotReposts(startOfDay);
+
+        return hotReposts.stream()
+                .map(RepostDTO::new)
+                .collect(Collectors.toList());
+    }
 }
