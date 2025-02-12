@@ -33,7 +33,11 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal (HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        log.info("jwt 인증 중");
         String token = jwtUtil.getJwtFromHeader(request);
+        if(token==null){
+            token = jwtUtil.resolveToken(request);
+        }
         log.info("Header 로부터 JWT 를 정상적으로 가져왔습니다. {}", token);
 
         if (StringUtils.hasText(token)) {

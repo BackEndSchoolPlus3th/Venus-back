@@ -37,8 +37,16 @@ spring:
           use_sql_comments: true
   data:
     redis:
-      host: redis
+      host: db.tmdgjsdl1.site
       port: 6379
 
 front:
-  redirect-url: "http://localhost:5173/"
+  redirect-url: "http://localhost:3000"
+
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+    org.springframework.web: DEBUG
+    org.springframework.boot.autoconfigure.security: DEBUG
+    org.springframework.security.oauth2: DEBUG

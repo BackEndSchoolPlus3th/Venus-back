@@ -9,22 +9,22 @@ server:
 
 spring:
   datasource:
-    #    url: jdbc:h2:mem:test;MODE=MySQL
-    #    driver-class-name: org.h2.Driver
-    #    username: sa
-    #    password:
-    #  h2:
-    #    console:
-    #      enabled: true
-    datasource:
-      url: jdbc:mysql://host.docker.internal:3306/venus_prac
-      username: root
-      password: 1234
-      driver-class-name: com.mysql.cj.jdbc.Driver
+      url: jdbc:h2:mem:test;MODE=MySQL
+      driver-class-name: org.h2.Driver
+      username: sa
+      password:
+  h2:
+    console:
+      enabled: true
+#    datasource:
+#      url: jdbc:mysql://db.tmdgjsdl1.site:3306/venus_prac
+#      username: root
+#      password: 1234
+#      driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     open-in-view: false
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     properties:
       hibernate:
       #        dialect: org.hibernate.dialect.MySQL8Dialect

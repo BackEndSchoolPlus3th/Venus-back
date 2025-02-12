@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
 
+//이는 프론트가 있으면 구현할 필요가 없음
 @Slf4j(topic = "OAuth2Controller")
 @Controller
 @RequiredArgsConstructor
@@ -28,18 +29,18 @@ public class OAuth2Controller {
     @Value("${front.redirect-url}")
     private String redirectUrl;
 
-    @GetMapping("/callback/kakao")
+    @GetMapping("/non1")
     public void kakaoLoginSuccess(Authentication authentication, HttpServletResponse response) throws IOException {
         processOAuth2Login(authentication, response);
     }
 
-    @GetMapping("/callback/naver")
+    @GetMapping("/non2")
     public void naverLoginSuccess(Authentication authentication, HttpServletResponse response) throws IOException {
         processOAuth2Login(authentication, response);
     }
 
     private void processOAuth2Login (Authentication authentication, HttpServletResponse response) throws IOException {
-
+        log.info("오쓰로그인");
         if (authentication == null) {
             log.error("Authentication 객체가 null 입니다.");
             response.sendRedirect("/login?error=authentication_failed"); // 오류 페이지로 리다이렉트
