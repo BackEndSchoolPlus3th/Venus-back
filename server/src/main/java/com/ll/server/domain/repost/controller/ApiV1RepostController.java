@@ -239,7 +239,7 @@ public class ApiV1RepostController {
         return repostService.searchContent(keyword);
     }
 
-    @GetMapping("hot")
+    @GetMapping("/hot")
     public List<RepostDTO> getHotTopics() {
         return repostService.getHotTopics();
     }
