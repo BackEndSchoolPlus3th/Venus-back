@@ -1,5 +1,6 @@
 package com.ll.server.domain.repost.repository;
 
+import com.ll.server.domain.member.entity.Member;
 import com.ll.server.domain.repost.entity.Repost;
 import org.springframework.data.domain.Limit;
 import org.springframework.data.domain.Page;
@@ -19,7 +20,7 @@ public interface RepostRepository extends JpaRepository<Repost, Long> {
     List<Repost> findRepostsByMember_NicknameAndDeletedAtIsNull(String nickname);
 
     //멤버의 ID를 기반으로 repost 검색
-    List<Repost> findRepostsByMember_IdAndDeletedAtIsNull(Long memberId);
+    Page<Repost> findRepostsByMemberAndDeletedAtIsNull(Member member, Pageable pageable);
 
     Page<Repost> findAllByDeletedAtIsNull(Pageable pageable);
 

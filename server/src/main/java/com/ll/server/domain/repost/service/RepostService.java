@@ -93,34 +93,47 @@ public class RepostService {
                 .collect(Collectors.toList());
     }
 
-    public Page<RepostOnly> findAll(Pageable pageable){
-        Page<Repost> result= repostRepository.findAllByDeletedAtIsNull(pageable);
+    public Page<RepostOnly> findAll(Pageable pageable) {
+        Page<Repost> result = repostRepository.findAllByDeletedAtIsNull(pageable);
 
         return new PageImpl<>(
-            result.getContent().stream()
-                    .map(RepostOnly::new)
-                    .collect(Collectors.toList()),
-            result.getPageable(),
-            result.getTotalElements()
+                result.getContent().stream()
+                        .map(RepostOnly::new)
+                        .collect(Collectors.toList()),
+                result.getPageable(),
+                result.getTotalElements()
         );
     }
 
-    public List<RepostOnly> firstGetAll(int size){
+    public Page<RepostDTO> findByMember(Member member, Pageable pageable) {
+        Page<Repost> result = repostRepository.findRepostsByMemberAndDeletedAtIsNull(member, pageable);
+
+        return new PageImpl<>(
+                result.getContent().stream()
+                        .filter(repost -> repost.getDeletedAt() == null)
+                        .map(RepostDTO::new)
+                        .collect(Collectors.toList()),
+                result.getPageable(),
+                result.getTotalElements()
+        );
+    }
+
+    public List<RepostOnly> firstGetAll(int size) {
         return repostRepository.findAllByDeletedAtIsNullOrderByCreateDateDescIdDesc(Limit.of(size))
                 .stream()
                 .map(RepostOnly::new).collect(Collectors.toList());
     }
 
-    public List<RepostOnly> afterGetAll(int size,LocalDateTime lastTime, Long lastId){
-        return repostRepository.findAllByDeletedAtIsNullAndCreateDateBeforeAndIdLessThanOrderByCreateDateDescIdDesc(lastTime,lastId,Limit.of(size))
+    public List<RepostOnly> afterGetAll(int size, LocalDateTime lastTime, Long lastId) {
+        return repostRepository.findAllByDeletedAtIsNullAndCreateDateBeforeAndIdLessThanOrderByCreateDateDescIdDesc(lastTime, lastId, Limit.of(size))
                 .stream()
                 .map(RepostOnly::new).collect(Collectors.toList());
     }
 
-    public Page<CommentDTO> getCommentPage(Long postId,Pageable pageable){
-        Repost repost=getRepost(postId);
+    public Page<CommentDTO> getCommentPage(Long postId, Pageable pageable) {
+        Repost repost = getRepost(postId);
 
-        Page<Comment> comments = commentRepository.findCommentsByRepost_IdAndDeletedAtIsNull(postId,pageable);
+        Page<Comment> comments = commentRepository.findCommentsByRepost_IdAndDeletedAtIsNull(postId, pageable);
 
         return new PageImpl<>(
                 comments.getContent().stream()
@@ -133,14 +146,14 @@ public class RepostService {
     public List<CommentDTO> firstGetComment(Long postId, int size) {
         Repost repost = getRepost(postId);
 
-        List<Comment> result= commentRepository.findCommentsByRepost_IdAndDeletedAtIsNullOrderByCreateDateAscIdAsc(postId,Limit.of(size));
+        List<Comment> result = commentRepository.findCommentsByRepost_IdAndDeletedAtIsNullOrderByCreateDateAscIdAsc(postId, Limit.of(size));
 
         return result.stream().map(CommentDTO::new).collect(Collectors.toList());
     }
 
-    public List<CommentDTO> afterGetComment(Long postId, int size,LocalDateTime lastTime ,long lastId){
+    public List<CommentDTO> afterGetComment(Long postId, int size, LocalDateTime lastTime, long lastId) {
         Repost repost = getRepost(postId);
-        List<Comment> result=commentRepository.findCommentsByRepost_IdAndIdGreaterThanAndCreateDateAfterAndDeletedAtIsNullOrderByCreateDateAscIdAsc(postId,lastId,lastTime,Limit.of(size));
+        List<Comment> result = commentRepository.findCommentsByRepost_IdAndIdGreaterThanAndCreateDateAfterAndDeletedAtIsNullOrderByCreateDateAscIdAsc(postId, lastId, lastTime, Limit.of(size));
 
         return result
                 .stream()
@@ -150,15 +163,15 @@ public class RepostService {
     public List<CommentDTO> getAllComment(Long postId) {
         Repost repost = getRepost(postId);
 
-        List<Comment> result=commentRepository.findCommentsByRepost_IdAndDeletedAtIsNull(postId);
+        List<Comment> result = commentRepository.findCommentsByRepost_IdAndDeletedAtIsNull(postId);
 
-        return  result
+        return result
                 .stream()
                 .map(CommentDTO::new).collect(Collectors.toList());
     }
 
     @Transactional
-    public void deleteRepost(Long postId){
+    public void deleteRepost(Long postId) {
         Repost target = getRepost(postId);
 
         checkWriter(target.getMember());
@@ -225,8 +238,8 @@ public class RepostService {
                 .orElseThrow(() -> new CustomRequestException(ReturnCode.NOT_FOUND_ENTITY));
     }
 
-    public RepostDTO getRepostDTOById(Long postId){
-        Repost repost=getRepost(postId);
+    public RepostDTO getRepostDTOById(Long postId) {
+        Repost repost = getRepost(postId);
 
         return new RepostDTO(repost);
     }
@@ -251,7 +264,6 @@ public class RepostService {
                 .findFirst()
                 .orElseThrow(() -> new CustomRequestException(ReturnCode.NOT_FOUND_ENTITY));
 
-
         memberLike.setDeleted(true);
     }
 
@@ -266,15 +278,15 @@ public class RepostService {
     }
 
     @Transactional
-    public void putPin(Long repostId){
-        Repost repost=getRepost(repostId);
-        News news=repost.getNews();
+    public void putPin(Long repostId) {
+        Repost repost = getRepost(repostId);
+        News news = repost.getNews();
 
         checkPublisher(news);
 
-        Repost pinned=repostRepository.findRepostByNewsIdAndPinnedIsTrueAndDeletedAtIsNull(news.getId());
+        Repost pinned = repostRepository.findRepostByNewsIdAndPinnedIsTrueAndDeletedAtIsNull(news.getId());
         //아무것도 찾지 못한 경우나 이미 지워진 경우
-        if(pinned==null){
+        if (pinned == null) {
             repost.setPinned(true);
             return;
         }
@@ -286,26 +298,26 @@ public class RepostService {
     }
 
     private void checkPublisher(News news) {
-        String currentUserNickname=AuthUtil.getCurrentMemberNickname();
-        Collection<? extends GrantedAuthority> authorizations=AuthUtil.getAuth();
+        String currentUserNickname = AuthUtil.getCurrentMemberNickname();
+        Collection<? extends GrantedAuthority> authorizations = AuthUtil.getAuth();
 
-        if(!news.getPublisher().equals(currentUserNickname) || authorizations ==null || !authorizations.contains("PUBLISHER")){
+        if (!news.getPublisher().equals(currentUserNickname) || authorizations == null || !authorizations.contains("PUBLISHER")) {
             throw new CustomException(ReturnCode.NOT_AUTHORIZED);
         }
     }
 
     @Transactional
-    public void pullPin(Long repostId){
-        Repost repost=getRepost(repostId);
-        News news=repost.getNews();
+    public void pullPin(Long repostId) {
+        Repost repost = getRepost(repostId);
+        News news = repost.getNews();
 
         checkPublisher(news);
 
         repost.setPinned(false);
     }
 
-    public Page<RepostUnderNews> getNewsRepostCursorPagination(Long newsId, Pageable pageable){
-        Page<Repost> reposts=repostRepository.getNewsReposts(newsId,pageable);
+    public Page<RepostUnderNews> getNewsRepostCursorPagination(Long newsId, Pageable pageable) {
+        Page<Repost> reposts = repostRepository.getNewsReposts(newsId, pageable);
         return new PageImpl<>(
                 reposts.getContent().stream()
                         .map(RepostUnderNews::new)
@@ -315,15 +327,15 @@ public class RepostService {
         );
     }
 
-    public List<RepostUnderNews> firstGetNewsRepost(Long newsId, int size){
+    public List<RepostUnderNews> firstGetNewsRepost(Long newsId, int size) {
         List<Repost> reposts = repostRepository.firstGetNewsReposts(newsId, Limit.of(size));
         return reposts.stream()
                 .map(RepostUnderNews::new)
                 .collect(Collectors.toList());
     }
 
-    public List<RepostUnderNews> afterGetNewsRepost(Long newsId, int size, LocalDateTime lastTime, Long lastId){
-        List<Repost> reposts = repostRepository.afterGetNewsReposts(newsId, lastTime, lastId,Limit.of(size));
+    public List<RepostUnderNews> afterGetNewsRepost(Long newsId, int size, LocalDateTime lastTime, Long lastId) {
+        List<Repost> reposts = repostRepository.afterGetNewsReposts(newsId, lastTime, lastId, Limit.of(size));
         return reposts.stream()
                 .map(RepostUnderNews::new)
                 .collect(Collectors.toList());
