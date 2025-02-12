@@ -347,6 +347,16 @@ public class RepostService {
                 .collect(Collectors.toList());
     }
 
+    public List<RepostDTO> getHotTopics() {
+        LocalDateTime startOfDay = LocalDateTime.now().toLocalDate().atStartOfDay();
+        List<Repost> hotReposts = repostRepository.findTodayshotReposts(startOfDay, PageRequest.of(0,5));
+        //top 5
+
+        return hotReposts.stream()
+                .map(RepostDTO::new)
+                .collect(Collectors.toList());
+    }
+
     public Page<RepostOnly> findLikeReposts(Long memberId, Pageable pageable) {
         Page<Repost> reposts = repostRepository.findLikeRepost(memberId,pageable);
         List<RepostOnly> dtos = reposts.getContent().stream().map(RepostOnly::new).toList();

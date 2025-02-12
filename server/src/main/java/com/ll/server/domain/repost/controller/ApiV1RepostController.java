@@ -238,4 +238,9 @@ public class ApiV1RepostController {
     public List<RepostDTO> searchByContent(@RequestParam("keyword") String keyword){
         return repostService.searchContent(keyword);
     }
+
+    @GetMapping("hot")
+    public List<RepostDTO> getHotTopics() {
+        return repostService.getHotTopics();
+    }
 }

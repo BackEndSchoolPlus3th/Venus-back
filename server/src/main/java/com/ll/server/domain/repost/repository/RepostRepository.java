@@ -69,6 +69,9 @@ public interface RepostRepository extends JpaRepository<Repost, Long> {
 
     List<Repost> findByContentContainingAndDeletedAtIsNull(String keyword);
 
+    @Query("SELECT r FROM Repost r INNER JOIN r.likes l WHERE r.createDate >= :startOfDay GROUP BY r.id ORDER BY COUNT(l) DESC")
+    List<Repost> findTodayshotReposts(@Param("startOfDay") LocalDateTime startOfDay, Pageable pageable);
+
     //좋아요 누른 것만 가지고 온다.
     @Query("select r from Repost r join fetch Like l on l.repost.id = r.id and l.member.id = :memberId and r.deletedAt is null")
     Page<Repost> findLikeRepost(Long memberId, Pageable pageable);
