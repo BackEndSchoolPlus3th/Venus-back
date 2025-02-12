@@ -337,20 +337,20 @@ public class RepostService {
                 .collect(Collectors.toList());
     }
 
-    public List<RepostDTO> searchContent(String keyword) {
+    public List<RepostOnly> searchContent(String keyword) {
         List<Repost> reposts = repostRepository.findByContentContainingAndDeletedAtIsNull(keyword);
         return reposts.stream()
-                .map(RepostDTO::new)
+                .map(RepostOnly::new)
                 .collect(Collectors.toList());
     }
 
-    public List<RepostDTO> getHotTopics() {
-        LocalDateTime startOfDay = LocalDateTime.now().toLocalDate().atStartOfDay();
+    public List<RepostOnly> getHotTopics() {
+        LocalDateTime startOfDay = LocalDateTime.of(1970, 1, 1, 0, 0, 0, 0);//LocalDateTime.now().toLocalDate().atStartOfDay();
         List<Repost> hotReposts = repostRepository.findTodayshotReposts(startOfDay, PageRequest.of(0,5));
         //top 5
 
         return hotReposts.stream()
-                .map(RepostDTO::new)
+                .map(RepostOnly::new)
                 .collect(Collectors.toList());
     }
 

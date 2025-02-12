@@ -235,12 +235,12 @@ public class ApiV1RepostController {
     }
 
     @GetMapping("/search")
-    public List<RepostDTO> searchByContent(@RequestParam("keyword") String keyword){
+    public List<RepostOnly> searchByContent(@RequestParam("keyword") String keyword){
         return repostService.searchContent(keyword);
     }
 
     @GetMapping("/hot")
-    public List<RepostDTO> getHotTopics() {
+    public List<RepostOnly> getHotTopics() {
         return repostService.getHotTopics();
     }
 }
