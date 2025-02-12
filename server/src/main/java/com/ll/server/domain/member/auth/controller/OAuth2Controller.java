@@ -10,8 +10,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
@@ -19,18 +17,18 @@ import java.io.IOException;
 @Slf4j(topic = "OAuth2Controller")
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/oauth2")
+//@RequestMapping("/oauth2")
 public class OAuth2Controller {
 
     private final MemberService memberService;
     private final JwtUtil jwtUtil;
 
-    @GetMapping("/callback/kakao")
+    //@GetMapping("/callback/kakao")
     public void kakaoLoginSuccess(Authentication authentication, HttpServletResponse response) throws IOException {
         processOAuth2Login(authentication, response);
     }
 
-    @GetMapping("/callback/naver")
+    //@GetMapping("/callback/naver")
     public void naverLoginSuccess(Authentication authentication, HttpServletResponse response) throws IOException {
         processOAuth2Login(authentication, response);
     }

@@ -59,4 +59,9 @@ public class MemberService {
     public List<Member> getMembersByNickName(List<String> mentionedNames) {
         return memberRepository.findAllByNicknameIn(mentionedNames);
     }
+
+    public Member findLocalMember(String email) {
+        return memberRepository.findMemberByEmailAndProvider(email,Provider.LOCAL)
+                .orElseThrow(() -> new CustomException(ReturnCode.NOT_FOUND_ENTITY));
+    }
 }

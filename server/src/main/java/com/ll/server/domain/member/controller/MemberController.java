@@ -39,7 +39,7 @@ public class MemberController {
 
     @PostMapping("/login")
     public ApiResponse<?> login (@RequestBody LoginRequestDto requestDto, HttpServletResponse response) {
-            Member member = memberService.findByEmail(requestDto.getEmail());
+            Member member = memberService.findLocalMember(requestDto.getEmail());
 
             if (member == null || !passwordEncoder.matches(requestDto.getPassword(), member.getPassword())) {
                throw new CustomException(ReturnCode.NOT_AUTHORIZED);
