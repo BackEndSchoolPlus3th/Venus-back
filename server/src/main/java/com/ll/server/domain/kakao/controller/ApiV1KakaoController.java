@@ -25,18 +25,13 @@ public class ApiV1KakaoController {
     @Value("${spring.oauth2.kakao.url.redirect-uri}")
     private String redirectURI;
 
-
     @Value("${spring.oauth2.kakao.client-secret}")
     private String clientSecret;
 
     @GetMapping("/api/auth/kakao")
     public String loginCallback(@RequestParam("code") String code, HttpServletResponse response) throws IOException, InterruptedException {
-        // code와 state 값 확인
         System.out.println("Code: " + code);
-        if (code == null) {
-            return "Code not found!";
-        }
-        System.out.println("Received code: " + code);
+
         //액세스토큰 요청
         String token_url = "https://kauth.kakao.com/oauth/token?"
                 + "grant_type=authorization_code"
@@ -60,6 +55,18 @@ public class ApiV1KakaoController {
         // 사용자 정보 요청
         String userInfo = kakaoService.askUserInfo(accessToken);
         System.out.println("User Info: " + userInfo);
+
+        // json 객체 변환
+        ObjectMapper objectMapper_u = new ObjectMapper();
+        JsonNode jsonNode_u = objectMapper_u.readTree(userInfo);
+        JsonNode jsonNode_r = jsonNode_u.get("properties");
+
+        // 사용자 정보 추출
+        String nickname = jsonNode_r.get("nickname").asText();
+
+
+        System.out.println("nickname: " + nickname);
+
         return null;
     }
 }
