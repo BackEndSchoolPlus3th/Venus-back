@@ -100,27 +100,18 @@ public class ApiV1RepostController {
 
     //repost 최초 상세 조회. 댓글에 페이지네이션을 적용 (전통적 페이지네이션)
     @GetMapping("/{repostId}")
-    public ApiResponse<RepostPageDetail> getRepost(@PathVariable("repostId") Long id,
-                                                   @RequestParam(value = "size",defaultValue = "20")int size) {
-        int page=0;
-        PageLimitSizeValidator.validateSize(page,size, MyConstant.PAGELIMITATION);
-        Pageable pageable=PageRequest.of(page,size,Sort.by("createDate","id").ascending());
-
+    public ApiResponse<RepostDTO> getRepost(@PathVariable("repostId") Long id) {
         RepostDTO repost = repostService.getRepostDTOById(id);
-        Page<CommentDTO> comments = repostService.getCommentPage(id,pageable);
-        RepostPageDetail repostDetail = new RepostPageDetail(repost, CustomPage.of(comments));
-        return ApiResponse.of(repostDetail);
+
+        return ApiResponse.of(repost);
     }
 
 
     //repost 최초 상세 조회. 댓글에 페이지네이션 적용 (커서 페이지네이션)
     @GetMapping("/{repostId}/infinityTest")
-    public ApiResponse<RepostInfinityDetail> getRepostInfinity(@PathVariable("repostId") Long id,
-                                                               @RequestParam(value = "size", defaultValue = "20") int size) {
+    public ApiResponse<RepostDTO> getRepostInfinity(@PathVariable("repostId") Long id) {
         RepostDTO repost = repostService.getRepostDTOById(id);
-        CommentInfinityScrollResponse comments=new CommentInfinityScrollResponse(repostService.firstGetComment(id,size));
-        RepostInfinityDetail detail = new RepostInfinityDetail(repost, comments);
-        return ApiResponse.of(detail);
+        return ApiResponse.of(repost);
     }
 
 
@@ -155,7 +146,7 @@ public class ApiV1RepostController {
     //상세 조회 이후 댓글의 페이지네이션. (typical)
     @GetMapping("/{repostId}/comments")
     public ApiResponse<?> getPageComment(@PathVariable("repostId") Long postId,
-                                        @RequestParam(value = "page",defaultValue = "1")int page,
+                                        @RequestParam(value = "page",defaultValue = "0")int page,
                                         @RequestParam(value = "size",defaultValue = "20")int size) {
         PageLimitSizeValidator.validateSize(page,size, MyConstant.PAGELIMITATION);
         Pageable pageable=PageRequest.of(page,size,Sort.by("createDate","id").ascending());
