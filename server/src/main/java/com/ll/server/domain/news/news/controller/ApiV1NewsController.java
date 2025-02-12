@@ -165,11 +165,12 @@ public class ApiV1NewsController {
                                      @RequestParam(value = "content", defaultValue = "false") boolean hasContent,
                                      @RequestParam(value = "publisher", defaultValue = "false") boolean hasPublisher,
                                      @RequestParam(value = "category", defaultValue = "") String category,
-                                     @RequestBody NewsGetRequest request
+                                     @RequestParam(value = "page", defaultValue = "0") int page,
+                                     @RequestParam(value = "size", defaultValue = "20") int size
     ) {
         //타입으로는 publisher, title, content, category(이건 별도로 드랍다운 방식으로 선택하거나 할 듯. 나머지는 체크박스)가 올 수 있다.
-        PageLimitSizeValidator.validateSize(request.getPage(), request.getLimit(), 50);
-        Pageable pageable = PageRequest.of(request.getPage(), request.getLimit());
+        PageLimitSizeValidator.validateSize(page, size, 50);
+        Pageable pageable = PageRequest.of(page, size);
         Page<News> result = newsService.search(keyword, hasTitle, hasContent, hasPublisher, category, pageable);
 
         return ApiResponse.of(result);
