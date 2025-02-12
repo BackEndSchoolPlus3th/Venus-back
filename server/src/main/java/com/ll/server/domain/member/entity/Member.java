@@ -1,5 +1,6 @@
 package com.ll.server.domain.member.entity;
 
+import com.ll.server.domain.member.dto.MemberUpdateParam;
 import com.ll.server.domain.member.enums.MemberRole;
 import com.ll.server.domain.member.enums.Provider;
 import com.ll.server.global.jpa.BaseEntity;
@@ -34,6 +35,10 @@ public class Member extends BaseEntity {
     private Provider provider; // 로그인 타입
     private String providerId; // 소셜로그인 시 ID                 /* 사용자 권한 */
 
-
+    public void update(MemberUpdateParam param) {
+        this.password = param.getPassword();
+        this.nickname = param.getNickname();
+        this.profileUrl = param.getProfileUrl();
+    }
 }
 

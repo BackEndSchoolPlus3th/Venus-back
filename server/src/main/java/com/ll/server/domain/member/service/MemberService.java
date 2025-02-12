@@ -2,12 +2,15 @@ package com.ll.server.domain.member.service;
 
 import com.ll.server.domain.member.auth.dto.SignupRequestDto;
 import com.ll.server.domain.member.dto.MemberDto;
+import com.ll.server.domain.member.dto.MemberUpdateParam;
 import com.ll.server.domain.member.entity.Member;
 import com.ll.server.domain.member.enums.MemberRole;
 import com.ll.server.domain.member.enums.Provider;
 import com.ll.server.domain.member.repository.MemberRepository;
+import com.ll.server.global.aws.s3.S3Service;
 import com.ll.server.global.response.enums.ReturnCode;
 import com.ll.server.global.response.exception.CustomException;
+import com.ll.server.global.response.exception.CustomRequestException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -17,7 +20,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @Slf4j(topic = "MemberService")
@@ -27,9 +32,10 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final S3Service s3Service;
 
     @Transactional
-    public Member signup (SignupRequestDto requestDto) {
+    public Member signup(SignupRequestDto requestDto) {
         if (memberRepository.existsByEmail(requestDto.getEmail())) {
             throw new CustomException(ReturnCode.ALREADY_EXIST);
         }
@@ -44,14 +50,14 @@ public class MemberService {
 
         try {
             memberRepository.save(member);
-        }catch (Exception e){
+        } catch (Exception e) {
             throw new CustomException(ReturnCode.WRONG_PARAMETER);
         }
 
         return member;
     }
 
-    public Member findByEmail (String email) {
+    public Member findByEmail(String email) {
         return memberRepository.findMemberByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("존재하지 않는 이메일입니다."));
     }
@@ -62,7 +68,7 @@ public class MemberService {
         String email = authentication.getName();
 
         Member member = memberRepository.findMemberByEmail(email)
-                .orElseThrow(() ->new UsernameNotFoundException("존재하지 않는 이메일입니다."));
+                .orElseThrow(() -> new UsernameNotFoundException("존재하지 않는 이메일입니다."));
 
         return MemberDto.builder()
                 .email(member.getEmail())
@@ -102,7 +108,23 @@ public class MemberService {
     }
 
     public Member findLocalMember(String email) {
-        return memberRepository.findMemberByEmailAndProvider(email,Provider.LOCAL)
+        return memberRepository.findMemberByEmailAndProvider(email, Provider.LOCAL)
                 .orElseThrow(() -> new CustomException(ReturnCode.NOT_FOUND_ENTITY));
+    }
+
+    public void updateMember(MemberUpdateParam param, MultipartFile imageFile) throws IOException {
+        Member member = memberRepository.findById(param.getMemberId()).orElseThrow(() -> new CustomRequestException(ReturnCode.NOT_FOUND_ENTITY));
+
+        if (param.getProfileUrl() != null) {
+            s3Service.deleteFile(param.getProfileUrl());
+        }
+
+        String imageUrl = null;
+        if (imageFile != null && !imageFile.isEmpty()) {
+            imageUrl = s3Service.uploadFile(imageFile, "profile-images");
+            param.changeProfileUrl(imageUrl);
+        }
+
+        member.update(param);
     }
 }
