@@ -3,6 +3,7 @@ package com.ll.server.global.jpa;
 import com.ll.server.domain.comment.repository.CommentRepository;
 import com.ll.server.domain.follow.controller.ApiV1FollowController;
 import com.ll.server.domain.follow.service.FollowService;
+import com.ll.server.domain.like.repository.LikeRepository;
 import com.ll.server.domain.member.repository.MemberRepository;
 import com.ll.server.domain.member.service.MemberService;
 import com.ll.server.domain.news.news.repository.NewsRepository;
@@ -30,6 +31,7 @@ public class DataLoader implements CommandLineRunner {
     private final RepostService repostService;
     private final CommentRepository commentRepository;
     private final FollowService followService;
+    private final LikeRepository likeRepository;
 //    private final RepostDocRepository repostDocRepository;
 //    private final NewsDocRepository newsDocRepository;
 
@@ -39,6 +41,17 @@ public class DataLoader implements CommandLineRunner {
 
 //        repostDocRepository.deleteAll();
 //        newsDocRepository.deleteAll();
+//        if(likeRepository.findAll().isEmpty()) {
+//            Member first = memberRepository.findAll().get(0);
+//            Member celebrity = memberRepository.findAll().get(1);
+//            List<Repost> reposts = repostRepository.findAll();
+//
+//            for(Repost repost : reposts){
+//                repostService.markLike(repost.getId(),celebrity.getId());
+//                repostService.markLike(repost.getId(),first.getId());
+//            }
+//        }
+
 
 /*
         Faker faker=new Faker(Locale.KOREA);

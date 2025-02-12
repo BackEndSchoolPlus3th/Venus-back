@@ -2,6 +2,8 @@ package com.ll.server.domain.follow.controller;
 
 import com.ll.server.domain.follow.dto.FollowDTO;
 import com.ll.server.domain.follow.dto.FollowRequest;
+import com.ll.server.domain.follow.dto.FolloweeCountDTO;
+import com.ll.server.domain.follow.dto.FollowerCountDTO;
 import com.ll.server.domain.follow.service.FollowService;
 import com.ll.server.domain.member.dto.MemberDto;
 import com.ll.server.global.response.enums.ReturnCode;
@@ -42,6 +44,20 @@ public class ApiV1FollowController {
         Pageable pageable= PageRequest.of(page,size);
         Page<MemberDto> result= followService.findFollowers(nickname,pageable);
         return ApiResponse.of(CustomPage.of(result));
+    }
+
+    @GetMapping("/followercount")
+    public ApiResponse<?> followerCount(@RequestParam("nickname") String nickname){
+        long count = followService.getFollowerCount(nickname);
+
+        return ApiResponse.of(new FollowerCountDTO(count));
+    }
+
+    @GetMapping("/followeecount")
+    public ApiResponse<?> followeeCount(@RequestParam("nickname") String nickname){
+        long count = followService.getFolloweeCount(nickname);
+
+        return ApiResponse.of(new FolloweeCountDTO(count));
     }
 
     @GetMapping("/followers/infinityTest")

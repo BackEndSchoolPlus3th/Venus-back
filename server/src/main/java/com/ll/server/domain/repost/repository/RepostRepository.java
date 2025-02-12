@@ -68,4 +68,8 @@ public interface RepostRepository extends JpaRepository<Repost, Long> {
     Repost findRepostByNewsIdAndPinnedIsTrueAndDeletedAtIsNull(Long newsId);
 
     List<Repost> findByContentContainingAndDeletedAtIsNull(String keyword);
+
+    //좋아요 누른 것만 가지고 온다.
+    @Query("select r from Repost r join fetch Like l on l.repost.id = r.id and l.member.id = :memberId and r.deletedAt is null")
+    Page<Repost> findLikeRepost(Long memberId, Pageable pageable);
 }

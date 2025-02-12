@@ -105,13 +105,12 @@ public class RepostService {
         );
     }
 
-    public Page<RepostDTO> findByMember(Member member, Pageable pageable) {
+    public Page<RepostOnly> findByMember(Member member, Pageable pageable) {
         Page<Repost> result = repostRepository.findRepostsByMemberAndDeletedAtIsNull(member, pageable);
 
         return new PageImpl<>(
                 result.getContent().stream()
-                        .filter(repost -> repost.getDeletedAt() == null)
-                        .map(RepostDTO::new)
+                        .map(RepostOnly::new)
                         .collect(Collectors.toList()),
                 result.getPageable(),
                 result.getTotalElements()
@@ -346,5 +345,13 @@ public class RepostService {
         return reposts.stream()
                 .map(RepostDTO::new)
                 .collect(Collectors.toList());
+    }
+
+    public Page<RepostOnly> findLikeReposts(Long memberId, Pageable pageable) {
+        Page<Repost> reposts = repostRepository.findLikeRepost(memberId,pageable);
+        List<RepostOnly> dtos = reposts.getContent().stream().map(RepostOnly::new).toList();
+
+        return new PageImpl<>(dtos, reposts.getPageable(), reposts.getTotalElements());
+
     }
 }

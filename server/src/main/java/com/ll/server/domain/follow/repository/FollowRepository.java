@@ -21,6 +21,7 @@ public interface FollowRepository extends JpaRepository<Follow, Long> {
 
     //구독자들 찾기
     long countFollowsByFollower_Nickname(String Nickname);
+    long countFollowsByFollower_Id(Long id);
 
     //페이지네이션 최초. 팔로잉하는 친구들 찾기
     List<Follow> findFollowsByFollower_Nickname(String nickname, Limit limit);
@@ -33,6 +34,7 @@ public interface FollowRepository extends JpaRepository<Follow, Long> {
 
     //구독한 사람 찾기 영역
     long countFollowsByFollowee_Nickname(String Nickname);
+    long countFollowsByFollowee_Id(Long id);
 
     //페이지네이션 최초. 팔로우한 친구들 찾기
     List<Follow> findFollowsByFollowee_Nickname(String nickname, Limit limit);

@@ -11,11 +11,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class MemberUpdateParam {
     private Long memberId;
-    private String password; //new pw
     private String nickname; //new nickname
     private String profileUrl; //oldProfileUrl
 
     public void changeProfileUrl(String newUrl) {
         this.profileUrl = newUrl;
     }
+
 }
