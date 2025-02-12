@@ -1,12 +1,13 @@
 package com.ll.server.domain.news.news.controller;
 
 import com.ll.server.domain.elasticsearch.news.service.NewsDocService;
-import com.ll.server.domain.news.news.dto.*;
+import com.ll.server.domain.news.news.dto.NewsDTO;
+import com.ll.server.domain.news.news.dto.NewsInfinityScrollResponse;
+import com.ll.server.domain.news.news.dto.NewsOnly;
+import com.ll.server.domain.news.news.dto.NewsUpdateRequest;
 import com.ll.server.domain.news.news.entity.News;
 import com.ll.server.domain.news.news.service.NewsFetchService;
 import com.ll.server.domain.news.news.service.NewsService;
-import com.ll.server.domain.repost.dto.NewsRepostInfinityResponse;
-import com.ll.server.domain.repost.dto.RepostUnderNews;
 import com.ll.server.domain.repost.service.RepostService;
 import com.ll.server.global.response.enums.ReturnCode;
 import com.ll.server.global.response.response.ApiResponse;
@@ -126,28 +127,22 @@ public class ApiV1NewsController {
     //뉴스 조회 API
     //뉴스 최초 조회 API 전통적인 페이지네이션
     @GetMapping("/{id}")
-    public ApiResponse<NewsPageDetail> getById(@PathVariable("id") Long newsId,
-                                               @RequestParam(value = "size", defaultValue = "20") int size) {
-        int page = 0;
-        PageLimitSizeValidator.validateSize(page, size, MyConstant.PAGELIMITATION);
-        Pageable pageable = PageRequest.of(page, size);
+    public ApiResponse<NewsDTO> getById(@PathVariable("id") Long newsId) {
 
         News news = newsService.getNews(newsId);
-        CustomPage<RepostUnderNews> repostPage = CustomPage.of(repostService.getNewsRepostCursorPagination(newsId, pageable));
-        NewsPageDetail newsPageDetail = new NewsPageDetail(news, repostPage);
+        NewsOnly dto = new NewsOnly(news);
 
-        return ApiResponse.of(newsPageDetail);
+        return ApiResponse.of(dto);
     }
 
     //뉴스 최초 조회 무한스크롤
     @GetMapping("/infinityTest/{newsId}")
-    public ApiResponse<NewsDTO> getByIdInfinity(@PathVariable("newsId") Long newsId,
-                                                @RequestParam(value = "size", defaultValue = "20") int size) {
+    public ApiResponse<NewsDTO> getByIdInfinity(@PathVariable("newsId") Long newsId) {
 
         News news = newsService.getNews(newsId);
-        NewsRepostInfinityResponse reposts = new NewsRepostInfinityResponse(repostService.firstGetNewsRepost(newsId, size));
+        NewsOnly newsOnly = new NewsOnly(news);
 
-        return ApiResponse.of(new NewsInfinityDetail(news, reposts));
+        return ApiResponse.of(newsOnly);
     }
 
     @PatchMapping("/{id}")

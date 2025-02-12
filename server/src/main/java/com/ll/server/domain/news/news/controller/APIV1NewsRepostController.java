@@ -26,7 +26,7 @@ public class APIV1NewsRepostController {
     //뉴스의 리포스트 무한 스크롤 요청 시 (전통적인 페이지네이션으로 반환하는) 엔드포인트
     @GetMapping()
     public ApiResponse<?> getUnderReposts(@PathVariable("newsId") Long newsId,
-                                          @RequestParam(value = "page",defaultValue = "1") int page,
+                                          @RequestParam(value = "page",defaultValue = "0") int page,
                                           @RequestParam(value = "size",defaultValue = "20") int size){
         PageLimitSizeValidator.validateSize(page, size, MyConstant.PAGELIMITATION);
         Pageable pageable = PageRequest.of(page, size);
