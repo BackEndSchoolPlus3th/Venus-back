@@ -229,5 +229,8 @@ public class ApiV1RepostController {
 
     }
 
-
+    @GetMapping("/search")
+    public List<RepostDTO> searchByContent(@RequestParam("keyword") String keyword){
+        return repostService.searchContent(keyword);
+    }
 }
