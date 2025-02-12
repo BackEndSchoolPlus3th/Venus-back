@@ -24,10 +24,7 @@ import com.ll.server.global.response.exception.CustomException;
 import com.ll.server.global.response.exception.CustomRequestException;
 import com.ll.server.global.security.util.AuthUtil;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Limit;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -350,7 +347,8 @@ public class RepostService {
 
     public List<RepostDTO> getHotTopics() {
         LocalDateTime startOfDay = LocalDateTime.now().toLocalDate().atStartOfDay();
-        List<Repost> hotReposts = repostRepository.findTodayshotReposts(startOfDay);
+        List<Repost> hotReposts = repostRepository.findTodayshotReposts(startOfDay, PageRequest.of(0,5));
+        //top 5
 
         return hotReposts.stream()
                 .map(RepostDTO::new)
