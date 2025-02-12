@@ -50,23 +50,23 @@ public class ApiV1NewsController {
     }
 
     @GetMapping
-    public ApiResponse<?> getAllNews(@RequestParam(value="keyword",defaultValue = "") String keyword,
-                                     @RequestParam(value="title",defaultValue="false") boolean hasTitle,
-                                     @RequestParam(value="content",defaultValue="false") boolean hasContent,
-                                     @RequestParam(value="publisher",defaultValue="false") boolean hasPublisher,
-                                     @RequestParam(value="category",defaultValue="") String category,
-                                     @RequestParam(value="page",defaultValue = "0")int page,
-                                     @RequestParam(value="size",defaultValue = "20")int size) {
+    public ApiResponse<?> getAllNews(@RequestParam(value = "keyword", defaultValue = "") String keyword,
+                                     @RequestParam(value = "title", defaultValue = "false") boolean hasTitle,
+                                     @RequestParam(value = "content", defaultValue = "false") boolean hasContent,
+                                     @RequestParam(value = "publisher", defaultValue = "false") boolean hasPublisher,
+                                     @RequestParam(value = "category", defaultValue = "") String category,
+                                     @RequestParam(value = "page", defaultValue = "0") int page,
+                                     @RequestParam(value = "size", defaultValue = "20") int size) {
         //요청한 page, limit이 50을 넘지 않는지 확인
         PageLimitSizeValidator.validateSize(page, size, MyConstant.PAGELIMITATION);
         Pageable pageable = PageRequest.of(page, size);
 
 
         //검색을 안 할 때
-        if(category.isBlank() && keyword.isBlank()){
+        if (category.isBlank() && keyword.isBlank()) {
             //Page<NewsDTO> news = newsService.getAll(pageable).map(newsService::convertToDTO);
-            Page<NewsDTO> result= newsService.getAll(pageable);
-            Page<NewsOnly> news=new PageImpl<>(
+            Page<NewsDTO> result = newsService.getAll(pageable);
+            Page<NewsOnly> news = new PageImpl<>(
                     result.getContent().stream().map(NewsOnly::new).collect(Collectors.toList())
                     , result.getPageable()
                     , result.getTotalElements()
@@ -74,51 +74,51 @@ public class ApiV1NewsController {
             return ApiResponse.of(CustomPage.of(news));
         }
 
-        if(!keyword.isBlank()&&!hasContent && !hasTitle && !hasPublisher) hasTitle = true;
+        if (!keyword.isBlank() && !hasContent && !hasTitle && !hasPublisher) hasTitle = true;
 
         //검색을 할 때
-        Page<NewsOnly> news=newsDocService.search(keyword,hasTitle,hasContent,hasPublisher,category,pageable);
+        Page<NewsOnly> news = newsDocService.search(keyword, hasTitle, hasContent, hasPublisher, category, pageable);
         return ApiResponse.of(CustomPage.of(news));
     }
 
     @GetMapping("/infinityTest")
-    public ApiResponse<?> getAllNewsInfinity(@RequestParam(value="keyword",defaultValue="") String keyword,
-                                         @RequestParam(value="title",defaultValue="false") boolean hasTitle,
-                                         @RequestParam(value="content",defaultValue="false") boolean hasContent,
-                                         @RequestParam(value="publisher",defaultValue="false") boolean hasPublisher,
-                                         @RequestParam(value="category",defaultValue = "") String category,
-                                         @RequestParam(value="lastTime",required = false) LocalDateTime lastTime,
-                                         @RequestParam(value="lastId",required = false) Long lastId,
-                                         @RequestParam(value="size",defaultValue = "20") int size){
+    public ApiResponse<?> getAllNewsInfinity(@RequestParam(value = "keyword", defaultValue = "") String keyword,
+                                             @RequestParam(value = "title", defaultValue = "false") boolean hasTitle,
+                                             @RequestParam(value = "content", defaultValue = "false") boolean hasContent,
+                                             @RequestParam(value = "publisher", defaultValue = "false") boolean hasPublisher,
+                                             @RequestParam(value = "category", defaultValue = "") String category,
+                                             @RequestParam(value = "lastTime", required = false) LocalDateTime lastTime,
+                                             @RequestParam(value = "lastId", required = false) Long lastId,
+                                             @RequestParam(value = "size", defaultValue = "20") int size) {
 
-        List<NewsOnly> newsList=null;
+        List<NewsOnly> newsList = null;
 
         //검색이 아니라 그냥 무지성으로 쭉쭉 내릴 때
-        if(keyword.isBlank() && category.isBlank()){
+        if (keyword.isBlank() && category.isBlank()) {
             //최초 전체 조회
-            if(lastTime==null){
-                newsList=newsService.firstInfinityGetAll(size);
+            if (lastTime == null) {
+                newsList = newsService.firstInfinityGetAll(size);
                 return ApiResponse.of(new NewsInfinityScrollResponse(newsList));
             }
 
-            newsList=newsService.afterInfinityGetAll(size,lastTime);
+            newsList = newsService.afterInfinityGetAll(size, lastTime);
             return ApiResponse.of(new NewsInfinityScrollResponse(newsList));
         }
 
         //검색을 할 때
 
         //만약 아무 조건 없이 검색하는 경우
-        if(!keyword.isBlank()&&!hasContent && !hasTitle && !hasPublisher) hasTitle = true;
+        if (!keyword.isBlank() && !hasContent && !hasTitle && !hasPublisher) hasTitle = true;
 
         //최초 검색
-        if(lastTime==null || lastId==null) {
+        if (lastTime == null || lastId == null) {
             //그냥 검색만 하면 제목 기준으로 검색하도록
-            newsList=newsDocService.firstInfinitySearch(keyword, hasTitle, hasContent, hasPublisher, category,size);
+            newsList = newsDocService.firstInfinitySearch(keyword, hasTitle, hasContent, hasPublisher, category, size);
             return ApiResponse.of(new NewsInfinityScrollResponse(newsList));
         }
 
         //이후 검색
-        newsList=newsDocService.afterInfinitySearch(keyword, hasTitle, hasContent, hasPublisher, category,size, lastTime,lastId);
+        newsList = newsDocService.afterInfinitySearch(keyword, hasTitle, hasContent, hasPublisher, category, size, lastTime, lastId);
         return ApiResponse.of(new NewsInfinityScrollResponse(newsList));
 
     }
@@ -127,14 +127,14 @@ public class ApiV1NewsController {
     //뉴스 최초 조회 API 전통적인 페이지네이션
     @GetMapping("/{id}")
     public ApiResponse<NewsPageDetail> getById(@PathVariable("id") Long newsId,
-                                               @RequestParam(value = "size",defaultValue = "20") int size) {
-        int page=0;
+                                               @RequestParam(value = "size", defaultValue = "20") int size) {
+        int page = 0;
         PageLimitSizeValidator.validateSize(page, size, MyConstant.PAGELIMITATION);
         Pageable pageable = PageRequest.of(page, size);
 
         News news = newsService.getNews(newsId);
-        CustomPage<RepostUnderNews> repostPage = CustomPage.of(repostService.getNewsRepostCursorPagination(newsId,pageable));
-        NewsPageDetail newsPageDetail = new NewsPageDetail(news,repostPage);
+        CustomPage<RepostUnderNews> repostPage = CustomPage.of(repostService.getNewsRepostCursorPagination(newsId, pageable));
+        NewsPageDetail newsPageDetail = new NewsPageDetail(news, repostPage);
 
         return ApiResponse.of(newsPageDetail);
     }
@@ -142,12 +142,12 @@ public class ApiV1NewsController {
     //뉴스 최초 조회 무한스크롤
     @GetMapping("/infinityTest/{newsId}")
     public ApiResponse<NewsDTO> getByIdInfinity(@PathVariable("newsId") Long newsId,
-                                                @RequestParam(value = "size", defaultValue = "20") int size){
+                                                @RequestParam(value = "size", defaultValue = "20") int size) {
 
         News news = newsService.getNews(newsId);
-        NewsRepostInfinityResponse reposts = new NewsRepostInfinityResponse(repostService.firstGetNewsRepost(newsId,size));
+        NewsRepostInfinityResponse reposts = new NewsRepostInfinityResponse(repostService.firstGetNewsRepost(newsId, size));
 
-        return ApiResponse.of(new NewsInfinityDetail(news,reposts));
+        return ApiResponse.of(new NewsInfinityDetail(news, reposts));
     }
 
     @PatchMapping("/{id}")
@@ -164,4 +164,19 @@ public class ApiV1NewsController {
         return ApiResponse.of(ReturnCode.SUCCESS);
     }
 
+    @GetMapping("/search")
+    public ApiResponse<?> searchNews(@RequestParam(value = "keyword", defaultValue = "") String keyword,
+                                     @RequestParam(value = "title", defaultValue = "true") boolean hasTitle,
+                                     @RequestParam(value = "content", defaultValue = "false") boolean hasContent,
+                                     @RequestParam(value = "publisher", defaultValue = "false") boolean hasPublisher,
+                                     @RequestParam(value = "category", defaultValue = "") String category,
+                                     @RequestBody NewsGetRequest request
+    ) {
+        //타입으로는 publisher, title, content, category(이건 별도로 드랍다운 방식으로 선택하거나 할 듯. 나머지는 체크박스)가 올 수 있다.
+        PageLimitSizeValidator.validateSize(request.getPage(), request.getLimit(), 50);
+        Pageable pageable = PageRequest.of(request.getPage(), request.getLimit());
+        Page<News> result = newsService.search(keyword, hasTitle, hasContent, hasPublisher, category, pageable);
+
+        return ApiResponse.of(result);
+    }
 }

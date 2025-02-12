@@ -67,4 +67,5 @@ public interface RepostRepository extends JpaRepository<Repost, Long> {
 
     Repost findRepostByNewsIdAndPinnedIsTrueAndDeletedAtIsNull(Long newsId);
 
+    List<Repost> findByContentContainingAndDeletedAtIsNull(String keyword);
 }

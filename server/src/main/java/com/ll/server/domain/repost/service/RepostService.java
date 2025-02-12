@@ -340,4 +340,11 @@ public class RepostService {
                 .map(RepostUnderNews::new)
                 .collect(Collectors.toList());
     }
+
+    public List<RepostDTO> searchContent(String keyword) {
+        List<Repost> reposts = repostRepository.findByContentContainingAndDeletedAtIsNull(keyword);
+        return reposts.stream()
+                .map(RepostDTO::new)
+                .collect(Collectors.toList());
+    }
 }
