@@ -5,9 +5,9 @@ import lombok.*;
 
 @Getter
 @Setter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 public class MemberDto {
     private String email;
     private String nickname;

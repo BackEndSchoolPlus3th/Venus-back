@@ -1,6 +1,5 @@
 package com.ll.server.global.security.custom;
 
-import com.ll.server.domain.member.dto.MemberDto;
 import com.ll.server.domain.member.entity.Member;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
@@ -14,13 +13,9 @@ import java.util.Collections;
 public class CustomUserDetails implements UserDetails {
 
     private final Member member;
-    private final MemberDto memberDto;
 
-    public CustomUserDetails(Member member) {
+    public CustomUserDetails (Member member) {
         this.member = member;
-        this.memberDto = new MemberDto(
-            member
-        );
     }
 
     @Override

@@ -1,3 +1,5 @@
+# application-dev.yml
+
 server:
   servlet:
     encoding:
@@ -7,31 +9,33 @@ server:
 
 spring:
 #  datasource:
-#    url: jdbc:h2:mem:test;MODE=MySQL
-#    driver-class-name: org.h2.Driver
-#    username: sa
-#    password:
+#      url: jdbc:h2:mem:test;MODE=MySQL
+#      driver-class-name: org.h2.Driver
+#      username: sa
+#      password:
 #  h2:
 #    console:
 #      enabled: true
-  datasource:
-    url: jdbc:mysql://db.tmdgjsdl1.site:3306/venus_prac
-    username: root
-    password: 1234
-    driver-class-name: com.mysql.cj.jdbc.Driver
-  jpa:
-    open-in-view: false
-    hibernate:
-      ddl-auto: update
-    properties:
+    datasource:
+      url: jdbc:mysql://db.tmdgjsdl1.site:3306/venus_prac
+      username: root
+      password: 1234
+      driver-class-name: com.mysql.cj.jdbc.Driver
+    jpa:
+      open-in-view: false
       hibernate:
-        dialect: org.hibernate.dialect.MySQL8Dialect
-      '[hibernate.default_batch_fetch_size]': 100
-      '[hibernate.format_sql]': true
-    show-sql: true
-  output:
-    ansi:
-      enabled: always
+        ddl-auto: update
+      properties:
+        hibernate:
+          dialect: org.hibernate.dialect.MySQL8Dialect
+        '[hibernate.default_batch_fetch_size]': 100
+        '[hibernate.format_sql]': true
+      show-sql: true
+    output:
+      ansi:
+        enabled: always
+
+
 
 
 logging:
@@ -51,5 +55,3 @@ springdoc:
 
   paths-to-match:
     - /api/** # swagger-ui에 표시할 api의 엔드포인트 패턴
-
-

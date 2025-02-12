@@ -45,15 +45,13 @@ public class MemberController {
                throw new CustomException(ReturnCode.NOT_AUTHORIZED);
             }
 
-            MemberDto memberDto = new MemberDto(member);
-
-            String accessToken = jwtUtil.generateAccessToken(memberDto);
-            String refreshToken = jwtUtil.generateRefreshToken(memberDto.getEmail());
+            String accessToken = jwtUtil.generateAccessToken(member.getEmail(), member.getRole().name());
+            String refreshToken = jwtUtil.generateRefreshToken(member.getEmail());
 
             jwtUtil.addJwtToCookie(accessToken, response, "accessToken");
             jwtUtil.addJwtToCookie(refreshToken, response, "refreshToken");
 
-            redisService.saveRefreshToken(memberDto.getEmail(), refreshToken);
+            redisService.saveRefreshToken(member.getEmail(), refreshToken);
 
             return ApiResponse.of("로그인 성공");
 
@@ -122,7 +120,7 @@ public class MemberController {
              member
         );
 
-        String newAccessToken = jwtUtil.generateAccessToken(memberDto);
+        String newAccessToken = jwtUtil.generateAccessToken(memberDto.getEmail(),member.getRole().name());
         jwtUtil.addJwtToCookie(newAccessToken, response, "accessToken");
         return ApiResponse.of("accessToken 갱신 성공");
 
