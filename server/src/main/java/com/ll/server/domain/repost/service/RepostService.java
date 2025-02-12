@@ -345,7 +345,7 @@ public class RepostService {
     }
 
     public List<RepostOnly> getHotTopics() {
-        LocalDateTime startOfDay = LocalDateTime.of(1970, 1, 1, 0, 0, 0, 0);//LocalDateTime.now().toLocalDate().atStartOfDay();
+        LocalDateTime.now().toLocalDate().atStartOfDay();
         List<Repost> hotReposts = repostRepository.findTodayshotReposts(startOfDay, PageRequest.of(0,5));
         //top 5
 
