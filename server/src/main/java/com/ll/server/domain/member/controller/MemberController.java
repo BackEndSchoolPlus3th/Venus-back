@@ -3,6 +3,7 @@ package com.ll.server.domain.member.controller;
 import com.ll.server.domain.member.auth.dto.LoginRequestDto;
 import com.ll.server.domain.member.auth.dto.SignupRequestDto;
 import com.ll.server.domain.member.dto.MemberDto;
+import com.ll.server.domain.member.dto.MemberUpdateParam;
 import com.ll.server.domain.member.entity.Member;
 import com.ll.server.domain.member.service.MemberService;
 import com.ll.server.global.redis.RedisService;
@@ -14,10 +15,14 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @Slf4j(topic = "MemberController")
 @RestController
@@ -38,22 +43,22 @@ public class MemberController {
     }
 
     @PostMapping("/login")
-    public ApiResponse<?> login (@RequestBody LoginRequestDto requestDto, HttpServletResponse response) {
-            Member member = memberService.findLocalMember(requestDto.getEmail());
+    public ApiResponse<?> login(@RequestBody LoginRequestDto requestDto, HttpServletResponse response) {
+        Member member = memberService.findLocalMember(requestDto.getEmail());
 
-            if (member == null || !passwordEncoder.matches(requestDto.getPassword(), member.getPassword())) {
-               throw new CustomException(ReturnCode.NOT_AUTHORIZED);
-            }
+        if (member == null || !passwordEncoder.matches(requestDto.getPassword(), member.getPassword())) {
+            throw new CustomException(ReturnCode.NOT_AUTHORIZED);
+        }
 
-            String accessToken = jwtUtil.generateAccessToken(member.getEmail(), member.getRole().name());
-            String refreshToken = jwtUtil.generateRefreshToken(member.getEmail());
+        String accessToken = jwtUtil.generateAccessToken(member.getEmail(), member.getRole().name());
+        String refreshToken = jwtUtil.generateRefreshToken(member.getEmail());
 
-            jwtUtil.addJwtToCookie(accessToken, response, "accessToken");
-            jwtUtil.addJwtToCookie(refreshToken, response, "refreshToken");
+        jwtUtil.addJwtToCookie(accessToken, response, "accessToken");
+        jwtUtil.addJwtToCookie(refreshToken, response, "refreshToken");
 
-            redisService.saveRefreshToken(member.getEmail(), refreshToken);
+        redisService.saveRefreshToken(member.getEmail(), refreshToken);
 
-            return ApiResponse.of("로그인 성공");
+        return ApiResponse.of("로그인 성공");
 
     }
 
@@ -81,11 +86,11 @@ public class MemberController {
     }
 
     @GetMapping("/auth")
-    public ApiResponse<MemberDto> authorize(HttpServletRequest request){
+    public ApiResponse<MemberDto> authorize(HttpServletRequest request) {
         String accessToken = jwtUtil.getJwtFromHeader(request);
-        if(accessToken==null) throw new CustomException(ReturnCode.NOT_AUTHORIZED);
+        if (accessToken == null) throw new CustomException(ReturnCode.NOT_AUTHORIZED);
 
-        if(!jwtUtil.validateToken(accessToken)) throw new CustomException(ReturnCode.NOT_AUTHORIZED);
+        if (!jwtUtil.validateToken(accessToken)) throw new CustomException(ReturnCode.NOT_AUTHORIZED);
 
         MemberDto member = jwtUtil.getUserInfoFromToken(accessToken);
 
@@ -96,12 +101,12 @@ public class MemberController {
     public ApiResponse<?> refresh(HttpServletRequest request, HttpServletResponse response) {
         String refreshToken = jwtUtil.resolveRefreshToken(request);
 
-        if(refreshToken==null){
+        if (refreshToken == null) {
             throw new CustomException(ReturnCode.NOT_AUTHORIZED);
             //return new ResponseEntity<>("RefreshToken 이 존재하지 않습니다.", HttpStatus.BAD_REQUEST);
         }
 
-        if(!jwtUtil.validateToken(refreshToken)){
+        if (!jwtUtil.validateToken(refreshToken)) {
             throw new CustomException(ReturnCode.NOT_AUTHORIZED);
             //return new ResponseEntity<>("유효하지 않은 RefreshToken 입니다.", HttpStatus.BAD_REQUEST);
         }
@@ -109,7 +114,7 @@ public class MemberController {
         String email = jwtUtil.getMemberEmailFromToken(refreshToken);
         String savedRefreshToken = redisService.getRefreshToken(email);
 
-        if(savedRefreshToken == null || !savedRefreshToken.equals(refreshToken)){
+        if (savedRefreshToken == null || !savedRefreshToken.equals(refreshToken)) {
             throw new CustomException(ReturnCode.NOT_AUTHORIZED);
             //return new ResponseEntity<>("RefreshToken 이 일치하지 않습니다.", HttpStatus.BAD_REQUEST);
         }
@@ -117,12 +122,20 @@ public class MemberController {
         Member member = memberService.findByEmail(email);
 
         MemberDto memberDto = new MemberDto(
-             member
+                member
         );
 
-        String newAccessToken = jwtUtil.generateAccessToken(memberDto.getEmail(),member.getRole().name());
+        String newAccessToken = jwtUtil.generateAccessToken(memberDto.getEmail(), member.getRole().name());
         jwtUtil.addJwtToCookie(newAccessToken, response, "accessToken");
         return ApiResponse.of("accessToken 갱신 성공");
 
+    }
+
+    @PatchMapping(value = "/update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ApiResponse<?> modify(MemberUpdateParam param, @RequestPart(value = "imageFile", required = false) MultipartFile imageFile // 이미지 파일 (선택 사항)
+    ) throws IOException {
+        memberService.updateMember(param, imageFile);
+
+        return ApiResponse.of(ReturnCode.SUCCESS);
     }
 }
