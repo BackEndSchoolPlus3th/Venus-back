@@ -116,7 +116,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
                 .authorizeHttpRequests(auth -> auth     // 인가 (Authorization) 설정
-                        .requestMatchers("/api/v1/member/signup", "/api/v1/member/login", "/oauth2/**","/api/v1/member/auth").permitAll()
+                        .requestMatchers("/api/v1/member/signup", "/api/v1/member/login", "/oauth2/**","/api/v1/member/auth","/h2-console","/h2-console/**").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/publisher/**").hasAnyRole("PUBLISHER", "ADMIN")
                         .anyRequest().authenticated()

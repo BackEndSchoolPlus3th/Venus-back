@@ -39,7 +39,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     @Override
     public OAuth2User loadUser (OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         OAuth2User oAuth2User = super.loadUser(userRequest);
-        log.info("OAuth2User Attributes: " + oAuth2User.getAttributes());
         return processOAuth2User(userRequest, oAuth2User);
     }
 
@@ -47,7 +46,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         String provider = userRequest.getClientRegistration().getRegistrationId();
         OAuth2UserInfo oAuth2UserInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(provider, oAuth2User.getAttributes()); // Factory Pattern 적용
 
-        Optional<Member> memberOptional = memberRepository.findMemberByEmail(oAuth2UserInfo.getEmail());
+        Optional<Member> memberOptional = memberRepository.findMemberByProviderId(oAuth2UserInfo.getId());
 
         Member member = memberOptional.map(existingMember -> {
                     // 기존 member 가 있다면, update 로직을 실행합니다.
@@ -56,7 +55,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 .orElseGet(() -> createMember(oAuth2UserInfo, provider));
 
         List<GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority(member.getRole().name()));
-
         CustomOAuth2User customOAuth2User = new CustomOAuth2User(oAuth2User, member, authorities);
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(customOAuth2User, null, customOAuth2User.getAuthorities());
@@ -70,6 +68,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         // 소셜 로그인 사용자는 어차피 비밀번호로 로그인하지 않으므로, UUID를 비밀번호로
         String randomPassword = UUID.randomUUID().toString();
         String realPassword = passwordEncoder.encode(randomPassword);
+
         Member member = Member.builder()
                 .email(oAuth2UserInfo.getEmail())
                 .nickname(oAuth2UserInfo.getName())
@@ -91,6 +90,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     protected Member updateMember(Member existingMember, OAuth2UserInfo oAuth2UserInfo) {
         // OAuth2 정보와 일치하도록 기존 회원 정보 업데이트
         existingMember.setNickname(oAuth2UserInfo.getName());
+        existingMember.setEmail(oAuth2UserInfo.getEmail());
         existingMember.setModifyDate(LocalDateTime.now());
         // 필요한 다른 정보들도 업데이트
 
