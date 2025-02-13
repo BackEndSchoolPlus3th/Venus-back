@@ -10,6 +10,7 @@ public class CustomException extends RuntimeException {
     private String returnMessage;
 
     public CustomException(ReturnCode returnCode) {
+        super(returnCode.getReturnMessage());
         this.returnCode = returnCode;
         this.returnMessage = returnCode.getReturnMessage();
     }

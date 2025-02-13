@@ -45,8 +45,8 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
             log.info("OAuth2SuccessHandler에서 정상적으로 accessToken과 RefreshToken을 생성 및 쿠키에 저장하였습니다.");
 
-            response.sendRedirect("http://localhost:8080/api-test");
-            //response.sendRedirect(redirectUrl);
+            //response.sendRedirect("http://localhost:8080/api-test");
+            response.sendRedirect(redirectUrl);
 
         } catch (Exception e) {
             log.error("OAuth2 인증 성공 후 처리 중 오류 발생: {}", e.getMessage(), e);
