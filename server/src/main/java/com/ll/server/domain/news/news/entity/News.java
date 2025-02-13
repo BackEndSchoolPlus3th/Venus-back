@@ -1,7 +1,9 @@
 package com.ll.server.domain.news.news.entity;
 
+import com.ll.server.domain.member.entity.Member;
 import com.ll.server.domain.news.news.enums.NewsCategory;
 import com.ll.server.domain.repost.entity.Repost;
+import com.ll.server.domain.saved.entity.Saved;
 import com.ll.server.global.jpa.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -39,19 +41,44 @@ public class News extends BaseEntity {
     @Builder.Default
     private List<Repost> reposts = new ArrayList<>();
 
+    @OneToMany(mappedBy = "news", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<Saved> savedList = new ArrayList<>();
+
     public void addRepost(Repost repost) {
         reposts.add(repost);
+    }
+
+    public void addSaved(Member member){
+        for(Saved existing : savedList){
+            if(existing.getMember().getId().equals(member.getId())) {
+                existing.setDeleted(false);
+                return;
+            }
+        }
+        Saved saved = Saved.builder()
+                .news(this)
+                .member(member)
+                .build();
+
+        savedList.add(saved);
     }
 
     public void removeReposts() {
         reposts.forEach(
                 Repost::delete
         );
+
+    }
+
+    public void removeSavedList(){
+        savedList.forEach(Saved::delete);
     }
 
     public void delete() {
         this.deletedAt = LocalDateTime.now();
         setModifyDate(LocalDateTime.now());
         removeReposts();
+        removeSavedList();
     }
 }

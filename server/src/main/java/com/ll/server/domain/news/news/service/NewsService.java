@@ -1,7 +1,7 @@
 package com.ll.server.domain.news.news.service;
 
-import com.ll.server.domain.elasticsearch.news.service.NewsDocService;
-import com.ll.server.domain.elasticsearch.repost.service.RepostDocService;
+import com.ll.server.domain.member.entity.Member;
+import com.ll.server.domain.member.repository.MemberRepository;
 import com.ll.server.domain.news.news.dto.NewsDTO;
 import com.ll.server.domain.news.news.dto.NewsOnly;
 import com.ll.server.domain.news.news.dto.NewsUpdateRequest;
@@ -9,6 +9,7 @@ import com.ll.server.domain.news.news.entity.News;
 import com.ll.server.domain.news.news.repository.NewsRepository;
 import com.ll.server.domain.notification.Notify;
 import com.ll.server.domain.repost.dto.RepostUnderNews;
+import com.ll.server.domain.saved.entity.Saved;
 import com.ll.server.global.response.enums.ReturnCode;
 import com.ll.server.global.response.exception.CustomException;
 import com.ll.server.global.response.exception.CustomRequestException;
@@ -30,8 +31,7 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class NewsService {
     private final NewsRepository newsRepository;
-    private final NewsDocService newsDocService;
-    private final RepostDocService repostDocService;
+    private final MemberRepository memberRepository;
 
     public Page<NewsDTO> getAll(Pageable pageable) {
         Page<News> result = newsRepository.findAllByDeletedAtIsNullOrderByPublishedAtDescIdDesc(pageable);
@@ -155,5 +155,33 @@ public class NewsService {
         LocalDateTime startOfDay = LocalDateTime.now().toLocalDate().atStartOfDay();
         List<News> result = newsRepository.findTodayshotNews(startOfDay, PageRequest.of(0,5));
         return result.stream().map(NewsOnly::new).collect(Collectors.toList());
+    }
+
+    public Page<NewsOnly> getSavedNews(Long memberId,Pageable pageable) {
+        Page<News> result = newsRepository.findSavedNews(memberId, pageable);
+        List<NewsOnly> dtos = result.getContent().stream().map(NewsOnly::new).toList();
+
+        return new PageImpl<>(dtos,result.getPageable(),result.getTotalElements());
+    }
+
+    @Transactional
+    public void scrapNews(Long memberId, Long newsId){
+        News news = getNews(newsId);
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(ReturnCode.NOT_FOUND_ENTITY));
+
+        news.addSaved(member);
+    }
+
+    @Transactional
+    public void unscrapNews(Long memberId, Long newsId){
+        News news = getNews(newsId);
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(ReturnCode.NOT_FOUND_ENTITY));
+
+        Saved find = news.getSavedList().stream().filter(saved -> !saved.getDeleted() && saved.getMember().getId().equals(memberId))
+                .findFirst()
+                .orElseThrow(() -> new CustomRequestException(ReturnCode.NOT_FOUND_ENTITY));
+
+        find.setDeleted(true);
+
     }
 }

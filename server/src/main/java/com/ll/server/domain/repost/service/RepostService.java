@@ -4,10 +4,10 @@ import com.ll.server.domain.comment.dto.CommentDTO;
 import com.ll.server.domain.comment.dto.CommentWriteRequest;
 import com.ll.server.domain.comment.entity.Comment;
 import com.ll.server.domain.comment.repository.CommentRepository;
-import com.ll.server.domain.elasticsearch.repost.service.RepostDocService;
 import com.ll.server.domain.like.dto.LikeDTO;
 import com.ll.server.domain.like.entity.Like;
 import com.ll.server.domain.member.entity.Member;
+import com.ll.server.domain.member.repository.MemberRepository;
 import com.ll.server.domain.member.service.MemberService;
 import com.ll.server.domain.news.news.entity.News;
 import com.ll.server.domain.news.news.service.NewsService;
@@ -45,7 +45,7 @@ public class RepostService {
     private final MemberService memberService;
     private final NewsService newsService;
     private final S3Service s3Service;
-    private final RepostDocService repostDocService;
+    private final MemberRepository memberRepository;
 
     @Transactional
     @Notify
@@ -252,6 +252,7 @@ public class RepostService {
     @Transactional
     public void deleteLike(Long repostId, Long userId) {
         Repost repost = getRepost(repostId);
+        Member member = memberRepository.findById(userId).orElseThrow(() -> new CustomException(ReturnCode.NOT_FOUND_ENTITY));
 
         List<Like> likes = repost.getLikes();
 

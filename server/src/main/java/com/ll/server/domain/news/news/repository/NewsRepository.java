@@ -34,4 +34,7 @@ public interface NewsRepository extends JpaRepository<News, Long>, JpaSpecificat
 
     @Query("SELECT n FROM News n JOIN Repost r ON n.id = r.news.id AND r.deletedAt IS NULL AND n.deletedAt IS NULL AND n.publishedAt >= :startOfDay GROUP BY n.id ORDER BY COUNT(r) DESC, n.publishedAt DESC, n.id DESC ")
     List<News> findTodayshotNews(@Param("startOfDay") LocalDateTime startOfDay, Pageable pageable);
+
+    @Query("SELECT n FROM News n JOIN Saved s ON n.id = s.news.id AND s.member.id = :memberId AND s.deleted IS FALSE AND n.deletedAt IS NULL ORDER BY s.createDate DESC")
+    Page<News> findSavedNews(Long memberId,Pageable pageable);
 }

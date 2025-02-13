@@ -4,18 +4,23 @@ import com.ll.server.domain.comment.repository.CommentRepository;
 import com.ll.server.domain.follow.controller.ApiV1FollowController;
 import com.ll.server.domain.follow.service.FollowService;
 import com.ll.server.domain.like.repository.LikeRepository;
+import com.ll.server.domain.member.entity.Member;
 import com.ll.server.domain.member.repository.MemberRepository;
 import com.ll.server.domain.member.service.MemberService;
+import com.ll.server.domain.news.news.entity.News;
 import com.ll.server.domain.news.news.repository.NewsRepository;
 import com.ll.server.domain.news.news.service.NewsFetchService;
 import com.ll.server.domain.news.news.service.NewsService;
 import com.ll.server.domain.repost.controller.ApiV1RepostController;
 import com.ll.server.domain.repost.repository.RepostRepository;
 import com.ll.server.domain.repost.service.RepostService;
+import com.ll.server.domain.saved.repository.SavedRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -32,6 +37,7 @@ public class DataLoader implements CommandLineRunner {
     private final CommentRepository commentRepository;
     private final FollowService followService;
     private final LikeRepository likeRepository;
+    private final SavedRepository savedRepository;
 //    private final RepostDocRepository repostDocRepository;
 //    private final NewsDocRepository newsDocRepository;
 
@@ -52,6 +58,21 @@ public class DataLoader implements CommandLineRunner {
 //            }
 //        }
 
+        if(savedRepository.findAll().isEmpty()){
+            Member celebrity = memberRepository.findAll().get(1);
+            List<News> newsList = newsRepository.findAll();
+
+            for(News news : newsList){
+                newsService.scrapNews(celebrity.getId(),news.getId());
+            }
+        }else{
+            Member celebrity = memberRepository.findAll().get(1);
+            List<News> newsList = newsRepository.findAll();
+
+            for(News news : newsList){
+                newsService.unscrapNews(celebrity.getId(),news.getId());
+            }
+        }
 
 /*
         Faker faker=new Faker(Locale.KOREA);

@@ -1,10 +1,7 @@
 package com.ll.server.domain.news.news.controller;
 
 import com.ll.server.domain.elasticsearch.news.service.NewsDocService;
-import com.ll.server.domain.news.news.dto.NewsDTO;
-import com.ll.server.domain.news.news.dto.NewsInfinityScrollResponse;
-import com.ll.server.domain.news.news.dto.NewsOnly;
-import com.ll.server.domain.news.news.dto.NewsUpdateRequest;
+import com.ll.server.domain.news.news.dto.*;
 import com.ll.server.domain.news.news.entity.News;
 import com.ll.server.domain.news.news.service.NewsFetchService;
 import com.ll.server.domain.news.news.service.NewsService;
@@ -12,6 +9,7 @@ import com.ll.server.domain.repost.service.RepostService;
 import com.ll.server.global.response.enums.ReturnCode;
 import com.ll.server.global.response.response.ApiResponse;
 import com.ll.server.global.response.response.CustomPage;
+import com.ll.server.global.security.util.AuthUtil;
 import com.ll.server.global.utils.MyConstant;
 import com.ll.server.global.validation.PageLimitSizeValidator;
 import lombok.Data;
@@ -181,5 +179,32 @@ public class ApiV1NewsController {
         List<NewsOnly> result = newsService.getTodayHotNews();
 
         return ApiResponse.of(result);
+    }
+
+    @GetMapping("/saved")
+    public ApiResponse<?> getSavedNews(@RequestParam(value = "page",defaultValue = "0")int page,
+                                   @RequestParam(value = "size",defaultValue = "20")int size){
+        Long memberId = AuthUtil.getCurrentMemberId();
+        PageLimitSizeValidator.validateSize(page,size,MyConstant.PAGELIMITATION);
+        Pageable pageable = PageRequest.of(page,size);
+
+        Page<NewsOnly> result = newsService.getSavedNews(memberId,pageable);
+
+        return ApiResponse.of(CustomPage.of(result));
+    }
+
+    @PostMapping("/{newsId}/saved")
+    public ApiResponse<?> scrapNews(@PathVariable("newsId") Long newsId, @RequestBody NewsSaveRequest request){
+        Long memberId = AuthUtil.getCurrentMemberId();
+
+        if(request.isSaved()){
+            newsService.scrapNews(memberId, newsId);
+            return ApiResponse.of("세이브 성공");
+        }else{
+            newsService.unscrapNews(memberId, newsId);
+            return ApiResponse.of("세이브 해제");
+        }
+
+
     }
 }
