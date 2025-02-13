@@ -15,11 +15,11 @@ public class LikeDTO {
     private Long checkedUserId;
     private String checkedUserName;
 
-    public LikeDTO(Like like){
-        id=like.getId();
-        repostId=like.getRepost().getId();
-        repostWriterId=like.getRepost().getMember().getId();
-        checkedUserId=like.getMember().getId();
-        checkedUserName=like.getMember().getNickname();
+    public LikeDTO(Like like) {
+        id = like.getId();
+        repostId = like.getRepost().getId();
+        repostWriterId = like.getRepost().getMember().getId();
+        checkedUserId = like.getMember().getId();
+        checkedUserName = like.getMember().getNickname();
     }
 }

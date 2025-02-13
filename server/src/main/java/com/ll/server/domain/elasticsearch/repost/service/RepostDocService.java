@@ -35,66 +35,66 @@ public class RepostDocService {
 
     @SneakyThrows
     @Transactional(readOnly = true)
-    public Page<RepostOnly> searchContent(String keyword, Pageable pageable){
+    public Page<RepostOnly> searchContent(String keyword, Pageable pageable) {
         ElasticsearchClient client = new ElasticSearchClientConfig().createElasticsearchClient();
 
-        SearchRequest searchRequest=SearchRequest.of(
-                s->s.index("repost")
+        SearchRequest searchRequest = SearchRequest.of(
+                s -> s.index("repost")
                         .size(pageable.getPageSize())
-                        .from((int)pageable.getOffset())
-                        .query(q->
+                        .from((int) pageable.getOffset())
+                        .query(q ->
                                 q.bool(
-                                        b->b.mustNot(mn->mn.exists(e->e.field("deleted_at")))
-                                                .should(should->should.match(m->m.field("content").query(keyword)))
+                                        b -> b.mustNot(mn -> mn.exists(e -> e.field("deleted_at")))
+                                                .should(should -> should.match(m -> m.field("content").query(keyword)))
 
                                 )
                         )
                         .sort
-                                (SortOptions.of(sort1->sort1.field(f1->f1.field("create_date").order(SortOrder.Desc))),
-                                        SortOptions.of(sort2->sort2.field(f2->f2.field("id").order(SortOrder.Desc)))
+                                (SortOptions.of(sort1 -> sort1.field(f1 -> f1.field("create_date").order(SortOrder.Desc))),
+                                        SortOptions.of(sort2 -> sort2.field(f2 -> f2.field("id").order(SortOrder.Desc)))
                                 )
         );
 
-        SearchResponse<RepostDoc> response=client.search(searchRequest,RepostDoc.class);
+        SearchResponse<RepostDoc> response = client.search(searchRequest, RepostDoc.class);
 
-        List<Long> ids=response.hits().hits().stream().map(hit-> Objects.requireNonNull(hit.source()).getId()).toList();
-        long totalElements= response.hits().hits().size();
+        List<Long> ids = response.hits().hits().stream().map(hit -> Objects.requireNonNull(hit.source()).getId()).toList();
+        long totalElements = response.hits().hits().size();
 
-        List<Repost> realResult=repostRepository.findAllByIdInAndDeletedAtIsNullOrderByCreateDateDescIdDesc(ids);
+        List<Repost> realResult = repostRepository.findAllByIdInAndDeletedAtIsNullOrderByCreateDateDescIdDesc(ids);
         return new PageImpl<>(
                 realResult.stream()
-                .map(RepostOnly::new)
+                        .map(RepostOnly::new)
                         .collect(Collectors.toList()),
                 pageable,
                 totalElements
-                );
+        );
 
     }
 
     @Transactional(readOnly = true)
     @SneakyThrows
-    public List<RepostOnly> firstInfinitySearch(int size,String keyword) throws IOException {
+    public List<RepostOnly> firstInfinitySearch(int size, String keyword) throws IOException {
         ElasticsearchClient client = new ElasticSearchClientConfig().createElasticsearchClient();
 
-        SearchRequest searchRequest=SearchRequest.of(
-                s->s.index("repost")
+        SearchRequest searchRequest = SearchRequest.of(
+                s -> s.index("repost")
                         .size(size)
-                        .query(q->
+                        .query(q ->
                                 q.bool(
-                                        b->b.mustNot(mn->mn.exists(e->e.field("deleted_at")))
-                                                .should(should->should.match(m->m.field("content").query(keyword)))
+                                        b -> b.mustNot(mn -> mn.exists(e -> e.field("deleted_at")))
+                                                .should(should -> should.match(m -> m.field("content").query(keyword)))
 
                                 )
                         )
                         .sort
-                                (SortOptions.of(sort1->sort1.field(f1->f1.field("create_date").order(SortOrder.Desc))),
-                                SortOptions.of(sort2->sort2.field(f2->f2.field("id").order(SortOrder.Desc)))
-                        )
+                                (SortOptions.of(sort1 -> sort1.field(f1 -> f1.field("create_date").order(SortOrder.Desc))),
+                                        SortOptions.of(sort2 -> sort2.field(f2 -> f2.field("id").order(SortOrder.Desc)))
+                                )
         );
 
-        SearchResponse<RepostDoc> response=client.search(searchRequest,RepostDoc.class);
+        SearchResponse<RepostDoc> response = client.search(searchRequest, RepostDoc.class);
 
-        List<Long> ids=response.hits().hits().stream().map(hit-> Objects.requireNonNull(hit.source()).getId()).toList();
+        List<Long> ids = response.hits().hits().stream().map(hit -> Objects.requireNonNull(hit.source()).getId()).toList();
 
         return repostRepository.findAllByIdInAndDeletedAtIsNullOrderByCreateDateDescIdDesc(ids)
                 .stream()
@@ -104,32 +104,32 @@ public class RepostDocService {
 
     @SneakyThrows
     @Transactional(readOnly = true)
-    public List<RepostOnly> afterInfinitySearch(int size,String keyword, LocalDateTime lastTime, Long lastId){
+    public List<RepostOnly> afterInfinitySearch(int size, String keyword, LocalDateTime lastTime, Long lastId) {
         ElasticsearchClient client = new ElasticSearchClientConfig().createElasticsearchClient();
 
         ZonedDateTime zonedDateTime = lastTime.atZone(ZoneId.of("UTC"));
         // 원하는 형식으로 변환
         String formattedDate = zonedDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"));
 
-        SearchRequest searchRequest=SearchRequest.of(
-                s->s.index("repost")
+        SearchRequest searchRequest = SearchRequest.of(
+                s -> s.index("repost")
                         .size(size)
-                        .query(q->
+                        .query(q ->
                                 q.bool(
-                                        b->b.mustNot(mn->mn.exists(e->e.field("deleted_at")))
-                                                .should(should->should.match(m->m.field("content").query(keyword)))
+                                        b -> b.mustNot(mn -> mn.exists(e -> e.field("deleted_at")))
+                                                .should(should -> should.match(m -> m.field("content").query(keyword)))
                                 )
                         )
                         .sort
-                                (SortOptions.of(sort1->sort1.field(f1->f1.field("create_date").order(SortOrder.Desc))),
-                                        SortOptions.of(sort2->sort2.field(f2->f2.field("id").order(SortOrder.Desc)))
+                                (SortOptions.of(sort1 -> sort1.field(f1 -> f1.field("create_date").order(SortOrder.Desc))),
+                                        SortOptions.of(sort2 -> sort2.field(f2 -> f2.field("id").order(SortOrder.Desc)))
                                 )
-                        .searchAfter(FieldValue.of(formattedDate),FieldValue.of(lastId))
+                        .searchAfter(FieldValue.of(formattedDate), FieldValue.of(lastId))
         );
 
-        SearchResponse<RepostDoc> response=client.search(searchRequest,RepostDoc.class);
+        SearchResponse<RepostDoc> response = client.search(searchRequest, RepostDoc.class);
 
-        List<Long> ids=response.hits().hits().stream().map(hit-> Objects.requireNonNull(hit.source()).getId()).toList();
+        List<Long> ids = response.hits().hits().stream().map(hit -> Objects.requireNonNull(hit.source()).getId()).toList();
 
         return repostRepository.findAllByIdInAndDeletedAtIsNullOrderByCreateDateDescIdDesc(ids)
                 .stream()

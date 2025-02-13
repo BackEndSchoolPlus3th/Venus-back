@@ -11,8 +11,8 @@ public class CommentResponse {
     private List<CommentDTO> comments;
     private long count;
 
-    public CommentResponse(List<CommentDTO> comments){
-        this.comments=comments;
-        count=comments.size();
+    public CommentResponse(List<CommentDTO> comments) {
+        this.comments = comments;
+        count = comments.size();
     }
 }

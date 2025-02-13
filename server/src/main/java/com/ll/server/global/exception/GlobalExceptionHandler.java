@@ -17,13 +17,13 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      * Developer Custom Exception: 직접 정의한 RestApiException 에러 클래스에 대한 예외 처리
      */
     //@ExceptionHandler(CustomException.class)
-    protected ResponseEntity<Object>  handleCustomException(CustomException ex) {
+    protected ResponseEntity<Object> handleCustomException(CustomException ex) {
         ReturnCode errorCode = ex.getReturnCode();
         return handleExceptionInternal(errorCode);
-    };
+    }
 
     protected ResponseEntity<Object> handleExceptionInternal(ReturnCode errorCode) {
-        if(errorCode.equals(ReturnCode.INTERNAL_ERROR)){
+        if (errorCode.equals(ReturnCode.INTERNAL_ERROR)) {
             return ResponseEntity.internalServerError().body(ApiResponse.of(errorCode));
         }
 

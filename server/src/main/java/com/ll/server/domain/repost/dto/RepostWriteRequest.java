@@ -19,14 +19,14 @@ public class RepostWriteRequest {
     private String mentions;
     private String imageUrl;
 
-    public List<String> getMentionedNames(){
-        if(mentions==null || mentions.isBlank()) return null;
+    public List<String> getMentionedNames() {
+        if (mentions == null || mentions.isBlank()) return null;
 
-        String[] mentionArr=mentions.strip().split(",");
-        List<String> metionList=new ArrayList<>();
+        String[] mentionArr = mentions.strip().split(",");
+        List<String> metionList = new ArrayList<>();
 
-        for(String mention:mentionArr){
-            if(mention==null || mention.isBlank()) continue;
+        for (String mention : mentionArr) {
+            if (mention == null || mention.isBlank()) continue;
 
             metionList.add(mention.strip());
         }

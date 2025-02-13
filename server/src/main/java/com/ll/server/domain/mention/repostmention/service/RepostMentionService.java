@@ -16,8 +16,8 @@ public class RepostMentionService {
     private final RepostMentionRepository repostMentionRepository;
 
     @Transactional
-    public RepostMention save(Repost repost, Member member){
-        RepostMention mention=
+    public RepostMention save(Repost repost, Member member) {
+        RepostMention mention =
                 RepostMention.builder()
                         .repost(repost)
                         .member(member)
@@ -26,7 +26,7 @@ public class RepostMentionService {
         return repostMentionRepository.save(mention);
     }
 
-    public List<RepostMention> findByRepost(Long repostId){
+    public List<RepostMention> findByRepost(Long repostId) {
         return repostMentionRepository.findRepostMentionsByRepost_Id(repostId);
     }
 }

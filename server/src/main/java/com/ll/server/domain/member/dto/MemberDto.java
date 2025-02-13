@@ -15,11 +15,11 @@ public class MemberDto {
     private String role;
     private Long id;
 
-    public MemberDto(Member member){
+    public MemberDto(Member member) {
         id = member.getId();
-        nickname=member.getNickname();
-        profileUrl=member.getProfileUrl();
-        role=member.getRole().name();
+        nickname = member.getNickname();
+        profileUrl = member.getProfileUrl();
+        role = member.getRole().name();
         email = member.getEmail();
     }
 }

@@ -37,85 +37,85 @@ public class NotifyAspect {
     private final MemberRepository memberRepository;
     private final EmitterManager emitterManager;
 
-    @Around("@annotation(com.ll.server.domain.notification.Notify)")//Notify 어노테이션이 붙은 메서드를 실행하면 이 놈이 대리로 실행 후 본인 할 일을 한다.
+    @Around("@annotation(com.ll.server.domain.notification.Notify)") //Notify 어노테이션이 붙은 메서드를 실행하면 이 놈이 대리로 실행 후 본인 할 일을 한다.
     public Object handleResponse(ProceedingJoinPoint joinPoint) throws Throwable {
-        Object obj=joinPoint.proceed(); //가로챌 대상이 되는 걸 proceed를 통해 호출한다. 비즈니스 로직을 여기서 실행했다고 보면 된다.
+        Object obj = joinPoint.proceed(); //가로챌 대상이 되는 걸 proceed를 통해 호출한다. 비즈니스 로직을 여기서 실행했다고 보면 된다.
 
-        
-        if(obj instanceof RepostDTO repostDTO){
-            Long repostId=repostDTO.getRepostId();
-            Repost repost=repostRepository.findById(repostId).get();
 
-            Long followerId=repostDTO.getWriterId();
-            String followerName=repostDTO.getNickname();
+        if (obj instanceof RepostDTO repostDTO) {
+            Long repostId = repostDTO.getRepostId();
+            Repost repost = repostRepository.findById(repostId).get();
 
-            List<Follow> followList= followRepository.findFollowsByFollower_Id(followerId);
+            Long followerId = repostDTO.getWriterId();
+            String followerName = repostDTO.getNickname();
 
-            String url="http://localhost:8080/api/v1/repost/"+repostId;
+            List<Follow> followList = followRepository.findFollowsByFollower_Id(followerId);
 
-            for(Follow follow : followList){
-                Member followee=follow.getFollowee();
-                notificationService.saveNotification(followee,followerName+"님이 새 리포스트를 올렸습니다.",url);
+            String url = "http://localhost:8080/api/v1/repost/" + repostId;
+
+            for (Follow follow : followList) {
+                Member followee = follow.getFollowee();
+                notificationService.saveNotification(followee, followerName + "님이 새 리포스트를 올렸습니다.", url);
             }
 
-            List<RepostMention> repostMentions=repost.getMentions();
-            String repostUser=repostDTO.getNickname();
+            List<RepostMention> repostMentions = repost.getMentions();
+            String repostUser = repostDTO.getNickname();
 
-            for(RepostMention mention: repostMentions){
-                Member mentionedUser=mention.getMember();
-                if(mention.getMember().getId().equals(repostDTO.getWriterId())) continue;
-                notificationService.saveNotification(mentionedUser,repostUser+"님이 당신을 멘션했습니다.",url);
+            for (RepostMention mention : repostMentions) {
+                Member mentionedUser = mention.getMember();
+                if (mention.getMember().getId().equals(repostDTO.getWriterId())) continue;
+                notificationService.saveNotification(mentionedUser, repostUser + "님이 당신을 멘션했습니다.", url);
             }
 
         }
 
-        if(obj instanceof FollowDTO followDTO){
-            Follow follow= followRepository.findById(followDTO.getId()).get();
+        if (obj instanceof FollowDTO followDTO) {
+            Follow follow = followRepository.findById(followDTO.getId()).get();
 
-            Member follower=follow.getFollower();
-            String followerName=followDTO.getFollower();
-            String followeeName=followDTO.getFollowee();
-            String url="http://localhost:8080/api/v1/follows/followees?nickname="+followerName;
+            Member follower = follow.getFollower();
+            String followerName = followDTO.getFollower();
+            String followeeName = followDTO.getFollowee();
+            String url = "http://localhost:8080/api/v1/follows/followees?nickname=" + followerName;
 
-            notificationService.saveNotification(follower,followeeName+"님이 팔로우하였습니다.",url);
+            notificationService.saveNotification(follower, followeeName + "님이 팔로우하였습니다.", url);
 
 
         }
 
-        if(obj instanceof CommentDTO commentDTO){
+        if (obj instanceof CommentDTO commentDTO) {
             String url = "http://localhost:8080/api/v1/repost/" + commentDTO.getRepostId();
 
-            Long repostWriterId=commentDTO.getRepostWriterId();
-            Long commentWriterId=commentDTO.getCommentWriterId();
+            Long repostWriterId = commentDTO.getRepostWriterId();
+            Long commentWriterId = commentDTO.getCommentWriterId();
 
-            Member repostWriter=memberRepository.findById(repostWriterId).get();
+            Member repostWriter = memberRepository.findById(repostWriterId).get();
 
-            if(!repostWriterId.equals(commentWriterId)) {
-                notificationService.saveNotification(repostWriter, "내 리포스트에 "+commentDTO.getCommentWriterName()+"님이 댓글을 달았습니다.", url);
+            if (!repostWriterId.equals(commentWriterId)) {
+                notificationService.saveNotification(repostWriter, "내 리포스트에 " + commentDTO.getCommentWriterName() + "님이 댓글을 달았습니다.", url);
             }
 
-            List<CommentMentionDTO> mentionList= commentDTO.getMentions();
+            List<CommentMentionDTO> mentionList = commentDTO.getMentions();
 
-            for(CommentMentionDTO mentionDTO : mentionList){
-                Long mentionedUserId=mentionDTO.getMentionUserId();
+            for (CommentMentionDTO mentionDTO : mentionList) {
+                Long mentionedUserId = mentionDTO.getMentionUserId();
 
-                if(mentionedUserId.equals(commentWriterId)) {
+                if (mentionedUserId.equals(commentWriterId)) {
                     continue;
                 }
-                Member mentionedUser=memberRepository.findById(mentionedUserId).get();
+                Member mentionedUser = memberRepository.findById(mentionedUserId).get();
 
-                notificationService.saveNotification(mentionedUser,commentDTO.getCommentWriterName()+"님이 당신을 멘션했습니다.",url);
+                notificationService.saveNotification(mentionedUser, commentDTO.getCommentWriterName() + "님이 당신을 멘션했습니다.", url);
             }
         }
 
-        if(obj instanceof LikeDTO LikeDTO){
-            Long repostId=LikeDTO.getRepostId();
-            Long repostWriterId=LikeDTO.getRepostWriterId();
+        if (obj instanceof LikeDTO LikeDTO) {
+            Long repostId = LikeDTO.getRepostId();
+            Long repostWriterId = LikeDTO.getRepostWriterId();
 
-            String checkedUserName=LikeDTO.getCheckedUserName();
-            Long checkedUserId=LikeDTO.getCheckedUserId();
+            String checkedUserName = LikeDTO.getCheckedUserName();
+            Long checkedUserId = LikeDTO.getCheckedUserId();
 
-            if(!repostId.equals(checkedUserId)) {
+            if (!repostId.equals(checkedUserId)) {
                 Member user = memberRepository.findById(repostWriterId).get();
                 String url = "http://localhost:8080/api/v1/reposts/" + repostId + "/likes";
                 notificationService.saveNotification(user, checkedUserName + "님이 당신의 글에 좋아요를 눌렀습니다.", url);
@@ -123,29 +123,29 @@ public class NotifyAspect {
             }
         }
 
-        if(obj instanceof NewsDTO newsDTO){
+        if (obj instanceof NewsDTO newsDTO) {
             createNotificationForNews(newsDTO);
         }
 
-        if(obj instanceof NewsResponse newsResponse){
-            List<NewsDTO> newsDTOList=newsResponse.getNewsList();
-            for(NewsDTO newsDTO: newsDTOList) {
+        if (obj instanceof NewsResponse newsResponse) {
+            List<NewsDTO> newsDTOList = newsResponse.getNewsList();
+            for (NewsDTO newsDTO : newsDTOList) {
                 createNotificationForNews(newsDTO);
             }
         }
 
-        List<Notification> notifications=notificationService.findUnsentNotifications();
+        List<Notification> notifications = notificationService.findUnsentNotifications();
 
-        List<Long> successToSend=new ArrayList<>();
-        for(Notification notification: notifications){
-           Long targetId=notification.getMember().getId();
-           NotificationDTO toSend= new NotificationDTO(notification);
-           if(emitterManager.sendNotification(targetId,toSend)){
+        List<Long> successToSend = new ArrayList<>();
+        for (Notification notification : notifications) {
+            Long targetId = notification.getMember().getId();
+            NotificationDTO toSend = new NotificationDTO(notification);
+            if (emitterManager.sendNotification(targetId, toSend)) {
                 successToSend.add(toSend.getId());
-           }
+            }
         }
 
-        if(!successToSend.isEmpty()) notificationService.sendNotifications(successToSend);
+        if (!successToSend.isEmpty()) notificationService.sendNotifications(successToSend);
 
         return obj;
     }

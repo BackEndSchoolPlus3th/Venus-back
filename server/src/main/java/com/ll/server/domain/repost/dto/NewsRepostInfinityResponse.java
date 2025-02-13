@@ -12,13 +12,13 @@ public class NewsRepostInfinityResponse {
     private long lastId;
     private LocalDateTime lastTime;
 
-    public NewsRepostInfinityResponse(List<RepostUnderNews> reposts){
-        if(reposts==null || reposts.isEmpty()){
+    public NewsRepostInfinityResponse(List<RepostUnderNews> reposts) {
+        if (reposts == null || reposts.isEmpty()) {
             this.reposts = null;
             count = 0;
             lastTime = null;
             lastId = -1;
-        }else {
+        } else {
             this.reposts = reposts;
             count = reposts.size();
             lastId = reposts.getLast().getRepostId();

@@ -12,8 +12,8 @@ public class CommentMentionDTO {
     private Long mentionUserId;
     private String mentionName;
 
-    public CommentMentionDTO(CommentMention mention){
-        mentionUserId=mention.getMember().getId();
-        mentionName="@"+mention.getMember().getNickname();
+    public CommentMentionDTO(CommentMention mention) {
+        mentionUserId = mention.getMember().getId();
+        mentionName = "@" + mention.getMember().getNickname();
     }
 }

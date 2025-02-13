@@ -151,9 +151,9 @@ public class NewsService {
         return newsRepository.findAll(spec, pageable);
     }
 
-    public List<NewsOnly> getTodayHotNews(){
+    public List<NewsOnly> getTodayHotNews() {
         LocalDateTime startOfDay = LocalDateTime.now().toLocalDate().atStartOfDay();
-        List<News> result = newsRepository.findTodayshotNews(startOfDay, PageRequest.of(0,5));
+        List<News> result = newsRepository.findTodayshotNews(startOfDay, PageRequest.of(0, 5));
         return result.stream().map(NewsOnly::new).collect(Collectors.toList());
     }
 

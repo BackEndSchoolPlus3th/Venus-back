@@ -28,22 +28,22 @@ public class CommentDTO {
 
     private LocalDateTime createDate;
 
-    public CommentDTO(Comment comment){
-        commentId=comment.getId();
+    public CommentDTO(Comment comment) {
+        commentId = comment.getId();
 
-        repostId=comment.getRepost().getId();
-        repostWriterId=comment.getRepost().getMember().getId();
-        repostWriterName=comment.getRepost().getMember().getNickname();
+        repostId = comment.getRepost().getId();
+        repostWriterId = comment.getRepost().getMember().getId();
+        repostWriterName = comment.getRepost().getMember().getNickname();
 
-        mentions=comment.getMentions().stream()
+        mentions = comment.getMentions().stream()
                 .map(CommentMentionDTO::new)
                 .collect(Collectors.toList());
 
-        content=comment.getContent();
+        content = comment.getContent();
 
-        commentWriterId=comment.getMember().getId();
-        commentWriterName=comment.getMember().getNickname();
-        commentWriterProfileImageUrl=comment.getMember().getProfileUrl();
-        createDate=comment.getCreateDate();
+        commentWriterId = comment.getMember().getId();
+        commentWriterName = comment.getMember().getNickname();
+        commentWriterProfileImageUrl = comment.getMember().getProfileUrl();
+        createDate = comment.getCreateDate();
     }
 }

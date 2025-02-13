@@ -11,8 +11,8 @@ public class LikeResponse {
     private List<LikeDTO> likes;
     private long count;
 
-    public LikeResponse(List<LikeDTO> likes){
-        this.likes=likes;
-        count=likes.size();
+    public LikeResponse(List<LikeDTO> likes) {
+        this.likes = likes;
+        count = likes.size();
     }
 }

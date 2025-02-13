@@ -40,7 +40,7 @@ public class NewsFetchService {
                     List<News> articles = newsApiClient.getArticles(category.getCategory(), dateFrom, dateFrom, DEFAULT_PAGE_SIZE).getData()
                             .stream().map(article -> article.toEntity(category))
                             .toList();
-                // enum의 category를 순회하며 API 호출
+                    // enum의 category를 순회하며 API 호출
                     return articles.stream();
                 })
                 .filter(article -> !existingContentUrls.contains(article.getContentUrl()))

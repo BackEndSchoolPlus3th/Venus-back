@@ -35,7 +35,7 @@ public class OAuth2Controller {
         processOAuth2Login(authentication, response);
     }
 
-    private void processOAuth2Login (Authentication authentication, HttpServletResponse response) throws IOException {
+    private void processOAuth2Login(Authentication authentication, HttpServletResponse response) throws IOException {
 
         if (authentication == null) {
             log.error("Authentication 객체가 null 입니다.");
@@ -46,7 +46,7 @@ public class OAuth2Controller {
         CustomOAuth2User oAuth2User = (CustomOAuth2User) authentication.getPrincipal();
         Member memberDto = oAuth2User.getMember();
 
-        String accessToken = jwtUtil.generateAccessToken(memberDto.getEmail(),memberDto.getRole().name());
+        String accessToken = jwtUtil.generateAccessToken(memberDto.getEmail(), memberDto.getRole().name());
         String refreshToken = jwtUtil.generateRefreshToken(memberDto.getEmail());
 
         jwtUtil.addJwtToCookie(accessToken, response, "accessToken");

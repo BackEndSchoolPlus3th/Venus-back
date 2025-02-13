@@ -10,8 +10,8 @@ public class NewsOnlyResponse {
     List<NewsOnly> newsList;
     long count;
 
-    public NewsOnlyResponse(List<NewsOnly> newsList){
-        this.newsList=newsList;
-        count=newsList.size();
+    public NewsOnlyResponse(List<NewsOnly> newsList) {
+        this.newsList = newsList;
+        count = newsList.size();
     }
 }

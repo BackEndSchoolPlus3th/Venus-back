@@ -12,8 +12,8 @@ public class RepostMentionDTO {
     private Long mentionUserId;
     private String mentionName;
 
-    public RepostMentionDTO(RepostMention mention){
-        mentionUserId=mention.getMember().getId();
-        mentionName="@"+mention.getMember().getNickname();
+    public RepostMentionDTO(RepostMention mention) {
+        mentionUserId = mention.getMember().getId();
+        mentionName = "@" + mention.getMember().getNickname();
     }
 }

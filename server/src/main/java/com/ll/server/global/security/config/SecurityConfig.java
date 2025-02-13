@@ -112,11 +112,11 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
-                .headers(headers->headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
+                .headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
                 .authorizeHttpRequests(auth -> auth     // 인가 (Authorization) 설정
-                        .requestMatchers("/api/v1/member/signup", "/api/v1/member/login", "/oauth2/**","/api/v1/member/auth","/h2-console","/h2-console/**").permitAll()
+                        .requestMatchers("/api/v1/member/signup", "/api/v1/member/login", "/oauth2/**", "/api/v1/member/auth", "/h2-console", "/h2-console/**").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/publisher/**").hasAnyRole("PUBLISHER", "ADMIN")
                         .anyRequest().authenticated()
@@ -132,9 +132,9 @@ public class SecurityConfig {
                 )
 
                 .oauth2Login(oauth2 -> oauth2           // OAuth2 로그인 설정
-                                .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
-                                .successHandler(oAuth2SuccessHandler)
-                        .redirectionEndpoint(rd->rd.baseUri("/oauth2/callback/*"))
+                        .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
+                        .successHandler(oAuth2SuccessHandler)
+                        .redirectionEndpoint(rd -> rd.baseUri("/oauth2/callback/*"))
                 )
 
                 // JWT Filter 추가
@@ -144,8 +144,9 @@ public class SecurityConfig {
         return http.build();
 
     }
+
     @Bean
-    public AuthenticationManager authenticationManager (AuthenticationConfiguration configuration) throws Exception {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();
     }
 
@@ -165,7 +166,7 @@ public class SecurityConfig {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000","http://localhost:5173", "http://localhost:8080")); // 프론트 URL 허용
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://localhost:5173", "http://localhost:8080")); // 프론트 URL 허용
         configuration.setAllowedMethods(Arrays.asList("HEAD", "POST", "GET", "DELETE", "PUT", "PATCH", "OPTION"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type"));
         configuration.setAllowCredentials(true); // 쿠키 허용

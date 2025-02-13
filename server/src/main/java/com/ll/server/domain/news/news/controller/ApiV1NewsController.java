@@ -175,7 +175,7 @@ public class ApiV1NewsController {
     }
 
     @GetMapping("/hot")
-    public ApiResponse<?> getHotTopic(){
+    public ApiResponse<?> getHotTopic() {
         List<NewsOnly> result = newsService.getTodayHotNews();
 
         return ApiResponse.of(result);

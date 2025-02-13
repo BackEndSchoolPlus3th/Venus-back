@@ -18,8 +18,8 @@ public class CommentMentionService {
     CommentMentionRepository commentMentionRepository;
 
     @Transactional
-    public CommentMention save(Comment comment, Member member){
-        CommentMention mention=
+    public CommentMention save(Comment comment, Member member) {
+        CommentMention mention =
                 CommentMention.builder()
                         .comment(comment)
                         .member(member)
@@ -28,7 +28,7 @@ public class CommentMentionService {
         return commentMentionRepository.save(mention);
     }
 
-    public List<CommentMention> findByComment(Long commentId){
+    public List<CommentMention> findByComment(Long commentId) {
         return commentMentionRepository.findCommentMentionsByComment_Id(commentId);
     }
 }

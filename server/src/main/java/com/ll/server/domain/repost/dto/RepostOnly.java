@@ -21,20 +21,20 @@ public class RepostOnly {
     private LocalDateTime createDate;
     private String memberProfileImageUrl;
 
-    public RepostOnly(Repost repost){
-        repostId=repost.getId();
-        writerId=repost.getMember().getId();
-        nickname=repost.getMember().getNickname();
-        content=repost.getContent();
+    public RepostOnly(Repost repost) {
+        repostId = repost.getId();
+        writerId = repost.getMember().getId();
+        nickname = repost.getMember().getNickname();
+        content = repost.getContent();
 
-        commentCount= repost.getComments().size();
+        commentCount = repost.getComments().size();
 
-        likeCount= repost.getLikes().size();
+        likeCount = repost.getLikes().size();
 
         imageUrl = repost.getImageUrl();
-        createDate=repost.getCreateDate();
+        createDate = repost.getCreateDate();
 
-        memberProfileImageUrl=repost.getMember().getProfileUrl();
+        memberProfileImageUrl = repost.getMember().getProfileUrl();
 
     }
 }

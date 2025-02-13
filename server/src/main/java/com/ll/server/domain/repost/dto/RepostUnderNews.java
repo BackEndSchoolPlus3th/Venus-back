@@ -28,23 +28,23 @@ public class RepostUnderNews {
     private String imageUrl;
     private LocalDateTime createDate;
 
-    public RepostUnderNews(Repost repost){
-        repostId=repost.getId();
-        writerId=repost.getMember().getId();
-        nickname=repost.getMember().getNickname();
-        content=repost.getContent();
-        mentions=repost.getMentions().stream()
+    public RepostUnderNews(Repost repost) {
+        repostId = repost.getId();
+        writerId = repost.getMember().getId();
+        nickname = repost.getMember().getNickname();
+        content = repost.getContent();
+        mentions = repost.getMentions().stream()
                 .map(RepostMentionDTO::new)
                 .collect(Collectors.toList());
 
-        commentInfo=new CommentResponse(
+        commentInfo = new CommentResponse(
                 repost.getComments()
-                        .stream().filter(comment -> comment.getDeletedAt()==null)
+                        .stream().filter(comment -> comment.getDeletedAt() == null)
                         .map(CommentDTO::new)
                         .collect(Collectors.toList())
         );
 
-        likeInfo=new LikeResponse(
+        likeInfo = new LikeResponse(
                 repost.getLikes()
                         .stream().filter(comment -> !comment.getDeleted())
                         .map(LikeDTO::new)
@@ -53,7 +53,7 @@ public class RepostUnderNews {
 
         imageUrl = repost.getImageUrl();
 
-        createDate=repost.getCreateDate();
+        createDate = repost.getCreateDate();
 
     }
 }

@@ -37,12 +37,12 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private final MemberRepository memberRepository;
 
     @Override
-    public OAuth2User loadUser (OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
+    public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         OAuth2User oAuth2User = super.loadUser(userRequest);
         return processOAuth2User(userRequest, oAuth2User);
     }
 
-    private OAuth2User processOAuth2User (OAuth2UserRequest userRequest, OAuth2User oAuth2User) {
+    private OAuth2User processOAuth2User(OAuth2UserRequest userRequest, OAuth2User oAuth2User) {
         String provider = userRequest.getClientRegistration().getRegistrationId();
         OAuth2UserInfo oAuth2UserInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(provider, oAuth2User.getAttributes()); // Factory Pattern 적용
 
@@ -64,7 +64,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     }
 
     @Transactional
-    protected Member createMember (OAuth2UserInfo oAuth2UserInfo, String provider) {
+    protected Member createMember(OAuth2UserInfo oAuth2UserInfo, String provider) {
         // 소셜 로그인 사용자는 어차피 비밀번호로 로그인하지 않으므로, UUID를 비밀번호로
         String randomPassword = UUID.randomUUID().toString();
         String realPassword = passwordEncoder.encode(randomPassword);
