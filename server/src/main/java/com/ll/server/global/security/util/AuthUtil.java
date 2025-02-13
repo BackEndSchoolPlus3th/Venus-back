@@ -11,28 +11,28 @@ import java.util.Collection;
 
 public class AuthUtil {
 
-    public static String getCurrentMemberEmail(){
+    public static String getCurrentMemberEmail() {
         return getUserDetails().getUsername();
     }
 
-    public static String getCurrentMemberNickname(){
+    public static String getCurrentMemberNickname() {
         return getUserDetails().getMember().getNickname();
     }
 
-    public static Collection<? extends GrantedAuthority> getAuth(){
+    public static Collection<? extends GrantedAuthority> getAuth() {
         return getUserDetails().getAuthorities();
     }
 
-    public static Long getCurrentMemberId(){
+    public static Long getCurrentMemberId() {
         return getUserDetails().getMember().getId();
     }
 
-    private static CustomUserDetails getUserDetails(){
+    private static CustomUserDetails getUserDetails() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if(authentication == null) throw new CustomException(ReturnCode.INTERNAL_ERROR);
+        if (authentication == null) throw new CustomException(ReturnCode.INTERNAL_ERROR);
 
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-        if(userDetails == null) throw new CustomException(ReturnCode.INTERNAL_ERROR);
+        if (userDetails == null) throw new CustomException(ReturnCode.INTERNAL_ERROR);
 
         return userDetails;
     }

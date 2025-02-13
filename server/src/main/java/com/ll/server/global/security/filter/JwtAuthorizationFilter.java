@@ -33,12 +33,13 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         // Skip filtering for these paths
         return path.startsWith("/h2-console") || path.startsWith("/api/v1/member/signup") || path.startsWith("/api/v1/member/login") || path.startsWith("/oauth2/**") || path.startsWith("/api/v1/member/auth");
     }
+
     @Override
-    protected void doFilterInternal (HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String token = jwtUtil.getJwtFromHeader(request);
-        if(token==null){
+        if (token == null) {
             log.warn("Authentication에 없음");
-            token=jwtUtil.resolveToken(request);
+            token = jwtUtil.resolveToken(request);
         }
 
         if (StringUtils.hasText(token)) {

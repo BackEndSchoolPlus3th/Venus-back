@@ -29,16 +29,16 @@ public class FollowService {
 
     @Transactional
     @Notify
-    public FollowDTO save(Long followerId, Long followeeId){
-        if(followerId.equals(followeeId)) return null;
+    public FollowDTO save(Long followerId, Long followeeId) {
+        if (followerId.equals(followeeId)) return null;
 
-        Member follower=memberRepository.findById(followerId).get();
-        Member followee=memberRepository.findById(followeeId).get();
+        Member follower = memberRepository.findById(followerId).get();
+        Member followee = memberRepository.findById(followeeId).get();
 
-        Follow find= followRepository.findByFollower_IdAndFollowee_Id(followerId,followeeId);
-        if(find!=null) throw new CustomException(ReturnCode.ALREADY_EXIST);
+        Follow find = followRepository.findByFollower_IdAndFollowee_Id(followerId, followeeId);
+        if (find != null) throw new CustomException(ReturnCode.ALREADY_EXIST);
 
-        Follow follow= Follow.builder()
+        Follow follow = Follow.builder()
                 .follower(follower)
                 .followee(followee)
                 .build();
@@ -46,8 +46,8 @@ public class FollowService {
         return new FollowDTO(followRepository.save(follow));
     }
 
-    public Page<FollowDTO> findByFollower(Long followerId, Pageable pageable){
-        Page<Follow> result= followRepository.findFollowsByFollower_Id(followerId,pageable);
+    public Page<FollowDTO> findByFollower(Long followerId, Pageable pageable) {
+        Page<Follow> result = followRepository.findFollowsByFollower_Id(followerId, pageable);
         return new PageImpl<>(
                 result.getContent().stream().map(FollowDTO::new).collect(Collectors.toList()),
                 result.getPageable(),
@@ -55,8 +55,8 @@ public class FollowService {
         );
     }
 
-    public Page<FollowDTO> findByFollowee(Long followeeId,Pageable pageable){
-        Page<Follow> result= followRepository.findFollowsByFollowee_Id(followeeId,pageable);
+    public Page<FollowDTO> findByFollowee(Long followeeId, Pageable pageable) {
+        Page<Follow> result = followRepository.findFollowsByFollowee_Id(followeeId, pageable);
         return new PageImpl<>(
                 result.getContent().stream().map(FollowDTO::new).collect(Collectors.toList()),
                 result.getPageable(),
@@ -64,8 +64,8 @@ public class FollowService {
         );
     }
 
-    public Page<MemberDto>  findFollowees(String followerName, Pageable pageable){
-        Page<Follow> result= followRepository.findFollowsByFollower_Nickname(followerName,pageable);
+    public Page<MemberDto> findFollowees(String followerName, Pageable pageable) {
+        Page<Follow> result = followRepository.findFollowsByFollower_Nickname(followerName, pageable);
 
         return new PageImpl<>(result.getContent().stream().map(follow -> new MemberDto(follow.getFollowee())).collect(Collectors.toList()),
                 result.getPageable(),
@@ -74,9 +74,9 @@ public class FollowService {
     }
 
 
-    public FolloweeListResponse firstGetFolloweesInfinity(String followerName, int size){
-        List<Follow> result= followRepository.findFollowsByFollower_Nickname(followerName, Limit.of(size));
-        long totalSize=followRepository.countFollowsByFollower_Nickname(followerName);
+    public FolloweeListResponse firstGetFolloweesInfinity(String followerName, int size) {
+        List<Follow> result = followRepository.findFollowsByFollower_Nickname(followerName, Limit.of(size));
+        long totalSize = followRepository.countFollowsByFollower_Nickname(followerName);
 
         long nextLastId = getNextLastId(result);
 
@@ -89,8 +89,8 @@ public class FollowService {
         return response;
     }
 
-    public FolloweeInfinityScroll afterGetFolloweesInfinity(String followerName, int size, Long lastId){
-        List<Follow> result= followRepository.findFollowsByFollower_NicknameAndIdGreaterThan(followerName, lastId,Limit.of(size));
+    public FolloweeInfinityScroll afterGetFolloweesInfinity(String followerName, int size, Long lastId) {
+        List<Follow> result = followRepository.findFollowsByFollower_NicknameAndIdGreaterThan(followerName, lastId, Limit.of(size));
 
         long nextLastId = getNextLastId(result);
 
@@ -105,14 +105,14 @@ public class FollowService {
     private long getNextLastId(List<Follow> result) {
         long nextLastId;
 
-        if(result ==null || result.isEmpty()) nextLastId = -1L;
+        if (result == null || result.isEmpty()) nextLastId = -1L;
         else nextLastId = result.getLast().getId();
         return nextLastId;
     }
 
 
-    public Page<MemberDto>  findFollowers(String followeeName, Pageable pageable){
-        Page<Follow> result= followRepository.findFollowsByFollowee_Nickname(followeeName,pageable);
+    public Page<MemberDto> findFollowers(String followeeName, Pageable pageable) {
+        Page<Follow> result = followRepository.findFollowsByFollowee_Nickname(followeeName, pageable);
 
         return new PageImpl<>(
                 result.getContent().stream().map(follow -> new MemberDto(follow.getFollower())).collect(Collectors.toList()),
@@ -121,9 +121,9 @@ public class FollowService {
         );
     }
 
-    public FollowerListResponse firstGetFollowersInfinity(String followeeName,int size){
-        List<Follow> result= followRepository.findFollowsByFollowee_Nickname(followeeName, Limit.of(size));
-        long totalSize=followRepository.countFollowsByFollowee_Nickname(followeeName);
+    public FollowerListResponse firstGetFollowersInfinity(String followeeName, int size) {
+        List<Follow> result = followRepository.findFollowsByFollowee_Nickname(followeeName, Limit.of(size));
+        long totalSize = followRepository.countFollowsByFollowee_Nickname(followeeName);
 
         long nextLastId = getNextLastId(result);
 
@@ -136,8 +136,8 @@ public class FollowService {
         return response;
     }
 
-    public FollowerInfinityScroll afterGetFollowersInfinity(String followeeName, int size, Long lastId){
-        List<Follow> result= followRepository.findFollowsByFollowee_NicknameAndIdGreaterThan(followeeName, lastId,Limit.of(size));
+    public FollowerInfinityScroll afterGetFollowersInfinity(String followeeName, int size, Long lastId) {
+        List<Follow> result = followRepository.findFollowsByFollowee_NicknameAndIdGreaterThan(followeeName, lastId, Limit.of(size));
 
         long nextLastId = getNextLastId(result);
 
@@ -149,18 +149,18 @@ public class FollowService {
         return response;
     }
 
-    public FollowDTO findByFollowerNameAndFolloweeName(String followerName, String followeeName){
-        return new FollowDTO(followRepository.findByFollower_NicknameAndFollowee_Nickname(followerName,followeeName));
+    public FollowDTO findByFollowerNameAndFolloweeName(String followerName, String followeeName) {
+        return new FollowDTO(followRepository.findByFollower_NicknameAndFollowee_Nickname(followerName, followeeName));
     }
 
-    public FollowDTO findById(Long followId){
+    public FollowDTO findById(Long followId) {
         return new FollowDTO(followRepository.findById(followId).get());
     }
 
     @Transactional
-    public void delete(Long id){
-        Follow target= followRepository.findById(id)
-                .orElseThrow(()->new CustomException(ReturnCode.NOT_FOUND_ENTITY));
+    public void delete(Long id) {
+        Follow target = followRepository.findById(id)
+                .orElseThrow(() -> new CustomException(ReturnCode.NOT_FOUND_ENTITY));
 
         followRepository.deleteById(id);
     }

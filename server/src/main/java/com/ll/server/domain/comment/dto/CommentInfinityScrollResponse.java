@@ -11,15 +11,15 @@ public class CommentInfinityScrollResponse {
     long lastId;
     LocalDateTime lastTime;
 
-    public CommentInfinityScrollResponse(List<CommentDTO> comments){
-        if(comments==null || comments.isEmpty()){
-            comments=null;
-            lastId=-1;
-            lastTime=null;
-        }else {
+    public CommentInfinityScrollResponse(List<CommentDTO> comments) {
+        if (comments == null || comments.isEmpty()) {
+            comments = null;
+            lastId = -1;
+            lastTime = null;
+        } else {
             this.comments = comments;
-            lastId=comments.getLast().getCommentId();
-            lastTime=comments.getLast().getCreateDate();
+            lastId = comments.getLast().getCommentId();
+            lastTime = comments.getLast().getCreateDate();
         }
 
     }

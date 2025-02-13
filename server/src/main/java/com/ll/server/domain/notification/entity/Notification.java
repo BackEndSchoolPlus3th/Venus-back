@@ -15,17 +15,20 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @ToString
 public class Notification extends BaseEntity {
-    @ManyToOne(fetch=FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     private Member member;
     private String message;
     @Builder.Default
-    private Boolean hasRead=false;
+    private Boolean hasRead = false;
     @Builder.Default
-    private Boolean hasSent=false;
+    private Boolean hasSent = false;
     private String url;
 
-    public void setReadTrue(){
-        hasRead=true;
+    public void setReadTrue() {
+        hasRead = true;
     }
-    public void setSentTrue() {hasSent=true;}
+
+    public void setSentTrue() {
+        hasSent = true;
+    }
 }

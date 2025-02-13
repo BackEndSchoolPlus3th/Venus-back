@@ -51,19 +51,19 @@ public class ApiV1RepostController {
     //repost 영역
     //탭으로 repost 선택 시 호출됨. 검색 시에도 마찬가지.
     @GetMapping
-    public ApiResponse<?> getAllRepost(@RequestParam(value = "keyword",defaultValue = "") String keyword,
-                                       @RequestParam(value = "page",defaultValue = "0")int page,
-                                       @RequestParam(value = "size",defaultValue = "20")int size){
-        PageLimitSizeValidator.validateSize(page,size, MyConstant.PAGELIMITATION);
-        Pageable pageable=PageRequest.of(page,size, Sort.by("createDate","id").descending());
+    public ApiResponse<?> getAllRepost(@RequestParam(value = "keyword", defaultValue = "") String keyword,
+                                       @RequestParam(value = "page", defaultValue = "0") int page,
+                                       @RequestParam(value = "size", defaultValue = "20") int size) {
+        PageLimitSizeValidator.validateSize(page, size, MyConstant.PAGELIMITATION);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createDate", "id").descending());
 
 
-        if(keyword.isBlank()){
-            Page<RepostOnly> result=repostService.findAll(pageable);
+        if (keyword.isBlank()) {
+            Page<RepostOnly> result = repostService.findAll(pageable);
             return ApiResponse.of(CustomPage.of(result));
         }
 
-        Page<RepostOnly> result=repostDocService.searchContent(keyword, pageable);
+        Page<RepostOnly> result = repostDocService.searchContent(keyword, pageable);
         return ApiResponse.of(CustomPage.of(result));
 
     }
@@ -71,30 +71,30 @@ public class ApiV1RepostController {
     //인피니티스크롤 버전
     @SneakyThrows
     @GetMapping("/infinityTest")
-    public ApiResponse<?> searchInfinity(@RequestParam(value = "keyword",defaultValue = "") String keyword,
-                                         @RequestParam(value = "lastTime",required = false) LocalDateTime lastTime,
-                                         @RequestParam(value = "lastId",required = false)Long lastId,
-                                         @RequestParam(value="size",defaultValue = "20") int size){
+    public ApiResponse<?> searchInfinity(@RequestParam(value = "keyword", defaultValue = "") String keyword,
+                                         @RequestParam(value = "lastTime", required = false) LocalDateTime lastTime,
+                                         @RequestParam(value = "lastId", required = false) Long lastId,
+                                         @RequestParam(value = "size", defaultValue = "20") int size) {
 
-        RepostInfinityScrollResponse result=null;
+        RepostInfinityScrollResponse result = null;
         //검색 안함
-        if(keyword.isBlank()){
-            if(lastTime==null || lastId==null){
-                result=new RepostInfinityScrollResponse(repostService.firstGetAll(size));
+        if (keyword.isBlank()) {
+            if (lastTime == null || lastId == null) {
+                result = new RepostInfinityScrollResponse(repostService.firstGetAll(size));
                 return ApiResponse.of(result);
             }
 
-            result=new RepostInfinityScrollResponse(repostService.afterGetAll(size,lastTime,lastId));
+            result = new RepostInfinityScrollResponse(repostService.afterGetAll(size, lastTime, lastId));
             return ApiResponse.of(result);
         }
 
         //검색함
-        if(lastTime==null || lastId==null){
-            result=new RepostInfinityScrollResponse(repostDocService.firstInfinitySearch(size,keyword));
+        if (lastTime == null || lastId == null) {
+            result = new RepostInfinityScrollResponse(repostDocService.firstInfinitySearch(size, keyword));
             return ApiResponse.of(result);
         }
 
-        result=new RepostInfinityScrollResponse(repostDocService.afterInfinitySearch(size, keyword, lastTime, lastId));
+        result = new RepostInfinityScrollResponse(repostDocService.afterInfinitySearch(size, keyword, lastTime, lastId));
         return ApiResponse.of(result);
     }
 
@@ -117,8 +117,8 @@ public class ApiV1RepostController {
 
     @GetMapping("/member/{memberId}")
     public ApiResponse<RepostOnly> getRepostById(@PathVariable("memberId") Long memberId,
-                                                @RequestParam(value = "page",defaultValue = "0")int page,
-                                                @RequestParam(value = "size",defaultValue = "20")int size) {
+                                                 @RequestParam(value = "page", defaultValue = "0") int page,
+                                                 @RequestParam(value = "size", defaultValue = "20") int size) {
         PageLimitSizeValidator.validateSize(page, size, MyConstant.PAGELIMITATION);
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
 
@@ -131,7 +131,7 @@ public class ApiV1RepostController {
     @GetMapping("/member/{memberId}/like")
     public ApiResponse<RepostDTO> getLikeRepostById(@PathVariable("memberId") Long memberId,
                                                     @RequestParam(value = "page", defaultValue = "0") int page,
-                                                    @RequestParam(value = "size", defaultValue = "20")int size){
+                                                    @RequestParam(value = "size", defaultValue = "20") int size) {
         PageLimitSizeValidator.validateSize(page, size, MyConstant.PAGELIMITATION);
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
 
@@ -147,7 +147,7 @@ public class ApiV1RepostController {
         return ApiResponse.of(ReturnCode.SUCCESS);
     }
 
-    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE},produces = {MediaType.APPLICATION_JSON_VALUE})
+    @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE}, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ApiResponse<RepostDTO> write(
             @RequestPart("request") RepostWriteRequest request, // JSON 데이터,
             @RequestPart(value = "imageFile", required = false) MultipartFile imageFile // 이미지 파일 (선택 사항)
@@ -160,22 +160,22 @@ public class ApiV1RepostController {
     //상세 조회 이후 댓글의 페이지네이션. (typical)
     @GetMapping("/{repostId}/comments")
     public ApiResponse<?> getPageComment(@PathVariable("repostId") Long postId,
-                                        @RequestParam(value = "page",defaultValue = "0")int page,
-                                        @RequestParam(value = "size",defaultValue = "20")int size) {
-        PageLimitSizeValidator.validateSize(page,size, MyConstant.PAGELIMITATION);
-        Pageable pageable=PageRequest.of(page,size,Sort.by("createDate","id").ascending());
+                                         @RequestParam(value = "page", defaultValue = "0") int page,
+                                         @RequestParam(value = "size", defaultValue = "20") int size) {
+        PageLimitSizeValidator.validateSize(page, size, MyConstant.PAGELIMITATION);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createDate", "id").ascending());
 
-        Page<CommentDTO> result = repostService.getCommentPage(postId,pageable);
+        Page<CommentDTO> result = repostService.getCommentPage(postId, pageable);
         return ApiResponse.of(CustomPage.of(result));
     }
 
     //상세 조회 이후 댓글의 페이지네이션. (cursor)
     @GetMapping("/{repostId}/comments/infinityTest")
     public ApiResponse<?> getInfinityComment(@PathVariable("repostId") Long postId,
-                                         @RequestParam(value = "lastId")long lastCommentId,
-                                         @RequestParam(value = "lastTime")LocalDateTime lastTime,
-                                         @RequestParam(value = "size",defaultValue = "20")int size) {
-        CommentInfinityScrollResponse result = new CommentInfinityScrollResponse(repostService.afterGetComment(postId,size,lastTime,lastCommentId));
+                                             @RequestParam(value = "lastId") long lastCommentId,
+                                             @RequestParam(value = "lastTime") LocalDateTime lastTime,
+                                             @RequestParam(value = "size", defaultValue = "20") int size) {
+        CommentInfinityScrollResponse result = new CommentInfinityScrollResponse(repostService.afterGetComment(postId, size, lastTime, lastCommentId));
         return ApiResponse.of(result);
     }
 
@@ -220,13 +220,13 @@ public class ApiV1RepostController {
     }
 
     @PatchMapping("/{repostId}")
-    public ApiResponse<?> setPinned(@PathVariable("repostId")Long repostId,
-                                    @RequestBody RepostPinRequest request){
-        if(request==null) throw new CustomException(ReturnCode.WRONG_PARAMETER);
+    public ApiResponse<?> setPinned(@PathVariable("repostId") Long repostId,
+                                    @RequestBody RepostPinRequest request) {
+        if (request == null) throw new CustomException(ReturnCode.WRONG_PARAMETER);
 
-        if(request.isPinned()){
+        if (request.isPinned()) {
             repostService.putPin(repostId);
-        }else{
+        } else {
             repostService.pullPin(repostId);
         }
 
@@ -235,7 +235,7 @@ public class ApiV1RepostController {
     }
 
     @GetMapping("/search")
-    public List<RepostOnly> searchByContent(@RequestParam("keyword") String keyword){
+    public List<RepostOnly> searchByContent(@RequestParam("keyword") String keyword) {
         return repostService.searchContent(keyword);
     }
 

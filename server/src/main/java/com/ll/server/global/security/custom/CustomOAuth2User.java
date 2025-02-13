@@ -20,7 +20,7 @@ public class CustomOAuth2User implements OAuth2User, UserDetails {
     private final Member member;
     private final Collection<? extends GrantedAuthority> authorities;
 
-    public CustomOAuth2User (OAuth2User oAuth2User, Member member, Collection<? extends GrantedAuthority> authorities) {
+    public CustomOAuth2User(OAuth2User oAuth2User, Member member, Collection<? extends GrantedAuthority> authorities) {
         this.oAuth2User = oAuth2User;
         this.member = member;
         this.authorities = List.of(new SimpleGrantedAuthority("ROLE_" + member.getRole().name()));    // 권한 정보 설정

@@ -9,9 +9,9 @@ public class NewsResponse {
     List<NewsDTO> newsList;
     long count;
 
-    public NewsResponse(List<NewsDTO> newsList){
-        this.newsList=newsList;
-        count=newsList.size();
+    public NewsResponse(List<NewsDTO> newsList) {
+        this.newsList = newsList;
+        count = newsList.size();
     }
 
 }

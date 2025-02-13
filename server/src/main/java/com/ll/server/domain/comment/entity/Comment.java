@@ -31,16 +31,16 @@ public class Comment extends BaseEntity {
     private String content;
 
     @Builder.Default
-    private LocalDateTime deletedAt=null;
+    private LocalDateTime deletedAt = null;
 
-    @OneToMany(mappedBy = "comment",cascade = CascadeType.ALL,orphanRemoval = true)
+    @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
     @Builder.Default
     @JsonIgnore
-    List<CommentMention> mentions=new ArrayList<>();
+    List<CommentMention> mentions = new ArrayList<>();
 
-    public void addMention(Member member){
-        CommentMention mention=CommentMention
+    public void addMention(Member member) {
+        CommentMention mention = CommentMention
                 .builder()
                 .comment(this)
                 .member(member)

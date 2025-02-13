@@ -130,7 +130,7 @@ public class MemberService {
                 imageUrl = s3Service.uploadFile(imageFile, "profile-images");
                 param.changeProfileUrl(imageUrl);
             }
-        }catch (IOException e){
+        } catch (IOException e) {
             throw new CustomException(ReturnCode.INTERNAL_ERROR);
         }
 

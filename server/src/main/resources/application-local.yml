@@ -13,7 +13,7 @@ spring:
     password:
   h2:
     console:
-     enabled: true
+      enabled: true
 
   jpa:
     open-in-view: false

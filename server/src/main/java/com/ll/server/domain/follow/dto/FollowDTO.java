@@ -15,8 +15,8 @@ public class FollowDTO {
     private String follower;
     private String followee;
 
-    public FollowDTO(Follow follow){
-        if(follow != null) {
+    public FollowDTO(Follow follow) {
+        if (follow != null) {
             this.id = follow.getId();
             this.follower = follow.getFollower().getNickname();
             this.followee = follow.getFollowee().getNickname();

@@ -22,7 +22,7 @@ public class NewsInfinityDetail {
     private LocalDateTime publishedAt;
     private NewsRepostInfinityResponse reposts;
 
-    public NewsInfinityDetail(News news, NewsRepostInfinityResponse reposts){
+    public NewsInfinityDetail(News news, NewsRepostInfinityResponse reposts) {
         id = news.getId();
         title = news.getTitle();
         content = news.getContent();
@@ -33,6 +33,6 @@ public class NewsInfinityDetail {
         contentUrl = news.getContentUrl();
         category = news.getCategory().getCategory();
         publishedAt = news.getPublishedAt();
-        this.reposts=reposts;
+        this.reposts = reposts;
     }
 }

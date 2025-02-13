@@ -133,10 +133,10 @@ public class MemberController {
 
     @PatchMapping(value = "/update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<?> modify(@RequestPart("request") MemberUpdateParam param, @RequestPart(value = "imageFile", required = false) MultipartFile imageFile // 이미지 파일 (선택 사항)
-    )  {
+    ) {
 
         long currentMemberId = AuthUtil.getCurrentMemberId();
-        if(currentMemberId != param.getMemberId()) throw new CustomException(ReturnCode.NOT_AUTHORIZED);
+        if (currentMemberId != param.getMemberId()) throw new CustomException(ReturnCode.NOT_AUTHORIZED);
 
         memberService.updateMember(param, imageFile);
 
@@ -144,8 +144,8 @@ public class MemberController {
     }
 
     @PatchMapping("/password")
-    public ApiResponse<?> changePassword(@RequestBody PasswordChangeRequest request){
-        memberService.updatePassword(request.getOldPassword(),request.getNewPassword());
+    public ApiResponse<?> changePassword(@RequestBody PasswordChangeRequest request) {
+        memberService.updatePassword(request.getOldPassword(), request.getNewPassword());
 
         return ApiResponse.of(ReturnCode.SUCCESS);
     }

@@ -18,15 +18,15 @@ public class RepostPageDetail {
     private LocalDateTime createDate;
     private String memberProfileImageUrl;
 
-    public RepostPageDetail(RepostDTO repost, CustomPage<CommentDTO> comments){
-        repostId=repost.getRepostId();
-        writerId=repost.getWriterId();
-        nickname=repost.getNickname();
-        content=repost.getContent();
-        this.comments=comments;
-        likeCount= (int)repost.getLikeInfo().getCount();
-        imageUrl=repost.getImageUrl();
-        createDate=repost.getCreateDate();
-        memberProfileImageUrl=repost.getMemberProfileImageUrl();
+    public RepostPageDetail(RepostDTO repost, CustomPage<CommentDTO> comments) {
+        repostId = repost.getRepostId();
+        writerId = repost.getWriterId();
+        nickname = repost.getNickname();
+        content = repost.getContent();
+        this.comments = comments;
+        likeCount = (int) repost.getLikeInfo().getCount();
+        imageUrl = repost.getImageUrl();
+        createDate = repost.getCreateDate();
+        memberProfileImageUrl = repost.getMemberProfileImageUrl();
     }
 }

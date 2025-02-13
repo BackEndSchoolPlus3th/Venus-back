@@ -33,7 +33,7 @@ public class AdminController {
         PageLimitSizeValidator.validateSize(request.getPage(), request.getLimit(), 50);
         Pageable pageable = PageRequest.of(request.getPage(), request.getLimit());
         //Page<NewsDTO> news = newsService.getAll(pageable).map(newsService::convertToDTO);
-        Page<NewsDTO> news=newsService.getAll(pageable);
+        Page<NewsDTO> news = newsService.getAll(pageable);
         return ApiResponse.of(CustomPage.of(news));
     }
 

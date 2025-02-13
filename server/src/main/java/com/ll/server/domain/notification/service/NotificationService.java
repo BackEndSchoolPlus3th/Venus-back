@@ -30,8 +30,8 @@ public class NotificationService {
 
     //알림 저장
     @Transactional
-    public Notification saveNotification(Member member, String message, String url){
-        Notification notification=Notification.builder()
+    public Notification saveNotification(Member member, String message, String url) {
+        Notification notification = Notification.builder()
                 .member(member)
                 .message(message)
                 .url(url)
@@ -41,42 +41,42 @@ public class NotificationService {
     }
 
     //미처 못 보낸 알림들을 유저 닉네임으로 찾음. 유저 첫 접속 시 보내지지 않은 알림을 보내는 데 사용
-    public List<Notification> findUnsentNotificationsByUsername(String nickname){
-       return notificationRepository.findNotificationsByMember_NicknameAndHasSentIsFalse(nickname);
+    public List<Notification> findUnsentNotificationsByUsername(String nickname) {
+        return notificationRepository.findNotificationsByMember_NicknameAndHasSentIsFalse(nickname);
     }
 
     //미처 못 보낸 알림들을 유저 아이디로 찾음. 유저 첫 접속 시 보내지지 않은 알림을 보내는 데 사용
-    public List<Notification> findUnsentNotificationsById(Long userId){
+    public List<Notification> findUnsentNotificationsById(Long userId) {
         return notificationRepository.findNotificationsByMember_IdAndHasSentIsFalse(userId);
     }
 
 
     //보내지긴 했으나 읽지 않은 알림들을 닉네임으로 찾음. 프론트엔드의 알림창 탭을 누르면 먼저 뜰 알림을 볼 수 있도록.
-    public List<Notification> findUnreadNotificationsByUsername(String nickname){
+    public List<Notification> findUnreadNotificationsByUsername(String nickname) {
         return notificationRepository.findNotificationsByMember_NicknameAndHasSentIsTrueAndHasReadIsFalse(nickname);
     }
 
 
     //보내지긴 했으나 읽지 않은 알림들을 유저의 ID로 찾음. 프론트엔드의 알림창 탭을 누르면 먼저 뜰 알림을 볼 수 있도록.
-    public Page<NotificationDTO> getSummary(Long userId,Pageable pageable){
-        Page<Notification> result = notificationRepository.findNotificationsByMember_IdAndHasSentIsTrueAndHasReadIsFalseOrderByIdDesc(userId,pageable);
+    public Page<NotificationDTO> getSummary(Long userId, Pageable pageable) {
+        Page<Notification> result = notificationRepository.findNotificationsByMember_IdAndHasSentIsTrueAndHasReadIsFalseOrderByIdDesc(userId, pageable);
         return new PageImpl<>(
                 result.getContent().stream().map(NotificationDTO::new)
                         .collect(Collectors.toList())
-                ,result.getPageable()
-                ,result.getTotalElements()
+                , result.getPageable()
+                , result.getTotalElements()
         );
     }
 
 
-    public List<Notification> findUnreadNotificationsById(Long userId){
+    public List<Notification> findUnreadNotificationsById(Long userId) {
         checkUser(userId);
         return notificationRepository.findNotificationsByMember_IdAndHasSentIsTrueAndHasReadIsFalseOrderByIdDesc(userId);
     }
 
     //특정 유저의 모든 알림을 user의 ID로 찾음. 알림 목록이라는 것이 있다면 종류 불문 띄울 수 있도록.
-    public Page<NotificationDTO> findAllNotificationsById(Long userId,Pageable pageable){
-        Page<Notification> result= notificationRepository.findNotificationsByMember_IdOrderByIdDesc(userId,pageable);
+    public Page<NotificationDTO> findAllNotificationsById(Long userId, Pageable pageable) {
+        Page<Notification> result = notificationRepository.findNotificationsByMember_IdOrderByIdDesc(userId, pageable);
 
         return new PageImpl<>(
                 result.getContent().stream().map(NotificationDTO::new).collect(Collectors.toList()),
@@ -85,23 +85,23 @@ public class NotificationService {
         );
     }
 
-    public NotificationInfinityScroll firstGetAllNotifications(Long userId, int size){
+    public NotificationInfinityScroll firstGetAllNotifications(Long userId, int size) {
         List<Notification> notifications = notificationRepository.findNotificationsByMember_IdOrderByIdDesc(userId, Limit.of(size));
 
-        List<NotificationDTO> dtos=notifications.stream().map(NotificationDTO::new).toList();
+        List<NotificationDTO> dtos = notifications.stream().map(NotificationDTO::new).toList();
         return new NotificationInfinityScroll(dtos);
     }
 
-    public NotificationInfinityScroll afterGetAllNotifications(Long userId, int size, Long lastId){
-        List<Notification> notifications = notificationRepository.findNotificationsByMember_IdAndIdLessThanOrderByIdDesc(userId,lastId,Limit.of(size));
+    public NotificationInfinityScroll afterGetAllNotifications(Long userId, int size, Long lastId) {
+        List<Notification> notifications = notificationRepository.findNotificationsByMember_IdAndIdLessThanOrderByIdDesc(userId, lastId, Limit.of(size));
 
-        List<NotificationDTO> dtos=notifications.stream().map(NotificationDTO::new).toList();
+        List<NotificationDTO> dtos = notifications.stream().map(NotificationDTO::new).toList();
         return new NotificationInfinityScroll(dtos);
     }
 
     //특정 유저의 모든 알림을 user의 이름로 찾음. 알림 목록이라는 것이 있다면 종류 불문 띄울 수 있도록.
-    public Page<NotificationDTO> findAllNotificationsByUsername(String nickname, Pageable pageable){
-        Page<Notification> result=notificationRepository.findNotificationsByMember_Nickname(nickname,pageable);
+    public Page<NotificationDTO> findAllNotificationsByUsername(String nickname, Pageable pageable) {
+        Page<Notification> result = notificationRepository.findNotificationsByMember_Nickname(nickname, pageable);
         return new PageImpl<>(
                 result.getContent().stream().map(NotificationDTO::new).collect(Collectors.toList()),
                 result.getPageable(),
@@ -112,7 +112,7 @@ public class NotificationService {
     //RDB에 저장되므로, 오래된 읽은 알림은 주기적으로 삭제가 가능하도록 할 수도 있다.
     // (Batch 이용. 주기적 삭제는 MVP가 아니므로 주기적 삭제는 나중에 구현할 수도)
     @Transactional
-    public void deleteReadNotificationFrom(LocalDateTime from){
+    public void deleteReadNotificationFrom(LocalDateTime from) {
 
         notificationRepository.deleteNotificationsByCreateDateBeforeAndHasReadIsTrue(from);
     }
@@ -121,7 +121,7 @@ public class NotificationService {
     //이 ID는 알림 엔티티의 ID로, 해당 알림을 읽었음을 나타냄. 알림창 탭의 특정 알림을 클릭한 상태라면 이 상태.
     @Transactional
     public Notification readNotification(Long notifyId) {
-        Notification find = notificationRepository.findByIdAndHasReadIsFalse(notifyId).orElseThrow(()->new CustomException(ReturnCode.NOT_FOUND_ENTITY));
+        Notification find = notificationRepository.findByIdAndHasReadIsFalse(notifyId).orElseThrow(() -> new CustomException(ReturnCode.NOT_FOUND_ENTITY));
         checkUser(find.getMember().getId());
 
         find.setReadTrue();
@@ -130,20 +130,20 @@ public class NotificationService {
     }
 
     private void checkUser(Long find) {
-        Long readingMemberId= AuthUtil.getCurrentMemberId();
-        if(!find.equals(readingMemberId)) throw new CustomException(ReturnCode.NOT_AUTHORIZED);
+        Long readingMemberId = AuthUtil.getCurrentMemberId();
+        if (!find.equals(readingMemberId)) throw new CustomException(ReturnCode.NOT_AUTHORIZED);
     }
 
     //이 ID는 알림 엔티티의 ID 집합으로, "모두 읽음으로 처리"를 할 때 효율적으로 쿼리를 쏘기 위해.
     @Transactional
-    public List<Notification> readNotifications(List<Long> notifyIds){
+    public List<Notification> readNotifications(List<Long> notifyIds) {
         List<Notification> notifications = notificationRepository.findNotificationsByIdInAndHasReadIsFalse(notifyIds);
-        if(notifications.isEmpty()){
+        if (notifications.isEmpty()) {
             throw new CustomException(ReturnCode.NOT_FOUND_ENTITY);
         }
 
 
-        for(Notification notification : notifications){
+        for (Notification notification : notifications) {
             checkUser(notification.getMember().getId());
             notification.setReadTrue();
         }
@@ -154,11 +154,11 @@ public class NotificationService {
 
     //이 ID는 알림 엔티티의 ID로, 해당 알림을 보냈음을 나타냄. 알림창 탭에 뜨는 상태라면 이 상태.
     @Transactional
-    public void sendNotification(Long notifyId){
+    public void sendNotification(Long notifyId) {
         Optional<Notification> findOptional = notificationRepository.findByIdAndHasSentIsFalse(notifyId);
-        if(findOptional.isEmpty()) return;
+        if (findOptional.isEmpty()) return;
 
-        Notification find=findOptional.get();
+        Notification find = findOptional.get();
         find.setSentTrue();
     }
 
@@ -166,17 +166,17 @@ public class NotificationService {
     @Transactional
     public void sendNotifications(List<Long> notifyIds) {
         List<Notification> notifications = notificationRepository.findNotificationsByIdInAndHasSentIsFalse(notifyIds);
-        if(notifications.isEmpty()){
+        if (notifications.isEmpty()) {
             return;
         }
 
-        for(Notification notification : notifications){
+        for (Notification notification : notifications) {
             notification.setReadTrue();
         }
     }
 
     //NotifiyAspect에서 보내야할 알림을 찾을 때 사용한다.
-    public List<Notification> findUnsentNotifications(){
+    public List<Notification> findUnsentNotifications() {
         return notificationRepository.findNotificationsByHasSentIsFalse();
     }
 

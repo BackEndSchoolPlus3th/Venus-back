@@ -41,16 +41,16 @@ public class NewsDoc {
     private NewsCategory category;
 
     @JsonProperty("published_at")
-    @Field(type = FieldType.Date,format = DateFormat.strict_date_time)
+    @Field(type = FieldType.Date, format = DateFormat.strict_date_time)
     @ValueConverter(CustomZonedDateTimeConverter.class)
     private LocalDateTime publishedAt;
 
-    @Field(type = FieldType.Date,format = DateFormat.strict_date_time)
+    @Field(type = FieldType.Date, format = DateFormat.strict_date_time)
     @ValueConverter(CustomZonedDateTimeConverter.class)
     @JsonProperty("create_date")
     private ZonedDateTime createDate;
 
-    @Field(type = FieldType.Date,format = DateFormat.strict_date_time)
+    @Field(type = FieldType.Date, format = DateFormat.strict_date_time)
     @ValueConverter(CustomZonedDateTimeConverter.class)
     @JsonProperty("modify_date")
     private ZonedDateTime modifyDate;

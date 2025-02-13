@@ -36,7 +36,7 @@ public class Member extends BaseEntity {
     private String providerId; // 소셜로그인 시 ID                 /* 사용자 권한 */
 
     public void update(MemberUpdateParam param) {
-        if(param.getNickname() != null && !param.getNickname().isBlank()) {
+        if (param.getNickname() != null && !param.getNickname().isBlank()) {
             this.nickname = param.getNickname();
         }
 

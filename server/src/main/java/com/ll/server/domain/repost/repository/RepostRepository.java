@@ -42,7 +42,7 @@ public interface RepostRepository extends JpaRepository<Repost, Long> {
             r.createDate DESC,\s
             r.id DESC
             """)
-    //첫 페이지에만 고정된 것들이 있다고 가정한다.
+        //첫 페이지에만 고정된 것들이 있다고 가정한다.
     List<Repost> afterGetNewsReposts(@Param("newsId") Long newsId,
                                      @Param("lastTime") LocalDateTime lastTime,
                                      @Param("lastId") Long lastId,
@@ -61,7 +61,7 @@ public interface RepostRepository extends JpaRepository<Repost, Long> {
 
     List<Repost> findAllByDeletedAtIsNullOrderByCreateDateDescIdDesc(Limit limit);
 
-    List<Repost> findAllByDeletedAtIsNullAndCreateDateBeforeAndIdLessThanOrderByCreateDateDescIdDesc(LocalDateTime lastTime,Long lastId, Limit limit);
+    List<Repost> findAllByDeletedAtIsNullAndCreateDateBeforeAndIdLessThanOrderByCreateDateDescIdDesc(LocalDateTime lastTime, Long lastId, Limit limit);
 
     List<Repost> findAllByIdInAndDeletedAtIsNullOrderByCreateDateDescIdDesc(List<Long> ids);
 

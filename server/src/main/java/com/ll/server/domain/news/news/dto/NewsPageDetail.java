@@ -24,7 +24,7 @@ public class NewsPageDetail {
     private LocalDateTime publishedAt;
     private CustomPage<RepostUnderNews> reposts;
 
-    public NewsPageDetail(News news, CustomPage<RepostUnderNews> reposts){
+    public NewsPageDetail(News news, CustomPage<RepostUnderNews> reposts) {
         id = news.getId();
         title = news.getTitle();
         content = news.getContent();
@@ -35,6 +35,6 @@ public class NewsPageDetail {
         contentUrl = news.getContentUrl();
         category = news.getCategory().getCategory();
         publishedAt = news.getPublishedAt();
-        this.reposts=reposts;
+        this.reposts = reposts;
     }
 }

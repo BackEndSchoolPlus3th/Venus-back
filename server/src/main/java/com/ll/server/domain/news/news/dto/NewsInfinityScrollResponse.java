@@ -11,15 +11,15 @@ public class NewsInfinityScrollResponse {
     LocalDateTime lastTime;
     long lastId;
 
-    public NewsInfinityScrollResponse(List<NewsOnly> newsList){
-        if(newsList==null || newsList.isEmpty()){
-            this.newsList=null;
-            lastTime=null;
-            lastId=-1;
-        }else{
-            this.newsList=newsList;
-            lastTime=newsList.getLast().getPublishedAt();
-            lastId=newsList.getLast().getId();
+    public NewsInfinityScrollResponse(List<NewsOnly> newsList) {
+        if (newsList == null || newsList.isEmpty()) {
+            this.newsList = null;
+            lastTime = null;
+            lastId = -1;
+        } else {
+            this.newsList = newsList;
+            lastTime = newsList.getLast().getPublishedAt();
+            lastId = newsList.getLast().getId();
         }
     }
 

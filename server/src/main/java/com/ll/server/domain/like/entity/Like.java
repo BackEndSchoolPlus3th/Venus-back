@@ -26,5 +26,5 @@ public class Like extends BaseEntity {
 
     @Builder.Default
     @Setter
-    private Boolean deleted=false;
+    private Boolean deleted = false;
 }

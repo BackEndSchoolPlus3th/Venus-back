@@ -32,7 +32,7 @@ public class NewsArticleParam {
     private String publishedAt;
 
     public News toEntity(NewsCategory category) {
-        DateTimeFormatter formatter=DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 
         return News.builder()
                 .title(title)

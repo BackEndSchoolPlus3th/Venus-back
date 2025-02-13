@@ -41,10 +41,10 @@ public class NewsDTO {
         contentUrl = news.getContentUrl();
         category = news.getCategory().getCategory();
         publishedAt = news.getPublishedAt();
-        reposts = news.getReposts().stream().filter(repost->repost.getDeletedAt()==null).map(RepostUnderNews::new).collect(Collectors.toList());
+        reposts = news.getReposts().stream().filter(repost -> repost.getDeletedAt() == null).map(RepostUnderNews::new).collect(Collectors.toList());
     }
 
-    public NewsDTO(News news, List<RepostUnderNews> reposts){
+    public NewsDTO(News news, List<RepostUnderNews> reposts) {
         id = news.getId();
         title = news.getTitle();
         content = news.getContent();
@@ -55,6 +55,6 @@ public class NewsDTO {
         contentUrl = news.getContentUrl();
         category = news.getCategory().getCategory();
         publishedAt = news.getPublishedAt();
-        this.reposts=reposts;
+        this.reposts = reposts;
     }
 }

@@ -13,7 +13,7 @@ public class CustomZonedDateTimeConverter implements PropertyValueConverter {
     private final DateTimeFormatter formatterWithZone = DateTimeFormatter.ofPattern("uuuu-MM-dd'T'HH:mm:ss.SSSSSSX");
     private final DateTimeFormatter formatterWithoutZone = DateTimeFormatter.ofPattern("uuuu-MM-dd'T'HH:mm:ss.SSSSSS");
 
-    private final DateTimeFormatter formatterWithoutFraction=DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+    private final DateTimeFormatter formatterWithoutFraction = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
 
     @Override
     public Object write(Object value) {
@@ -33,8 +33,8 @@ public class CustomZonedDateTimeConverter implements PropertyValueConverter {
 
                 try {
                     return formatterWithoutZone.parse(s, LocalDateTime::from).atZone(ZoneId.of("Asia/Seoul"));
-                }catch (DateTimeParseException e2){
-                    return LocalDateTime.parse(s,formatterWithoutFraction);
+                } catch (DateTimeParseException e2) {
+                    return LocalDateTime.parse(s, formatterWithoutFraction);
                 }
             }
         } else {

@@ -28,7 +28,7 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 
     List<Notification> findNotificationsByHasSentIsFalse();
 
-    Page<Notification> findNotificationsByMember_IdOrderByIdDesc(Long userId,Pageable pageable);
+    Page<Notification> findNotificationsByMember_IdOrderByIdDesc(Long userId, Pageable pageable);
 
     //전체 알림 조회. 무한스크롤 첫번째 시도
     List<Notification> findNotificationsByMember_IdOrderByIdDesc(Long userId, Limit limit);

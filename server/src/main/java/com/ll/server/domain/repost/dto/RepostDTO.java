@@ -32,9 +32,9 @@ public class RepostDTO {
     private String memberProfileImageUrl;
     private LocalDateTime createDate;
 
-    public RepostDTO(Repost repost){
-        News newsEntity=repost.getNews();
-        news= NewsDTO.builder()
+    public RepostDTO(Repost repost) {
+        News newsEntity = repost.getNews();
+        news = NewsDTO.builder()
                 .publisherName(newsEntity.getPublisher())
                 .author(newsEntity.getAuthor())
                 .id(newsEntity.getId())
@@ -44,22 +44,22 @@ public class RepostDTO {
                 .imageUrl(newsEntity.getImageUrl())
                 .thumbnailUrl(newsEntity.getThumbnailUrl())
                 .build();
-        repostId=repost.getId();
-        writerId=repost.getMember().getId();
-        nickname=repost.getMember().getNickname();
-        content=repost.getContent();
-        mentions=repost.getMentions().stream()
+        repostId = repost.getId();
+        writerId = repost.getMember().getId();
+        nickname = repost.getMember().getNickname();
+        content = repost.getContent();
+        mentions = repost.getMentions().stream()
                 .map(RepostMentionDTO::new)
                 .collect(Collectors.toList());
 
-        commentInfo=new CommentResponse(
+        commentInfo = new CommentResponse(
                 repost.getComments()
-                .stream().filter(comment -> comment.getDeletedAt()==null)
-                .map(CommentDTO::new)
-                .collect(Collectors.toList())
+                        .stream().filter(comment -> comment.getDeletedAt() == null)
+                        .map(CommentDTO::new)
+                        .collect(Collectors.toList())
         );
 
-        likeInfo=new LikeResponse(
+        likeInfo = new LikeResponse(
                 repost.getLikes()
                         .stream().filter(comment -> !comment.getDeleted())
                         .map(LikeDTO::new)
@@ -67,7 +67,7 @@ public class RepostDTO {
         );
 
         imageUrl = repost.getImageUrl();
-        memberProfileImageUrl=repost.getMember().getProfileUrl();
+        memberProfileImageUrl = repost.getMember().getProfileUrl();
         createDate = repost.getCreateDate();
     }
 }
