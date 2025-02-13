@@ -1,5 +1,6 @@
 package com.ll.server.global.security.handler;
 
+import com.ll.server.domain.member.dto.MemberDto;
 import com.ll.server.domain.member.entity.Member;
 import com.ll.server.global.response.enums.ReturnCode;
 import com.ll.server.global.response.exception.CustomException;
@@ -35,7 +36,8 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
             Member member = oAuth2User.getMember();
             log.info("OAuth2SuccessHandler에서 정상적으로 객체를 가져왔습니다. {}", member);
 
-            String accessToken = jwtUtil.generateAccessToken(member.getEmail(), member.getRole().name());
+            MemberDto memberDto = new MemberDto(member);
+            String accessToken = jwtUtil.generateAccessToken(memberDto);
             String refreshToken = jwtUtil.generateRefreshToken(member.getEmail());
 
             jwtUtil.addJwtToCookie(accessToken, response, "accessToken");

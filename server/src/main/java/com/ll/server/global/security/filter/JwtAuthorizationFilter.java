@@ -38,7 +38,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String token = jwtUtil.getJwtFromHeader(request);
         if (token == null) {
-            log.warn("Authentication에 없음");
+            log.warn("Authorization에 없음");
             token = jwtUtil.resolveToken(request);
         }
 

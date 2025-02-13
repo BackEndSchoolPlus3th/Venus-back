@@ -66,8 +66,8 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         SecurityContextHolder.getContext().setAuthentication(authResult);
         CustomUserDetails userDetails = (CustomUserDetails) authResult.getPrincipal();
         Member member = userDetails.getMember();
-
-        String accessToken = jwtUtil.generateAccessToken(member.getEmail(), member.getRole().name());
+        MemberDto memberDto = new MemberDto(member);
+        String accessToken = jwtUtil.generateAccessToken(memberDto);
         String refreshToken = jwtUtil.generateRefreshToken(member.getEmail());
 
         jwtUtil.addJwtToCookie(accessToken, response, "accessToken");

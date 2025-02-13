@@ -63,13 +63,16 @@ public class JwtUtil {
         }
     }
 
-    public String generateAccessToken(String email, String role) {
+    public String generateAccessToken(MemberDto memberDto) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + ACCESS_TOKEN_EXPIRATION_TIME);
 
         return Jwts.builder()
-                .subject(email)
-                .claim(AUTHORIZATION_KEY, role)
+                .subject(memberDto.getEmail())
+                .claim(AUTHORIZATION_KEY, memberDto.getRole())
+                .claim("nickname",memberDto.getNickname())
+                .claim("id",memberDto.getId())
+                .claim("profileUrl",memberDto.getProfileUrl())
                 .issuedAt(now)
                 .expiration(expiryDate)
                 .signWith(key, Jwts.SIG.HS256)
@@ -112,10 +115,10 @@ public class JwtUtil {
 
     public String getJwtFromHeader(HttpServletRequest request) {
         String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
-        log.debug("Authorization Header: {}", bearerToken);
+        log.info("Authorization Header: {}", bearerToken);
         if (bearerToken != null && bearerToken.startsWith(BEARER_PREFIX)) {
             String token = bearerToken.substring(BEARER_PREFIX.length());
-            log.debug("Extracted JWT: {}", token);
+            log.info("Extracted JWT: {}", token);
             return token;
         } else {
             log.warn("Authorization 헤더가 없거나, Bearer 스키마로 시작하지 않습니다.");
