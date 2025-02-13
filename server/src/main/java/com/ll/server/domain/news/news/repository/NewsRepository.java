@@ -30,4 +30,8 @@ public interface NewsRepository extends JpaRepository<News, Long>, JpaSpecificat
 
     @Query("SELECT n.contentUrl FROM News n WHERE n.publishedAt > :dateFrom")
     List<String> findAllContentUrlByPublishedAtAfter(@Param("dateFrom") LocalDateTime dateFrom);
+
+
+    @Query("SELECT n FROM News n JOIN Repost r ON n.id = r.news.id AND r.deletedAt IS NULL AND n.deletedAt IS NULL AND n.publishedAt >= :startOfDay GROUP BY n.id ORDER BY COUNT(r) DESC, n.publishedAt DESC, n.id DESC ")
+    List<News> findTodayshotNews(@Param("startOfDay") LocalDateTime startOfDay, Pageable pageable);
 }

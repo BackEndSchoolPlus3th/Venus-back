@@ -2,6 +2,7 @@ package com.ll.server.global.security.custom;
 
 import com.ll.server.domain.member.entity.Member;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -12,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 @Getter
+@Slf4j
 public class CustomOAuth2User implements OAuth2User, UserDetails {
 
     private final OAuth2User oAuth2User;

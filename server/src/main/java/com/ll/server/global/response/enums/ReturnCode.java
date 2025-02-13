@@ -12,6 +12,7 @@ public enum ReturnCode {
     NOT_FOUND_ENTITY("4001", "Not found entity"),
     ALREADY_EXIST("4002", "Already exist"),
     NOT_AUTHORIZED("4004", "Not authorized"),
+    INVALID_REQUEST("4005","Invalid Request"),
 
     INTERNAL_ERROR("5000", "Unexpected internal error");
 

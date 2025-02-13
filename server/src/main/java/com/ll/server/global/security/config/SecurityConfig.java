@@ -116,7 +116,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
                 .authorizeHttpRequests(auth -> auth     // 인가 (Authorization) 설정
-                        .requestMatchers("/api/v1/member/signup", "/api/v1/member/login", "/oauth2/**","/api/v1/member/auth").permitAll()
+                        .requestMatchers("/api/v1/member/signup", "/api/v1/member/login", "/oauth2/**","/api/v1/member/auth","/h2-console","/h2-console/**").permitAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers("/api/publisher/**").hasAnyRole("PUBLISHER", "ADMIN")
                         .anyRequest().authenticated()
@@ -134,11 +134,9 @@ public class SecurityConfig {
                 .oauth2Login(oauth2 -> oauth2           // OAuth2 로그인 설정
                                 .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
                                 .successHandler(oAuth2SuccessHandler)
-                                .authorizationEndpoint(auth->auth.baseUri("/oauth2/authorization")) // 이 URL을 통해 OAuth2 제공자에 연결
-                                .redirectionEndpoint(red->red.baseUri("/oauth2/callback/kakao"))// 콜백 URL을 여기에 설정
-//                        .redirectionEndpoint(red -> red
-//                            .baseUri("/api/v1/oauth2/callback/naver"))
+                        .redirectionEndpoint(rd->rd.baseUri("/oauth2/callback/*"))
                 )
+
                 // JWT Filter 추가
                 .addFilterBefore(jwtAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthenticationFilter(), JwtAuthorizationFilter.class);

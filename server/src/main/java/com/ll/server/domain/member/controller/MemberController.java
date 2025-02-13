@@ -4,12 +4,14 @@ import com.ll.server.domain.member.auth.dto.LoginRequestDto;
 import com.ll.server.domain.member.auth.dto.SignupRequestDto;
 import com.ll.server.domain.member.dto.MemberDto;
 import com.ll.server.domain.member.dto.MemberUpdateParam;
+import com.ll.server.domain.member.dto.PasswordChangeRequest;
 import com.ll.server.domain.member.entity.Member;
 import com.ll.server.domain.member.service.MemberService;
 import com.ll.server.global.redis.RedisService;
 import com.ll.server.global.response.enums.ReturnCode;
 import com.ll.server.global.response.exception.CustomException;
 import com.ll.server.global.response.response.ApiResponse;
+import com.ll.server.global.security.util.AuthUtil;
 import com.ll.server.global.security.util.JwtUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -21,8 +23,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.IOException;
 
 @Slf4j(topic = "MemberController")
 @RestController
@@ -132,10 +132,22 @@ public class MemberController {
     }
 
     @PatchMapping(value = "/update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ApiResponse<?> modify(MemberUpdateParam param, @RequestPart(value = "imageFile", required = false) MultipartFile imageFile // 이미지 파일 (선택 사항)
-    ) throws IOException {
+    public ApiResponse<?> modify(@RequestPart("request") MemberUpdateParam param, @RequestPart(value = "imageFile", required = false) MultipartFile imageFile // 이미지 파일 (선택 사항)
+    )  {
+
+        long currentMemberId = AuthUtil.getCurrentMemberId();
+        if(currentMemberId != param.getMemberId()) throw new CustomException(ReturnCode.NOT_AUTHORIZED);
+
         memberService.updateMember(param, imageFile);
 
         return ApiResponse.of(ReturnCode.SUCCESS);
     }
+
+    @PatchMapping("/password")
+    public ApiResponse<?> changePassword(@RequestBody PasswordChangeRequest request){
+        memberService.updatePassword(request.getOldPassword(),request.getNewPassword());
+
+        return ApiResponse.of(ReturnCode.SUCCESS);
+    }
+
 }

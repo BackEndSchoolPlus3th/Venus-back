@@ -116,14 +116,28 @@ public class ApiV1RepostController {
 
 
     @GetMapping("/member/{memberId}")
-    public ApiResponse<RepostDTO> getRepostById(@PathVariable("memberId") Long memberId, ClientPageRequest request) {
-        PageLimitSizeValidator.validateSize(request.getPage(), request.getLimit(), MyConstant.PAGELIMITATION);
-        Pageable pageable = PageRequest.of(request.getPage(), request.getLimit(), Sort.by("id").descending());
+    public ApiResponse<RepostOnly> getRepostById(@PathVariable("memberId") Long memberId,
+                                                @RequestParam(value = "page",defaultValue = "0")int page,
+                                                @RequestParam(value = "size",defaultValue = "20")int size) {
+        PageLimitSizeValidator.validateSize(page, size, MyConstant.PAGELIMITATION);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
 
         Member member = memberService.getMemberById(memberId);
-        Page<RepostDTO> repostsByMember = repostService.findByMember(member, pageable);
+        Page<RepostOnly> repostsByMember = repostService.findByMember(member, pageable);
 
         return ApiResponse.of(CustomPage.of(repostsByMember));
+    }
+
+    @GetMapping("/member/{memberId}/like")
+    public ApiResponse<RepostDTO> getLikeRepostById(@PathVariable("memberId") Long memberId,
+                                                    @RequestParam(value = "page", defaultValue = "0") int page,
+                                                    @RequestParam(value = "size", defaultValue = "20")int size){
+        PageLimitSizeValidator.validateSize(page, size, MyConstant.PAGELIMITATION);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+
+        Page<RepostOnly> likeRepost = repostService.findLikeReposts(memberId, pageable);
+
+        return ApiResponse.of(CustomPage.of(likeRepost));
     }
 
     @DeleteMapping("/{repostId}")
@@ -221,12 +235,12 @@ public class ApiV1RepostController {
     }
 
     @GetMapping("/search")
-    public List<RepostDTO> searchByContent(@RequestParam("keyword") String keyword){
+    public List<RepostOnly> searchByContent(@RequestParam("keyword") String keyword){
         return repostService.searchContent(keyword);
     }
 
-    @GetMapping("hot")
-    public List<RepostDTO> getHotTopics() {
+    @GetMapping("/hot")
+    public List<RepostOnly> getHotTopics() {
         return repostService.getHotTopics();
     }
 }

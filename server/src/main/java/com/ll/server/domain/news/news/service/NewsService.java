@@ -14,10 +14,7 @@ import com.ll.server.global.response.exception.CustomException;
 import com.ll.server.global.response.exception.CustomRequestException;
 import com.ll.server.global.security.util.AuthUtil;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Limit;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
@@ -152,5 +149,11 @@ public class NewsService {
         }
 
         return newsRepository.findAll(spec, pageable);
+    }
+
+    public List<NewsOnly> getTodayHotNews(){
+        LocalDateTime startOfDay = LocalDateTime.now().toLocalDate().atStartOfDay();
+        List<News> result = newsRepository.findTodayshotNews(startOfDay, PageRequest.of(0,5));
+        return result.stream().map(NewsOnly::new).collect(Collectors.toList());
     }
 }

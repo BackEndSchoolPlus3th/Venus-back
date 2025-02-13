@@ -28,6 +28,12 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     private final CustomUserDetailsService customUserDetailsService;
 
     @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        String path = request.getRequestURI();
+        // Skip filtering for these paths
+        return path.startsWith("/h2-console") || path.startsWith("/api/v1/member/signup") || path.startsWith("/api/v1/member/login") || path.startsWith("/oauth2/**") || path.startsWith("/api/v1/member/auth");
+    }
+    @Override
     protected void doFilterInternal (HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String token = jwtUtil.getJwtFromHeader(request);
         if(token==null){

@@ -165,4 +165,11 @@ public class FollowService {
         followRepository.deleteById(id);
     }
 
+    public long getFollowerCount(String nickname) {
+        return followRepository.countFollowsByFollowee_Nickname(nickname);
+    }
+
+    public long getFolloweeCount(String nickname) {
+        return followRepository.countFollowsByFollower_Nickname(nickname);
+    }
 }

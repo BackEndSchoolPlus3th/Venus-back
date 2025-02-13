@@ -91,6 +91,11 @@ public class JwtUtil {
     public void addJwtToCookie (String token, HttpServletResponse response, String cookieName) {
         Cookie cookie = new Cookie(cookieName, token);
         cookie.setPath("/");
+        if(cookieName.equals("refreshToken")){
+            cookie.setMaxAge(REFRESH_TOKEN_EXPIRATION_TIME.intValue());
+        }else{
+            cookie.setMaxAge(ACCESS_TOKEN_EXPIRATION_TIME.intValue());
+        }
         // cookie.setHttpOnly(true); // Javascript 에서 접근 방지
         // cookie.setSecure(true); // HTTPS 환경에서만 전송
         response.addCookie(cookie);
