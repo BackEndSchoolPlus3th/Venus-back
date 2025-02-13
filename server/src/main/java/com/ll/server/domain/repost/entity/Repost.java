@@ -82,6 +82,13 @@ public class Repost extends BaseEntity {
     }
 
     public Like addLike(Member member) {
+        for(Like existing : likes){
+            if(existing.getMember().getId().equals(member.getId())) {
+                existing.setDeleted(false);
+                return existing;
+            }
+        }
+
         Like like = Like.builder()
                 .repost(this)
                 .deleted(false)
