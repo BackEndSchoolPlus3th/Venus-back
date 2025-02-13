@@ -1,5 +1,6 @@
 package com.ll.server.domain.member.auth.controller;
 
+import com.ll.server.domain.member.dto.MemberDto;
 import com.ll.server.domain.member.entity.Member;
 import com.ll.server.domain.member.service.MemberService;
 import com.ll.server.global.response.enums.ReturnCode;
@@ -44,9 +45,10 @@ public class OAuth2Controller {
         }
 
         CustomOAuth2User oAuth2User = (CustomOAuth2User) authentication.getPrincipal();
-        Member memberDto = oAuth2User.getMember();
+        Member member = oAuth2User.getMember();
+        MemberDto memberDto = new MemberDto(member);
 
-        String accessToken = jwtUtil.generateAccessToken(memberDto.getEmail(), memberDto.getRole().name());
+        String accessToken = jwtUtil.generateAccessToken(memberDto);
         String refreshToken = jwtUtil.generateRefreshToken(memberDto.getEmail());
 
         jwtUtil.addJwtToCookie(accessToken, response, "accessToken");

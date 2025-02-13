@@ -50,7 +50,9 @@ public class MemberController {
             throw new CustomException(ReturnCode.NOT_AUTHORIZED);
         }
 
-        String accessToken = jwtUtil.generateAccessToken(member.getEmail(), member.getRole().name());
+        MemberDto memberDto = new MemberDto(member);
+
+        String accessToken = jwtUtil.generateAccessToken(memberDto);
         String refreshToken = jwtUtil.generateRefreshToken(member.getEmail());
 
         jwtUtil.addJwtToCookie(accessToken, response, "accessToken");
@@ -125,7 +127,7 @@ public class MemberController {
                 member
         );
 
-        String newAccessToken = jwtUtil.generateAccessToken(memberDto.getEmail(), member.getRole().name());
+        String newAccessToken = jwtUtil.generateAccessToken(memberDto);
         jwtUtil.addJwtToCookie(newAccessToken, response, "accessToken");
         return ApiResponse.of("accessToken 갱신 성공");
 
