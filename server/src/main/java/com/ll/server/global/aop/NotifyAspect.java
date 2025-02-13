@@ -11,8 +11,6 @@ import com.ll.server.domain.mention.commentmention.dto.CommentMentionDTO;
 import com.ll.server.domain.mention.repostmention.entity.RepostMention;
 import com.ll.server.domain.news.news.dto.NewsDTO;
 import com.ll.server.domain.news.news.dto.NewsResponse;
-import com.ll.server.domain.notification.dto.NotificationDTO;
-import com.ll.server.domain.notification.entity.Notification;
 import com.ll.server.domain.notification.service.NotificationService;
 import com.ll.server.domain.repost.dto.RepostDTO;
 import com.ll.server.domain.repost.entity.Repost;
@@ -24,7 +22,6 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Aspect
@@ -134,18 +131,18 @@ public class NotifyAspect {
             }
         }
 
-        List<Notification> notifications = notificationService.findUnsentNotifications();
-
-        List<Long> successToSend = new ArrayList<>();
-        for (Notification notification : notifications) {
-            Long targetId = notification.getMember().getId();
-            NotificationDTO toSend = new NotificationDTO(notification);
-            if (emitterManager.sendNotification(targetId, toSend)) {
-                successToSend.add(toSend.getId());
-            }
-        }
-
-        if (!successToSend.isEmpty()) notificationService.sendNotifications(successToSend);
+//        List<Notification> notifications = notificationService.findUnsentNotifications();
+//
+//        List<Long> successToSend = new ArrayList<>();
+//        for (Notification notification : notifications) {
+//            Long targetId = notification.getMember().getId();
+//            NotificationDTO toSend = new NotificationDTO(notification);
+//            if (emitterManager.sendNotification(targetId, toSend)) {
+//                successToSend.add(toSend.getId());
+//            }
+//        }
+//
+//        if (!successToSend.isEmpty()) notificationService.sendNotifications(successToSend);
 
         return obj;
     }
