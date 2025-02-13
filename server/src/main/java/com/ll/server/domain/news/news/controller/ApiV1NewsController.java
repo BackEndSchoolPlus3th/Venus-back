@@ -185,6 +185,7 @@ public class ApiV1NewsController {
     public ApiResponse<?> getSavedNews(@RequestParam(value = "page",defaultValue = "0")int page,
                                    @RequestParam(value = "size",defaultValue = "20")int size){
         Long memberId = AuthUtil.getCurrentMemberId();
+        System.out.println("Member ID: "+memberId);
         PageLimitSizeValidator.validateSize(page,size,MyConstant.PAGELIMITATION);
         Pageable pageable = PageRequest.of(page,size);
 

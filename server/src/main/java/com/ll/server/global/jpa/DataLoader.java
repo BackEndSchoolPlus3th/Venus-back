@@ -43,42 +43,12 @@ public class DataLoader implements CommandLineRunner {
 
 //        repostDocRepository.deleteAll();
 //        newsDocRepository.deleteAll();
-//        if(likeRepository.findAll().isEmpty()) {
-//            Member first = memberRepository.findAll().get(0);
-//            Member celebrity = memberRepository.findAll().get(1);
-//            List<Repost> reposts = repostRepository.findAll();
-//
-//            for(Repost repost : reposts){
-//                repostService.markLike(repost.getId(),celebrity.getId());
-//                repostService.markLike(repost.getId(),first.getId());
-//            }
-//        }
-//
-//        if(savedRepository.findAll().isEmpty()){
-//            Member celebrity = memberRepository.findAll().get(1);
-//            List<News> newsList = newsRepository.findAll();
-//
-//            for(News news : newsList){
-//                newsService.scrapNews(celebrity.getId(),news.getId());
-//            }
-//        }else{
-//            Member celebrity = memberRepository.findAll().get(1);
-//            List<News> newsList = newsRepository.findAll();
-//
-//            for(News news : newsList){
-//                newsService.unscrapNews(celebrity.getId(),news.getId());
-//            }
-//        }
 
 /*
         Faker faker=new Faker(Locale.KOREA);
 
         NewsResponse newsResponse=null;
         List<NewsDTO> newsDTO=null;
-        if(newsRepository.findAll().isEmpty()){
-            newsResponse=newsFetchService.fetchNews();
-            newsDTO= Objects.requireNonNull(newsResponse).getNewsList();
-        };
 
 
         if(memberRepository.findMemberByEmail("1@example.com").isEmpty()){
@@ -87,12 +57,13 @@ public class DataLoader implements CommandLineRunner {
                     .nickname("user1")
                     .password("1234")
                     .build();
-            memberService.signup(signupRequest);
+            Member member = memberService.signup(signupRequest);
+            member.setRole(MemberRole.PUBLISHER);
         }
 
         if(memberRepository.findAll().size()<3){
-            Member first=memberRepository.findAll().getFirst();
-            Member celebrity = memberRepository.findAll().get(1);
+            Member celebrity=memberRepository.findAll().getFirst();
+            //Member celebrity = memberRepository.findAll().get(1);
 
             List<Member> members=new ArrayList<>();
             for(int i=0;i<50;i++) {
@@ -111,12 +82,27 @@ public class DataLoader implements CommandLineRunner {
 
         }
 
+        if(newsRepository.findAll().isEmpty()){
+            for(int i=0;i<200;i++) {
+                News news = News.builder()
+                        .content(faker.onePiece().quote())
+                        .publisher("user1")
+                        .title(faker.naruto().eye())
+                        .category(NewsCategory.SOCIETY)
+                        .build();
+                newsService.saveForTest(news);
+            }
+        }
+
+
 
         if(repostRepository.findAll().isEmpty()){
             Long targetId=0L;
             if(newsDTO==null || newsDTO.isEmpty()){
                 newsDTO = newsRepository.findAll().stream().map(NewsDTO::new).collect(Collectors.toList());
                 newsResponse=new NewsResponse(newsDTO);
+                targetId = newsDTO.get(0).getId();
+            }else{
                 targetId = newsDTO.get(0).getId();
             }
             Member member=memberRepository.findMemberByEmail("1@example.com").get();
@@ -130,7 +116,7 @@ public class DataLoader implements CommandLineRunner {
                             .writerId(member.getId())
                             .build();
                     RepostDTO repostDTO = repostService.save(repostRequest,null);
-                    repostService.putPin(repostDTO.getRepostId());
+                    //repostService.putPin(repostDTO.getRepostId());
                     continue;
                 }
 
@@ -156,7 +142,34 @@ public class DataLoader implements CommandLineRunner {
             }
         }
 
-        */
+        if(likeRepository.findAll().isEmpty()) {
+            Member first = memberRepository.findAll().get(0);
+            Member celebrity = memberRepository.findAll().get(1);
+            List<Repost> reposts = repostRepository.findAll();
+
+            for(Repost repost : reposts){
+                repostService.markLike(repost.getId(),celebrity.getId());
+                repostService.markLike(repost.getId(),first.getId());
+            }
+        }
+
+        if(savedRepository.findAll().isEmpty()){
+            Member celebrity = memberRepository.findAll().get(0);
+            List<News> newsList = newsRepository.findAll();
+
+            for(News news : newsList){
+                newsService.scrapNews(celebrity.getId(),news.getId());
+            }
+        }else{
+            Member celebrity = memberRepository.findAll().get(0);
+            List<News> newsList = newsRepository.findAll();
+
+            for(News news : newsList){
+                newsService.unscrapNews(celebrity.getId(),news.getId());
+            }
+        }
+
+*/
 
 /*
 

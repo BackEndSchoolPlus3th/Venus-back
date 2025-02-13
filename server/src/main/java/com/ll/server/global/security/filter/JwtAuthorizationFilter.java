@@ -59,6 +59,8 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                 log.debug("SecurityContext 에 인증 정보 설정 완료: {}", authentication);
             } catch (Exception e) {
                 log.error("인증 처리 실패: {}", e.getMessage());
+                jwtUtil.deleteJwtFromCookie(response,"accessToken");
+                jwtUtil.deleteJwtFromCookie(response,"refreshToken");
                 SecurityContextHolder.clearContext();
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.setContentType(MediaType.APPLICATION_JSON_VALUE);
