@@ -184,4 +184,18 @@ public class NewsService {
         find.setDeleted(true);
 
     }
+
+    public Page<NewsOnly> getFollowNews(Long memberId, Pageable pageable){
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new CustomException(ReturnCode.NOT_FOUND_ENTITY));
+
+        Page<News> newsList = newsRepository.getPersonalizedNewsFeed(member,pageable);
+
+        List<NewsOnly> dtos = newsList.getContent().stream().map(NewsOnly::new).toList();
+
+        return new PageImpl<>(
+                dtos,
+                newsList.getPageable(),
+                newsList.getTotalElements()
+        );
+    }
 }

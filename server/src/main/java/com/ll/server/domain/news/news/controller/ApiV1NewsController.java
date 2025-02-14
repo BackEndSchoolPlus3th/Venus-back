@@ -205,7 +205,17 @@ public class ApiV1NewsController {
             newsService.unscrapNews(memberId, newsId);
             return ApiResponse.of("세이브 해제");
         }
+    }
 
+    @GetMapping("/follow")
+    public ApiResponse<?> followedNews(@RequestParam(value = "page",defaultValue = "0")int page,
+                                       @RequestParam(value = "size",defaultValue = "20")int size ){
+        Long memberId = AuthUtil.getCurrentMemberId();
+        PageLimitSizeValidator.validateSize(page,size,MyConstant.PAGELIMITATION);
+        Pageable pageable = PageRequest.of(page,size);
 
+        Page<NewsOnly> result = newsService.getFollowNews(memberId,pageable);
+
+        return ApiResponse.of(CustomPage.of(result));
     }
 }
