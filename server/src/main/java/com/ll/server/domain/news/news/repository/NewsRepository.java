@@ -1,5 +1,6 @@
 package com.ll.server.domain.news.news.repository;
 
+import com.ll.server.domain.member.entity.Member;
 import com.ll.server.domain.news.news.entity.News;
 import org.springframework.data.domain.Limit;
 import org.springframework.data.domain.Page;
@@ -37,4 +38,14 @@ public interface NewsRepository extends JpaRepository<News, Long>, JpaSpecificat
 
     @Query("SELECT n FROM News n JOIN Saved s ON n.id = s.news.id AND s.member.id = :memberId AND s.deleted IS FALSE AND n.deletedAt IS NULL ORDER BY s.createDate DESC")
     Page<News> findSavedNews(Long memberId,Pageable pageable);
+
+    @Query("""
+    SELECT n FROM News n
+    WHERE n.publisher IN (
+        SELECT f.follower.nickname FROM Follow f WHERE f.followee = :member
+    )
+    AND n.deletedAt IS NULL
+    ORDER BY n.publishedAt DESC, n.id DESC
+""")
+    Page<News> getPersonalizedNewsFeed(Member member, Pageable pageable);
 }

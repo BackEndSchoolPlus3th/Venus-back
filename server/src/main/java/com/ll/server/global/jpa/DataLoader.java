@@ -14,9 +14,12 @@ import com.ll.server.domain.repost.repository.RepostRepository;
 import com.ll.server.domain.repost.service.RepostService;
 import com.ll.server.domain.saved.repository.SavedRepository;
 import lombok.RequiredArgsConstructor;
+import net.datafaker.Faker;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Locale;
 
 @Component
 @RequiredArgsConstructor
@@ -44,132 +47,118 @@ public class DataLoader implements CommandLineRunner {
 //        repostDocRepository.deleteAll();
 //        newsDocRepository.deleteAll();
 
-/*
+
         Faker faker=new Faker(Locale.KOREA);
+//
+//
+//
+//
+//
+//        if(memberRepository.findMemberByEmail("publisher@example.com").isEmpty()){
+//            SignupRequestDto signupRequest= SignupRequestDto.builder()
+//                    .email("publisher@example.com")
+//                    .nickname("조선일보")
+//                    .password("1234")
+//                    .build();
+//            Member member = memberService.signup(signupRequest);
+//            member.setRole(MemberRole.PUBLISHER);
+//        }
+//
+//        if(memberRepository.findAll().size()<3){
+//            Member celebrity=memberRepository.findAll().getFirst();
+//
+//            List<Member> members=new ArrayList<>();
+//            for(int i=0;i<50;i++) {
+//                SignupRequestDto signupReq = SignupRequestDto.builder()
+//                        .email("test"+(i+1)+"@example.com")
+//                        .nickname("exam"+(i+1))
+//                        .password("1234")
+//                        .build();
+//                members.add(memberService.signup(signupReq));
+//            }
+//
+//            for(Member member : members){
+//                followService.save(celebrity.getId(), member.getId());
+//                followService.save(member.getId(),celebrity.getId());
+//            }
+//
+//        }
+//
+////        if(newsRepository.findAll().isEmpty()){
+////            for(int i=0;i<200;i++) {
+////                News news = News.builder()
+////                        .content(faker.onePiece().quote())
+////                        .publisher("user1")
+////                        .title(faker.naruto().eye())
+////                        .category(NewsCategory.SOCIETY)
+////                        .build();
+////                newsService.saveForTest(news);
+////            }
+////        }
+//
+//           newsFetchService.fetchNews()
 
-        NewsResponse newsResponse=null;
-        List<NewsDTO> newsDTO=null;
+//
+//
+//        if(repostRepository.findAll().isEmpty()){
+//
+//           List<NewsDTO> newsDTOs = newsRepository.findAll().stream().map(NewsDTO::new).collect(Collectors.toList());
+//           NewsResponse newsResponse=new NewsResponse(newsDTOs);
+//           List<Member> members = memberRepository.findAll();
+//            for(int i=0;i<newsResponse.getCount()/2;i++) {
+//
+//
+//                RepostWriteRequest repostRequest = RepostWriteRequest.builder()
+//                        .content(String.join("\r\n", faker.lorem().sentences(3)))
+//                        .mentions(members.get(10+(i%20)).getNickname() + "," + members.get(10+(i%20)).getNickname())
+//                        .newsId(newsDTOs.get(i%20).getId())
+//                        .writerId(members.get(1+(i%20)).getId())
+//                        .build();
+//                repostController.write(repostRequest, null);
+//            }
+//        }
+//
+//        if(commentRepository.findAll().isEmpty()){
+//            List<Repost> reposts = repostRepository.findAll();
+//            List<Member> members = memberRepository.findAll();
+//            for(int i=0;i<200;i++){
+//                CommentWriteRequest req = CommentWriteRequest.builder()
+//                        .content(faker.famousLastWords().lastWords())
+//                        .writerId(members.get(1+(i%10)).getId())
+//                        .mentions(members.get(10+(i%10)).getNickname())
+//                        .build();
+//                repostService.addComment(reposts.get(i%5).getId(), req);
+//            }
+//        }
+//
+//        if(likeRepository.findAll().isEmpty()) {
+//            Member first = memberRepository.findAll().get(0);
+//            Member second = memberRepository.findAll().get(1);
+//            List<Repost> reposts = repostRepository.findAll();
+//
+//            for(Repost repost : reposts){
+//                repostService.markLike(repost.getId(),first.getId());
+//                repostService.markLike(repost.getId(),second.getId());
+//            }
+//        }
+//
+//        if(savedRepository.findSavedsByDeletedIsFalse().isEmpty()){
+//            List<Member> members = memberRepository.findAll();
+//            List<News> newsList = newsRepository.findAll();
+//
+//            for(int i=0;i<newsList.size();i++){
+//                newsService.scrapNews(members.get(1+(i%30)).getId(),newsList.get(i).getId());
+//            }
+//        }else{
+//            Member celebrity = memberRepository.findAll().get(0);
+//            List<News> newsList = newsRepository.findAll();
+//
+//            for(News news : newsList){
+//                newsService.unscrapNews(celebrity.getId(),news.getId());
+//            }
+//        }
 
 
-        if(memberRepository.findMemberByEmail("1@example.com").isEmpty()){
-            SignupRequestDto signupRequest= SignupRequestDto.builder()
-                    .email("1@example.com")
-                    .nickname("user1")
-                    .password("1234")
-                    .build();
-            Member member = memberService.signup(signupRequest);
-            member.setRole(MemberRole.PUBLISHER);
-        }
-
-        if(memberRepository.findAll().size()<3){
-            Member celebrity=memberRepository.findAll().getFirst();
-            //Member celebrity = memberRepository.findAll().get(1);
-
-            List<Member> members=new ArrayList<>();
-            for(int i=0;i<50;i++) {
-                SignupRequestDto signupReq = SignupRequestDto.builder()
-                        .email("a"+(i+1)+"@example.com")
-                        .nickname("exam"+(i+1))
-                        .password("1234")
-                        .build();
-                members.add(memberService.signup(signupReq));
-            }
-
-            for(Member member : members){
-                followService.save(celebrity.getId(), member.getId());
-                followService.save(member.getId(),celebrity.getId());
-            }
-
-        }
-
-        if(newsRepository.findAll().isEmpty()){
-            for(int i=0;i<200;i++) {
-                News news = News.builder()
-                        .content(faker.onePiece().quote())
-                        .publisher("user1")
-                        .title(faker.naruto().eye())
-                        .category(NewsCategory.SOCIETY)
-                        .build();
-                newsService.saveForTest(news);
-            }
-        }
-
-
-
-        if(repostRepository.findAll().isEmpty()){
-            Long targetId=0L;
-            if(newsDTO==null || newsDTO.isEmpty()){
-                newsDTO = newsRepository.findAll().stream().map(NewsDTO::new).collect(Collectors.toList());
-                newsResponse=new NewsResponse(newsDTO);
-                targetId = newsDTO.get(0).getId();
-            }else{
-                targetId = newsDTO.get(0).getId();
-            }
-            Member member=memberRepository.findMemberByEmail("1@example.com").get();
-            for(int i=0;i<newsResponse.getCount()/2;i++) {
-
-                if(i<5){
-                    RepostWriteRequest repostRequest = RepostWriteRequest.builder()
-                            .content(String.join("\r\n", faker.lorem().sentences(3)))
-                            .mentions(member.getNickname() + "," + member.getNickname())
-                            .newsId(targetId)
-                            .writerId(member.getId())
-                            .build();
-                    RepostDTO repostDTO = repostService.save(repostRequest,null);
-                    //repostService.putPin(repostDTO.getRepostId());
-                    continue;
-                }
-
-                RepostWriteRequest repostRequest = RepostWriteRequest.builder()
-                        .content(String.join("\n", faker.lorem().sentences(3)))
-                        .mentions(member.getNickname() + "," + member.getNickname())
-                        .newsId(targetId)
-                        .writerId(member.getId())
-                        .build();
-                repostController.write(repostRequest, null);
-            }
-        }
-
-        if(commentRepository.findAll().isEmpty()){
-            Repost repost = repostRepository.findAll().getFirst();
-            Member member=memberRepository.findMemberByEmail("1@example.com").get();
-            for(int i=0;i<100;i++){
-                CommentWriteRequest req = CommentWriteRequest.builder()
-                        .content(faker.famousLastWords().lastWords())
-                        .writerId(member.getId())
-                        .build();
-                repostService.addComment(repost.getId(), req);
-            }
-        }
-
-        if(likeRepository.findAll().isEmpty()) {
-            Member first = memberRepository.findAll().get(0);
-            Member celebrity = memberRepository.findAll().get(1);
-            List<Repost> reposts = repostRepository.findAll();
-
-            for(Repost repost : reposts){
-                repostService.markLike(repost.getId(),celebrity.getId());
-                repostService.markLike(repost.getId(),first.getId());
-            }
-        }
-
-        if(savedRepository.findAll().isEmpty()){
-            Member celebrity = memberRepository.findAll().get(0);
-            List<News> newsList = newsRepository.findAll();
-
-            for(News news : newsList){
-                newsService.scrapNews(celebrity.getId(),news.getId());
-            }
-        }else{
-            Member celebrity = memberRepository.findAll().get(0);
-            List<News> newsList = newsRepository.findAll();
-
-            for(News news : newsList){
-                newsService.unscrapNews(celebrity.getId(),news.getId());
-            }
-        }
-
-*/
 
 /*
 

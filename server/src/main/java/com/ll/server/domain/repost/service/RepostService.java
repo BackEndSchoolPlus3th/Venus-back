@@ -298,9 +298,15 @@ public class RepostService {
         String currentUserNickname = AuthUtil.getCurrentMemberNickname();
         Collection<? extends GrantedAuthority> authorizations = AuthUtil.getAuth();
 
-        if (!news.getPublisher().equals(currentUserNickname) || authorizations == null || !authorizations.contains("PUBLISHER")) {
-            throw new CustomException(ReturnCode.NOT_AUTHORIZED);
+        if (news.getPublisher().equals(currentUserNickname) && authorizations != null) {
+            for (GrantedAuthority auth : authorizations) {
+                if (auth.getAuthority().equalsIgnoreCase("role_publisher")) {
+                    return;
+                }
+            }
         }
+
+        throw new CustomException(ReturnCode.NOT_AUTHORIZED);
     }
 
     @Transactional
